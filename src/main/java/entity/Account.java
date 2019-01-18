@@ -16,9 +16,6 @@ public class Account {
     @Column(name = "BALANCE")
     private BigDecimal balance;
 
-    @Column(name = "CPM_RATE")
-    private BigDecimal cpmRate;
-
     @Column(name = "PAYMENT_DETAILS")
     private String paymentDetails;
 
@@ -26,14 +23,13 @@ public class Account {
     public Account() {
     }
 
-    public Account(BigDecimal balance, BigDecimal cpmRate, String paymentDetails) {
-        this(null, balance, cpmRate, paymentDetails);
+    public Account(BigDecimal balance, String paymentDetails) {
+        this(null, balance, paymentDetails);
     }
 
-    public Account(Long id, BigDecimal balance, BigDecimal cpmRate, String paymentDetails) {
+    public Account(Long id, BigDecimal balance, String paymentDetails) {
         this.id = id;
         this.balance = balance;
-        this.cpmRate = cpmRate;
         this.paymentDetails = paymentDetails;
     }
 
@@ -47,14 +43,6 @@ public class Account {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
-    }
-
-    public BigDecimal getCpmRate() {
-        return cpmRate;
-    }
-
-    public void setCpmRate(BigDecimal cpmRate) {
-        this.cpmRate = cpmRate;
     }
 
     public String getPaymentDetails() {
@@ -71,7 +59,6 @@ public class Account {
         return "Account{" +
                 "id=" + id +
                 ", balance=" + balance +
-                ", cpmRate=" + cpmRate +
                 ", paymentDetails='" + paymentDetails + '\'' +
                 '}';
     }
@@ -84,13 +71,12 @@ public class Account {
         Account account = (Account) o;
         return Objects.equals(id, account.id) &&
                 Objects.equals(balance, account.balance) &&
-                Objects.equals(cpmRate, account.cpmRate) &&
                 Objects.equals(paymentDetails, account.paymentDetails);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, balance, cpmRate, paymentDetails);
+        return Objects.hash(id, balance, paymentDetails);
     }
 }

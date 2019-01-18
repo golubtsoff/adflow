@@ -1,4 +1,4 @@
-package entity;
+package entity.user;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

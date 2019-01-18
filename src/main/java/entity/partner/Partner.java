@@ -1,5 +1,6 @@
-package entity;
+package entity.partner;
 
+import entity.Account;
 import entity.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -8,8 +9,8 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "customers")
-public class Customer {
+@Table(name = "partners")
+public class Partner {
 
     @Id
     @Column(name = "ID")
@@ -26,21 +27,24 @@ public class Customer {
     @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 
-    @Column(name = "REMOVED")
-    private boolean removed;
+    @Column(name = "KEY")
+    private String key;
 
-    public Customer() {
+    @Column(name = "IS_WORKING")
+    private boolean isWorking;
+
+    public Partner() {}
+
+    public Partner(User user, Account account, String key, boolean isWorking) {
+        this(null, user, account, key, isWorking);
     }
 
-    public Customer(User user, Account account) {
-        this(null, user, account);
-    }
-
-    public Customer(Long id, User user, Account account) {
+    public Partner(Long id, User user, Account account, String key, boolean isWorking) {
         this.id = id;
         this.user = user;
         this.account = account;
-        this.removed = false;
+        this.key = key;
+        this.isWorking = isWorking;
     }
 
     public Long getId() {
@@ -63,37 +67,49 @@ public class Customer {
         this.account = account;
     }
 
-    public boolean isRemoved() {
-        return removed;
+    public String getKey() {
+        return key;
     }
 
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
+    public void setKey(String key) {
+        this.key = key;
     }
+
+    public boolean isWorking() {
+        return isWorking;
+    }
+
+    public void setWorking(boolean working) {
+        isWorking = working;
+    }
+
 
     @Override
     public String toString() {
-        return "Customer{" +
+        return "Partner{" +
                 "id=" + id +
                 ", user=" + user +
                 ", account=" + account +
-                ", removed=" + removed +
+                ", key='" + key + '\'' +
+                ", isWorking=" + isWorking +
                 '}';
     }
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return removed == customer.removed &&
-                Objects.equals(id, customer.id) &&
-                Objects.equals(user, customer.user) &&
-                Objects.equals(account, customer.account);
+        Partner partner = (Partner) o;
+        return isWorking == partner.isWorking &&
+                Objects.equals(id, partner.id) &&
+                Objects.equals(user, partner.user) &&
+                Objects.equals(account, partner.account) &&
+                Objects.equals(key, partner.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, account, removed);
+        return Objects.hash(id, user, account, key, isWorking);
     }
 }

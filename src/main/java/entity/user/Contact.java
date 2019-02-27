@@ -15,7 +15,7 @@ public class Contact {
     @Column(name = "email", unique = true, updatable = true)
     private String email;
 
-    @Column(name = "telephone", unique = true, updatable = true)
+    @Column(name = "phone", unique = true, updatable = true)
     private String telephone;
 
     public Contact(){}

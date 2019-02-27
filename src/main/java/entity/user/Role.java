@@ -3,8 +3,9 @@ package entity.user;
 public enum Role {
     customer("customer"),
     administrator("administrator"),
-    patner("partner");
+    partner("partner");
 
     Role(String value) {
     }
 }
+

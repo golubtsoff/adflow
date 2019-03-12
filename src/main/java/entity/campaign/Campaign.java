@@ -42,11 +42,11 @@ public class Campaign {
     private LocalDateTime creationDate;
 
     @Column(name = "TRIGGER")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Trigger trigger;
 
     @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Status status;
 
     public Campaign() {}

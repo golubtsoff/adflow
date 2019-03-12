@@ -22,7 +22,7 @@ public class User {
     private String hash;
 
     @Column(name = "ROLE")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private Role role;
 
     @OneToOne(fetch = FetchType.EAGER)

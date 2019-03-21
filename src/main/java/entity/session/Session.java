@@ -21,11 +21,6 @@ public class Session {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "PICTURE_FORMAT_ID")
-    private PictureFormat pictureFormat;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = "ADVERTISING_PLATFORM_ID")
     private AdvertisingPlatform advertisingPlatform;
 
@@ -47,20 +42,18 @@ public class Session {
     }
 
     public Session(
-            PictureFormat pictureFormat,
             AdvertisingPlatform advertisingPlatform,
             int displaysCounter,
             int clickCounter,
             Viewer viewer,
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
-        this(null, pictureFormat, advertisingPlatform, displaysCounter,
+        this(null, advertisingPlatform, displaysCounter,
                 clickCounter, viewer, creationTime, closingTime);
     }
 
     public Session(
             Long id,
-            PictureFormat pictureFormat,
             AdvertisingPlatform advertisingPlatform,
             int displaysCounter,
             int clickCounter,
@@ -68,7 +61,6 @@ public class Session {
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
         this.id = id;
-        this.pictureFormat = pictureFormat;
         this.advertisingPlatform = advertisingPlatform;
         this.displaysCounter = displaysCounter;
         this.clickCounter = clickCounter;
@@ -79,14 +71,6 @@ public class Session {
 
     public Long getId() {
         return id;
-    }
-
-    public PictureFormat getPictureFormat() {
-        return pictureFormat;
-    }
-
-    public void setPictureFormat(PictureFormat pictureFormat) {
-        this.pictureFormat = pictureFormat;
     }
 
     public AdvertisingPlatform getAdvertisingPlatform() {
@@ -141,7 +125,6 @@ public class Session {
     public String toString() {
         return "Session{" +
                 "id=" + id +
-                ", pictureFormat=" + pictureFormat +
                 ", advertisingPlatform=" + advertisingPlatform +
                 ", displaysCounter=" + displaysCounter +
                 ", clickCounter=" + clickCounter +
@@ -159,7 +142,6 @@ public class Session {
         return displaysCounter == session.displaysCounter &&
                 clickCounter == session.clickCounter &&
                 Objects.equals(id, session.id) &&
-                Objects.equals(pictureFormat, session.pictureFormat) &&
                 Objects.equals(advertisingPlatform, session.advertisingPlatform) &&
                 Objects.equals(viewer, session.viewer) &&
                 Objects.equals(creationTime, session.creationTime) &&
@@ -169,6 +151,6 @@ public class Session {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, pictureFormat, advertisingPlatform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
+        return Objects.hash(id, advertisingPlatform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
     }
 }

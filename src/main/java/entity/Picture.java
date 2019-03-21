@@ -1,10 +1,7 @@
 package entity;
 
-import entity.campaign.Campaign;
-import entity.partner.Partner;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.Parent;
 
 import javax.persistence.*;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package entity.campaign;
+package entity;
 
 public enum Status {
     removed,

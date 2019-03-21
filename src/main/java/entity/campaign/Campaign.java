@@ -1,7 +1,9 @@
 package entity.campaign;
 
+import entity.Action;
 import entity.Customer;
 import entity.Picture;
+import entity.Status;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -49,9 +51,9 @@ public class Campaign {
     @Column(name = "CREATION_DATE")
     private LocalDateTime creationDate;
 
-    @Column(name = "TRIGGER")
+    @Column(name = "ACTION")
     @Enumerated(EnumType.ORDINAL)
-    private Trigger trigger;
+    private Action action;
 
     @Column(name = "STATUS")
     @Enumerated(EnumType.ORDINAL)
@@ -67,10 +69,10 @@ public class Campaign {
             BigDecimal dailyBudget,
             BigDecimal cpmRate,
             LocalDateTime creationDate,
-            Trigger trigger,
+            Action action,
             Status status
     ) {
-        this(null, customer, title, description, pathOnClick, dailyBudget, cpmRate, creationDate, trigger, status);
+        this(null, customer, title, description, pathOnClick, dailyBudget, cpmRate, creationDate, action, status);
     }
 
     public Campaign(
@@ -82,7 +84,7 @@ public class Campaign {
             BigDecimal dailyBudget,
             BigDecimal cpmRate,
             LocalDateTime creationDate,
-            Trigger trigger,
+            Action action,
             Status status
     ) {
         this.id = id;
@@ -93,7 +95,7 @@ public class Campaign {
         this.dailyBudget = dailyBudget;
         this.cpmRate = cpmRate;
         this.creationDate = creationDate;
-        this.trigger = trigger;
+        this.action = action;
         this.status = status;
     }
 
@@ -157,12 +159,12 @@ public class Campaign {
         this.creationDate = creationDate;
     }
 
-    public Trigger getTrigger() {
-        return trigger;
+    public Action getAction() {
+        return action;
     }
 
-    public void setTrigger(Trigger trigger) {
-        this.trigger = trigger;
+    public void setAction(Action trigger) {
+        this.action = trigger;
     }
 
     public Status getStatus() {
@@ -192,7 +194,7 @@ public class Campaign {
                 ", dailyBudget=" + dailyBudget +
                 ", cpmRate=" + cpmRate +
                 ", creationDate=" + creationDate +
-                ", trigger=" + trigger +
+                ", action=" + action +
                 ", status=" + status +
                 '}';
     }
@@ -210,12 +212,12 @@ public class Campaign {
                 Objects.equals(dailyBudget, campaign.dailyBudget) &&
                 Objects.equals(cpmRate, campaign.cpmRate) &&
                 Objects.equals(creationDate, campaign.creationDate) &&
-                trigger == campaign.trigger &&
+                action == campaign.action &&
                 status == campaign.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, customer, Title, Description, pathOnClick, dailyBudget, cpmRate, creationDate, trigger, status);
+        return Objects.hash(id, customer, Title, Description, pathOnClick, dailyBudget, cpmRate, creationDate, action, status);
     }
 }

@@ -1,5 +1,8 @@
 package entity.partner;
 
+import entity.PictureFormat;
+import entity.Action;
+import entity.Status;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -30,6 +33,19 @@ public class AdvertisingPlatform {
     @Column(name = "CPM_RATE")
     private BigDecimal cpmRate;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    @JoinColumn(name = "PICTURE_FORMAT_ID")
+    private PictureFormat pictureFormat;
+
+    @Column(name = "ACTION")
+    @Enumerated(EnumType.ORDINAL)
+    private Action action;
+
+    @Column(name = "STATUS")
+    @Enumerated(EnumType.ORDINAL)
+    private Status status;
+
     public AdvertisingPlatform() {
     }
 
@@ -43,6 +59,8 @@ public class AdvertisingPlatform {
         this.title = title;
         this.description = description;
         this.cpmRate = cpmRate;
+        this.status = Status.checking;
+        this.action = Action.stop;
     }
 
     public Long getId() {
@@ -81,32 +99,56 @@ public class AdvertisingPlatform {
         this.partner = partner;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AdvertisingPlatform that = (AdvertisingPlatform) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(cpmRate, that.cpmRate) &&
-                Objects.equals(partner, that.partner);
+    public PictureFormat getPictureFormat() {
+        return pictureFormat;
     }
 
-    @Override
-    public int hashCode() {
+    public void setPictureFormat(PictureFormat pictureFormat) {
+        this.pictureFormat = pictureFormat;
+    }
 
-        return Objects.hash(id, partner, title, description, cpmRate);
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "AdvertisingPlatform{" +
                 "id=" + id +
+                ", partner=" + partner +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", cpmRate=" + cpmRate +
-                ", partner='" + partner + '\'' +
+                ", pictureFormat=" + pictureFormat +
+                ", action=" + action +
+                ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AdvertisingPlatform)) return false;
+        AdvertisingPlatform that = (AdvertisingPlatform) o;
+        return Objects.equals(getId(), that.getId()) &&
+                Objects.equals(getTitle(), that.getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getId(), getTitle());
     }
 }

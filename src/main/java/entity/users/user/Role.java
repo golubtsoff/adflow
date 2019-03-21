@@ -1,4 +1,4 @@
-package entity.user;
+package entity.users.user;
 
 public enum Role {
     customer,

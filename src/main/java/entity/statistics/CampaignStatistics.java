@@ -1,6 +1,6 @@
 package entity.statistics;
 
-import entity.campaign.Campaign;
+import entity.users.customer.Campaign;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.util.Objects;

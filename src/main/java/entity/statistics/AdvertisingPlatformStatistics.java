@@ -1,6 +1,6 @@
 package entity.statistics;
 
-import entity.partner.AdvertisingPlatform;
+import entity.users.partner.AdvertisingPlatform;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.util.Objects;

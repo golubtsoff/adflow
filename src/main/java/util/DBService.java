@@ -1,6 +1,6 @@
 package util;
 
-import entity.user.*;
+import entity.users.user.*;
 
 import exception.ServiceException;
 import org.hibernate.Session;

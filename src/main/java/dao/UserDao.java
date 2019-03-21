@@ -1,6 +1,6 @@
 package dao;
 
-import entity.user.User;
+import entity.users.user.User;
 
 public class UserDao extends DaoImpl<User> {
 

@@ -1,6 +1,6 @@
-package entity;
+package entity.users;
 
-import entity.user.User;
+import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

@@ -1,15 +1,19 @@
 package dao;
 
-import entity.*;
-import entity.campaign.Campaign;
-import entity.partner.AdvertisingPlatform;
-import entity.partner.Partner;
-import entity.session.Session;
-import entity.session.Viewer;
-import entity.user.Contact;
-import entity.user.Person;
-import entity.user.Token;
-import entity.user.User;
+import entity.users.customer.Campaign;
+import entity.users.customer.Customer;
+import entity.users.customer.Picture;
+import entity.users.customer.PictureFormat;
+import entity.users.partner.AdvertisingPlatform;
+import entity.users.partner.Partner;
+import entity.statistics.Session;
+import entity.statistics.Viewer;
+import entity.users.Account;
+import entity.users.Administrator;
+import entity.users.user.Contact;
+import entity.users.user.Person;
+import entity.users.user.Token;
+import entity.users.user.User;
 
 import java.util.Arrays;
 import java.util.List;

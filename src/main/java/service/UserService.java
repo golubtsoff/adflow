@@ -1,7 +1,7 @@
 package service;
 
-import entity.user.Role;
-import entity.user.User;
+import entity.users.user.Role;
+import entity.users.user.User;
 import exception.DBException;
 
 public interface UserService {

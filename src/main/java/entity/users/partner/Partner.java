@@ -1,7 +1,8 @@
-package entity.partner;
+package entity.users.partner;
 
-import entity.Account;
-import entity.user.User;
+import entity.users.Account;
+import entity.users.UserStatus;
+import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -36,20 +37,21 @@ public class Partner {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<AdvertisingPlatform> platforms = new HashSet<>();
 
-    @Column(name = "IS_WORKING")
-    private boolean isWorking;
+    @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     public Partner() {}
 
-    public Partner(User user, Account account, boolean isWorking) {
-        this(null, user, account, isWorking);
+    public Partner(User user, Account account, UserStatus status) {
+        this(null, user, account, status);
     }
 
-    public Partner(Long id, User user, Account account, boolean isWorking) {
+    public Partner(Long id, User user, Account account, UserStatus status) {
         this.id = id;
         this.user = user;
         this.account = account;
-        this.isWorking = isWorking;
+        this.status = status;
     }
 
     public Long getId() {
@@ -72,14 +74,21 @@ public class Partner {
         this.account = account;
     }
 
-    public boolean isWorking() {
-        return isWorking;
+    public Set<AdvertisingPlatform> getPlatforms() {
+        return platforms;
     }
 
-    public void setWorking(boolean working) {
-        isWorking = working;
+    public void setPlatforms(Set<AdvertisingPlatform> platforms) {
+        this.platforms = platforms;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
 
     @Override
     public String toString() {
@@ -87,23 +96,22 @@ public class Partner {
                 "id=" + id +
                 ", user=" + user +
                 ", account=" + account +
-                ", isWorking=" + isWorking +
+                ", platforms=" + platforms +
+                ", status=" + status +
                 '}';
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Partner)) return false;
         Partner partner = (Partner) o;
-        return isWorking == Objects.equals(id, partner.id) &&
-                Objects.equals(user, partner.user) &&
-                Objects.equals(account, partner.account);
+        return Objects.equals(getUser(), partner.getUser());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, account);
+
+        return Objects.hash(getUser());
     }
 }

@@ -1,4 +1,4 @@
-package entity;
+package entity.users.customer;
 
 import javax.persistence.*;
 import java.util.Objects;

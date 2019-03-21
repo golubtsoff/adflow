@@ -1,9 +1,7 @@
-package entity.campaign;
+package entity.users.customer;
 
-import entity.Action;
-import entity.Customer;
-import entity.Picture;
-import entity.Status;
+import entity.users.Action;
+import entity.users.Status;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -52,11 +50,11 @@ public class Campaign {
     private LocalDateTime creationDate;
 
     @Column(name = "ACTION")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Action action;
 
     @Column(name = "STATUS")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public Campaign() {}

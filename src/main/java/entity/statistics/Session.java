@@ -1,8 +1,6 @@
-package entity.session;
+package entity.statistics;
 
-import entity.PictureFormat;
-import entity.partner.AdvertisingPlatform;
-import entity.partner.Partner;
+import entity.users.partner.AdvertisingPlatform;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

@@ -1,4 +1,4 @@
-package entity.session;
+package entity.statistics;
 
 import javax.persistence.*;
 import java.util.Objects;

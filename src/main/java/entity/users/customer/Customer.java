@@ -1,7 +1,9 @@
-package entity;
+package entity.users.customer;
 
-import entity.campaign.Campaign;
-import entity.user.User;
+import entity.users.Account;
+import entity.users.Status;
+import entity.users.UserStatus;
+import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -31,8 +33,9 @@ public class Customer {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Campaign> campaigns = new HashSet<>();
 
-    @Column(name = "REMOVED")
-    private boolean removed;
+    @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     public Customer() {
     }
@@ -45,7 +48,7 @@ public class Customer {
         this.id = id;
         this.user = user;
         this.account = account;
-        this.removed = false;
+        this.status = UserStatus.working;
     }
 
     public Long getId() {
@@ -68,12 +71,20 @@ public class Customer {
         this.account = account;
     }
 
-    public boolean isRemoved() {
-        return removed;
+    public Set<Campaign> getCampaigns() {
+        return campaigns;
     }
 
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
+    public void setCampaigns(Set<Campaign> campaigns) {
+        this.campaigns = campaigns;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
     @Override
@@ -82,23 +93,22 @@ public class Customer {
                 "id=" + id +
                 ", user=" + user +
                 ", account=" + account +
-                ", removed=" + removed +
+                ", campaigns=" + campaigns +
+                ", status=" + status +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Customer)) return false;
         Customer customer = (Customer) o;
-        return removed == customer.removed &&
-                Objects.equals(id, customer.id) &&
-                Objects.equals(user, customer.user) &&
-                Objects.equals(account, customer.account);
+        return Objects.equals(getUser(), customer.getUser());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, account, removed);
+
+        return Objects.hash(getUser());
     }
 }

@@ -1,8 +1,8 @@
-package entity.partner;
+package entity.users.partner;
 
-import entity.PictureFormat;
-import entity.Action;
-import entity.Status;
+import entity.users.customer.PictureFormat;
+import entity.users.Action;
+import entity.users.Status;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -39,11 +39,11 @@ public class AdvertisingPlatform {
     private PictureFormat pictureFormat;
 
     @Column(name = "ACTION")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Action action;
 
     @Column(name = "STATUS")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public AdvertisingPlatform() {

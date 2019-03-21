@@ -1,7 +1,6 @@
-package entity;
+package entity.statistics;
 
-import entity.campaign.Campaign;
-import entity.session.Session;
+import entity.users.customer.Campaign;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

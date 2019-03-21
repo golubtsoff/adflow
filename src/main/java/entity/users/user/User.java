@@ -1,7 +1,4 @@
-package entity.user;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+package entity.users.user;
 
 import javax.persistence.*;
 import java.util.Objects;

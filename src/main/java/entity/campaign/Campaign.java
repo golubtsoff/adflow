@@ -1,13 +1,16 @@
 package entity.campaign;
 
 import entity.Customer;
+import entity.Picture;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "campaigns")
@@ -18,7 +21,7 @@ public class Campaign {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = "CUSTOMER_ID")
     private Customer customer;
@@ -29,8 +32,13 @@ public class Campaign {
     @Column(name = "DESCRIPTION")
     private String Description;
 
+
     @Column(name = "URL")
     private String pathOnClick;
+
+    @ElementCollection
+    @CollectionTable(name = "PICTURES")
+    private Set<Picture> pictures = new HashSet<>();
 
     @Column(name = "DAILY_BUDGET")
     private BigDecimal dailyBudget;
@@ -163,6 +171,14 @@ public class Campaign {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Set<Picture> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(Set<Picture> pictures) {
+        this.pictures = pictures;
     }
 
     @Override

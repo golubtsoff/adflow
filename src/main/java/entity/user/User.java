@@ -22,48 +22,49 @@ public class User {
     private String hash;
 
     @Column(name = "ROLE")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "PERSON_ID")
     private Person person;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "CONTACT_ID")
     private Contact contact;
 
-    public User(){}
-
-    public User(String login, String hash, Role role){
-        this(null, login, hash, role, null, null);
+    public User() {
     }
 
-    public User(Long id, String login, String hash, Role role){
-        this(id, login, hash, role, null, null);
+    public User(String login, String hash, Role role) {
+        this(null, login, hash, role);
     }
 
-    public User(Long id, String login, String hash, Role role, Person person, Contact contact){
+    public User(Long id, String login, String hash, Role role) {
         this.id = id;
         this.login = login;
         this.hash = hash;
         this.role = role;
-        this.person = person;
-        this.contact = contact;
     }
 
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getLogin() {
         return login;
     }
 
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public String getHash() {
         return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public Role getRole() {
@@ -74,6 +75,23 @@ public class User {
         this.role = role;
     }
 
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
@@ -81,22 +99,23 @@ public class User {
                 ", login='" + login + '\'' +
                 ", hash='" + hash + '\'' +
                 ", role=" + role +
+                ", person=" + person +
+                ", contact=" + contact +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof User)) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(login, user.login) &&
-                Objects.equals(hash, user.hash) &&
-                role == user.role;
+        return Objects.equals(getLogin(), user.getLogin()) &&
+                Objects.equals(getHash(), user.getHash());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, hash, role);
+
+        return Objects.hash(getLogin(), getHash());
     }
 }

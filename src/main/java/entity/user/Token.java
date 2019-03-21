@@ -17,7 +17,7 @@ public class Token {
 
     @OneToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "PERSON_ID")
+    @JoinColumn(name = "USER_ID")
     private Long id;
 
     @Column(name = "TOKEN")

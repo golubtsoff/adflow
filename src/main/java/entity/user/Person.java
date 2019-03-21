@@ -3,14 +3,8 @@ package entity.user;
 import javax.persistence.*;
 import java.util.Objects;
 
-@Entity
-@Table(name = "persons")
+@Embeddable
 public class Person {
-
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = "firstname")
     private String firstname;
@@ -21,16 +15,8 @@ public class Person {
     public Person() {}
 
     public Person(String firstname, String lastname) {
-        this(null, firstname, lastname);
-    }
-
-    public Person(Long id, String firstname, String lastname) {
         this.firstname = firstname;
         this.lastname = lastname;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getFirstname() {
@@ -52,7 +38,6 @@ public class Person {
     @Override
     public String toString() {
         return "Person{" +
-                "id=" + id +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 '}';
@@ -63,14 +48,13 @@ public class Person {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
-        return Objects.equals(id, person.id) &&
-                Objects.equals(firstname, person.firstname) &&
+        return Objects.equals(firstname, person.firstname) &&
                 Objects.equals(lastname, person.lastname);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, firstname, lastname);
+        return Objects.hash(firstname, lastname);
     }
 }

@@ -1,11 +1,12 @@
 package entity;
 
+import entity.campaign.Campaign;
 import entity.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "customers")
@@ -21,10 +22,14 @@ public class Customer {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
+
+    @OneToMany(mappedBy = "customer",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.PERSIST
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<Campaign> campaigns = new HashSet<>();
 
     @Column(name = "REMOVED")
     private boolean removed;
@@ -32,11 +37,11 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(User user, Account account) {
-        this(null, user, account);
+    public Customer(User user) {
+        this(null, user);
     }
 
-    public Customer(Long id, User user, Account account) {
+    public Customer(Long id, User user) {
         this.id = id;
         this.user = user;
         this.account = account;

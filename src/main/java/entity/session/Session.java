@@ -21,11 +21,6 @@ public class Session {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "PARTNER_ID")
-    private Partner partner;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = "PICTURE_FORMAT_ID")
     private PictureFormat pictureFormat;
 
@@ -40,9 +35,6 @@ public class Session {
     @Column(name = "CLICK_COUNTER")
     private int clickCounter;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "VIEWER_ID")
     private Viewer viewer;
 
     @Column(name = "CREATION_TIME")
@@ -55,7 +47,6 @@ public class Session {
     }
 
     public Session(
-            Partner partner,
             PictureFormat pictureFormat,
             AdvertisingPlatform advertisingPlatform,
             int displaysCounter,
@@ -63,13 +54,12 @@ public class Session {
             Viewer viewer,
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
-        this(null, partner, pictureFormat, advertisingPlatform, displaysCounter,
+        this(null, pictureFormat, advertisingPlatform, displaysCounter,
                 clickCounter, viewer, creationTime, closingTime);
     }
 
     public Session(
             Long id,
-            Partner partner,
             PictureFormat pictureFormat,
             AdvertisingPlatform advertisingPlatform,
             int displaysCounter,
@@ -78,7 +68,6 @@ public class Session {
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
         this.id = id;
-        this.partner = partner;
         this.pictureFormat = pictureFormat;
         this.advertisingPlatform = advertisingPlatform;
         this.displaysCounter = displaysCounter;
@@ -90,14 +79,6 @@ public class Session {
 
     public Long getId() {
         return id;
-    }
-
-    public Partner getPartner() {
-        return partner;
-    }
-
-    public void setPartner(Partner partner) {
-        this.partner = partner;
     }
 
     public PictureFormat getPictureFormat() {
@@ -160,7 +141,6 @@ public class Session {
     public String toString() {
         return "Session{" +
                 "id=" + id +
-                ", partner=" + partner +
                 ", pictureFormat=" + pictureFormat +
                 ", advertisingPlatform=" + advertisingPlatform +
                 ", displaysCounter=" + displaysCounter +
@@ -179,7 +159,6 @@ public class Session {
         return displaysCounter == session.displaysCounter &&
                 clickCounter == session.clickCounter &&
                 Objects.equals(id, session.id) &&
-                Objects.equals(partner, session.partner) &&
                 Objects.equals(pictureFormat, session.pictureFormat) &&
                 Objects.equals(advertisingPlatform, session.advertisingPlatform) &&
                 Objects.equals(viewer, session.viewer) &&
@@ -190,6 +169,6 @@ public class Session {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, partner, pictureFormat, advertisingPlatform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
+        return Objects.hash(id, pictureFormat, advertisingPlatform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
     }
 }

@@ -1,5 +1,8 @@
 package entity.partner;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -13,6 +16,11 @@ public class AdvertisingPlatform {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    @JoinColumn(name = "PARTNER_ID")
+    private Partner partner;
+
     @Column(name = "TITLE")
     private String title;
 
@@ -22,23 +30,19 @@ public class AdvertisingPlatform {
     @Column(name = "CPM_RATE")
     private BigDecimal cpmRate;
 
-    @Column(name = "KEY")
-    private String key;
-
-
     public AdvertisingPlatform() {
     }
 
-    public AdvertisingPlatform(String title, String description, BigDecimal cpmRate, String key) {
-        this(null, title, description, cpmRate, key);
+    public AdvertisingPlatform(Partner partner, String title, String description, BigDecimal cpmRate) {
+        this(null, partner, title, description, cpmRate);
     }
 
-    public AdvertisingPlatform(Long id, String title, String description, BigDecimal cpmRate, String key) {
+    public AdvertisingPlatform(Long id, Partner partner, String title, String description, BigDecimal cpmRate) {
         this.id = id;
+        this.partner = partner;
         this.title = title;
         this.description = description;
         this.cpmRate = cpmRate;
-        this.key = key;
     }
 
     public Long getId() {
@@ -69,12 +73,12 @@ public class AdvertisingPlatform {
         this.cpmRate = cpmRate;
     }
 
-    public String getKey() {
-        return key;
+    public Partner getPartner() {
+        return partner;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
 
     @Override
@@ -86,13 +90,13 @@ public class AdvertisingPlatform {
                 Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(cpmRate, that.cpmRate) &&
-                Objects.equals(key, that.key);
+                Objects.equals(partner, that.partner);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, title, description, cpmRate, key);
+        return Objects.hash(id, partner, title, description, cpmRate);
     }
 
     @Override
@@ -102,7 +106,7 @@ public class AdvertisingPlatform {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", cpmRate=" + cpmRate +
-                ", key='" + key + '\'' +
+                ", partner='" + partner + '\'' +
                 '}';
     }
 }

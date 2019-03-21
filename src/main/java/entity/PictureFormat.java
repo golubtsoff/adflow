@@ -12,52 +12,67 @@ public class PictureFormat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "FORMAT")
-    private String format;
+    @Column(name = "WIDTH")
+    private int width;
+
+    @Column(name = "HEIGHT")
+    private int height;
 
 
     public PictureFormat() {}
 
-    public PictureFormat(String format) {
-        this(null, format);
+    public PictureFormat(int width, int height) {
+        this(null, width, height);
     }
 
-    public PictureFormat(Long id, String format) {
+    public PictureFormat(Long id, int width, int height) {
         this.id = id;
-        this.format = format;
+        this.width = width;
+        this.height = height;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getFormat() {
-        return format;
+
+    public int getWidth() {
+        return width;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 
     @Override
     public String toString() {
         return "PictureFormat{" +
                 "id=" + id +
-                ", format='" + format + '\'' +
+                ", width=" + width +
+                ", height=" + height +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof PictureFormat)) return false;
         PictureFormat that = (PictureFormat) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(format, that.format);
+        return getWidth() == that.getWidth() &&
+                getHeight() == that.getHeight();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, format);
+
+        return Objects.hash(getWidth(), getHeight());
     }
 }

@@ -6,7 +6,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "partners")
@@ -27,23 +29,26 @@ public class Partner {
     @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 
-    @Column(name = "KEY")
-    private String key;
+    @OneToMany(mappedBy = "partner",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<AdvertisingPlatform> platforms = new HashSet<>();
 
     @Column(name = "IS_WORKING")
     private boolean isWorking;
 
     public Partner() {}
 
-    public Partner(User user, Account account, String key, boolean isWorking) {
-        this(null, user, account, key, isWorking);
+    public Partner(User user, Account account, boolean isWorking) {
+        this(null, user, account, isWorking);
     }
 
-    public Partner(Long id, User user, Account account, String key, boolean isWorking) {
+    public Partner(Long id, User user, Account account, boolean isWorking) {
         this.id = id;
         this.user = user;
         this.account = account;
-        this.key = key;
         this.isWorking = isWorking;
     }
 
@@ -67,14 +72,6 @@ public class Partner {
         this.account = account;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public boolean isWorking() {
         return isWorking;
     }
@@ -90,7 +87,6 @@ public class Partner {
                 "id=" + id +
                 ", user=" + user +
                 ", account=" + account +
-                ", key='" + key + '\'' +
                 ", isWorking=" + isWorking +
                 '}';
     }
@@ -101,15 +97,13 @@ public class Partner {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Partner partner = (Partner) o;
-        return isWorking == partner.isWorking &&
-                Objects.equals(id, partner.id) &&
+        return isWorking == Objects.equals(id, partner.id) &&
                 Objects.equals(user, partner.user) &&
-                Objects.equals(account, partner.account) &&
-                Objects.equals(key, partner.key);
+                Objects.equals(account, partner.account);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, account, key, isWorking);
+        return Objects.hash(id, user, account);
     }
 }

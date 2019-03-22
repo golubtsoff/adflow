@@ -10,6 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "SESSIONS")
+@SecondaryTable(name = "VIEWERS")
 public class Session {
 
     @Id
@@ -28,6 +29,10 @@ public class Session {
     @Column(name = "CLICK_COUNTER")
     private int clickCounter;
 
+    @AttributeOverrides({
+            @AttributeOverride(name="NAME", column=@Column(table="VIEWERS")),
+            @AttributeOverride(name="IP", column=@Column(table="VIEWERS"))
+    })
     private Viewer viewer;
 
     @Column(name = "CREATION_TIME")

@@ -10,13 +10,13 @@ public class Contact {
     private String email;
 
     @Column(name = "phone", unique = true, updatable = true)
-    private String telephone;
+    private String phone;
 
     public Contact(){}
 
-    public Contact(String email, String telephone) {
+    public Contact(String email, String phone) {
         this.email = email;
-        this.telephone = telephone;
+        this.phone = phone;
     }
 
     public String getEmail() {
@@ -27,19 +27,19 @@ public class Contact {
         this.email = email;
     }
 
-    public String getTelephone() {
-        return telephone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     @Override
     public String toString() {
         return "Contact{" +
                 ", email='" + email + '\'' +
-                ", telephone='" + telephone + '\'' +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 
@@ -49,11 +49,11 @@ public class Contact {
         if (o == null || getClass() != o.getClass()) return false;
         Contact contact = (Contact) o;
         return Objects.equals(email, contact.email) &&
-                Objects.equals(telephone, contact.telephone);
+                Objects.equals(phone, contact.phone);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email, telephone);
+        return Objects.hash(email, phone);
     }
 }

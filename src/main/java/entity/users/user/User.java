@@ -8,6 +8,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "users")
+@SecondaryTables({
+        @SecondaryTable(name = "persons"),
+        @SecondaryTable(name = "contacts"),
+})
 public class User {
 
     @Id
@@ -25,10 +29,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Token token;
-
+    @AttributeOverrides({
+            @AttributeOverride(name="firstname", column=@Column(table="persons")),
+            @AttributeOverride(name="lastname", column=@Column(table="persons"))
+    })
     private Person person;
 
+    @AttributeOverrides({
+            @AttributeOverride(name="email", column=@Column(table="contacts")),
+            @AttributeOverride(name="phone", column=@Column(table="contacts"))
+    })
     private Contact contact;
 
     public User() {
@@ -89,14 +99,6 @@ public class User {
         this.contact = contact;
     }
 
-    public Token getToken() {
-        return token;
-    }
-
-    public void setToken(Token token) {
-        this.token = token;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -104,7 +106,6 @@ public class User {
                 ", login='" + login + '\'' +
                 ", hash='" + hash + '\'' +
                 ", role=" + role +
-                ", token=" + token +
                 ", person=" + person +
                 ", contact=" + contact +
                 '}';

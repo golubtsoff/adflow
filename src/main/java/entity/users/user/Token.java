@@ -15,10 +15,15 @@ import java.util.Objects;
 @Table(name = "tokens")
 public class Token {
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "USER_ID")
+    @Id
     private Long id;
+
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
+    @PrimaryKeyJoinColumn
+    private User user;
 
     @Column(name = "TOKEN")
     private String token;
@@ -54,10 +59,6 @@ public class Token {
         return token;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public String getToken() {
         return token;
     }
@@ -73,10 +74,27 @@ public class Token {
         return this;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public String toString() {
         return "Token{" +
                 "id=" + id +
+                ", user=" + user +
                 ", token='" + token + '\'' +
                 ", dateTime=" + dateTime +
                 '}';
@@ -88,12 +106,12 @@ public class Token {
         if (!(o instanceof Token)) return false;
         Token token1 = (Token) o;
         return Objects.equals(getId(), token1.getId()) &&
-                Objects.equals(getToken(), token1.getToken()) &&
-                Objects.equals(getDateTime(), token1.getDateTime());
+                Objects.equals(getToken(), token1.getToken());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getToken(), getDateTime());
+
+        return Objects.hash(getId(), getToken());
     }
 }

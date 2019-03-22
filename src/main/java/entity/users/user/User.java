@@ -1,5 +1,8 @@
 package entity.users.user;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -22,6 +25,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private Token token;
+
     private Person person;
 
     private Contact contact;
@@ -42,10 +47,6 @@ public class User {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getLogin() {
@@ -88,6 +89,13 @@ public class User {
         this.contact = contact;
     }
 
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
 
     @Override
     public String toString() {
@@ -96,6 +104,7 @@ public class User {
                 ", login='" + login + '\'' +
                 ", hash='" + hash + '\'' +
                 ", role=" + role +
+                ", token=" + token +
                 ", person=" + person +
                 ", contact=" + contact +
                 '}';
@@ -106,13 +115,12 @@ public class User {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
-        return Objects.equals(getLogin(), user.getLogin()) &&
-                Objects.equals(getHash(), user.getHash());
+        return Objects.equals(getLogin(), user.getLogin());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(getLogin(), getHash());
+        return Objects.hash(getLogin());
     }
 }

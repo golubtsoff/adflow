@@ -1,5 +1,14 @@
-package util;
+package service;
 
+import entity.statistics.AdvertisingPlatformStatistics;
+import entity.statistics.CampaignStatistics;
+import entity.statistics.Request;
+import entity.users.Administrator;
+import entity.users.customer.Campaign;
+import entity.users.customer.Customer;
+import entity.users.customer.PictureFormat;
+import entity.users.partner.AdvertisingPlatform;
+import entity.users.partner.Partner;
 import entity.users.user.*;
 
 import exception.ServiceException;
@@ -84,11 +93,20 @@ public abstract class DBService {
     }
 
     private static void addAnnotatedClassToConfiguration(Configuration configuration) {
-        configuration.addAnnotatedClass(Contact.class)
-                .addAnnotatedClass(Person.class)
-                .addAnnotatedClass(Role.class)
+        configuration
+                .addAnnotatedClass(Administrator.class)
+                .addAnnotatedClass(AdvertisingPlatform.class)
+                .addAnnotatedClass(AdvertisingPlatformStatistics.class)
+                .addAnnotatedClass(Campaign.class)
+                .addAnnotatedClass(CampaignStatistics.class)
+                .addAnnotatedClass(Customer.class)
+                .addAnnotatedClass(Partner.class)
+                .addAnnotatedClass(PictureFormat.class)
+                .addAnnotatedClass(Request.class)
+                .addAnnotatedClass(entity.statistics.Session.class)
                 .addAnnotatedClass(Token.class)
-                .addAnnotatedClass(User.class);
+                .addAnnotatedClass(User.class)
+        ;
     }
 
     private static SessionFactory createSessionFactory(Configuration configuration) {

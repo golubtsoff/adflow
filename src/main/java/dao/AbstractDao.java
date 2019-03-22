@@ -2,15 +2,15 @@ package dao;
 
 import org.hibernate.LockMode;
 import org.hibernate.Session;
-import util.DBService;
+import service.DBService;
 
 import java.util.List;
 
-public class DaoImpl<T> implements Dao<T> {
+public abstract class AbstractDao<T> implements Dao<T> {
 
     private Class<T> parameterizedClass;
 
-    DaoImpl(Class<T> cl){
+    protected AbstractDao(Class<T> cl){
         this.parameterizedClass = cl;
     }
 

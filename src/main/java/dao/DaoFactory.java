@@ -1,51 +1,80 @@
 package dao;
 
-import entity.users.customer.Campaign;
-import entity.users.customer.Customer;
-import entity.users.customer.Picture;
-import entity.users.customer.PictureFormat;
-import entity.users.partner.AdvertisingPlatform;
-import entity.users.partner.Partner;
-import entity.statistics.Session;
-import entity.statistics.Viewer;
-import entity.users.Account;
-import entity.users.Administrator;
-import entity.users.user.Contact;
-import entity.users.user.Person;
-import entity.users.user.Token;
-import entity.users.user.User;
+import dao.impl.*;
 
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class DaoFactory {
 
-    private static final List<Dao<?>> daoList = Arrays.asList(
-            new DaoImpl<>(Account.class),
-            new DaoImpl<>(Administrator.class),
-            new DaoImpl<>(AdvertisingPlatform.class),
-            new DaoImpl<>(Campaign.class),
-            new DaoImpl<>(Contact.class),
-            new DaoImpl<>(Customer.class),
-            new DaoImpl<>(Partner.class),
-            new DaoImpl<>(Person.class),
-            new DaoImpl<>(Picture.class),
-            new DaoImpl<>(PictureFormat.class),
-            new DaoImpl<>(Session.class),
-            new DaoImpl<>(Token.class),
-            new UserDao(),
-            new DaoImpl<>(Viewer.class)
+    private static final List<Dao> daoList = Arrays.asList(
+            new AdministratorDao(),
+            new AdvertisingPlatformDao(),
+            new AdvertisingPlatformStatisticsDao(),
+            new CampaignDao(),
+            new CampaignStatisticsDao(),
+            new CustomerDao(),
+            new PartnerDao(),
+            new PictureFormatDao(),
+            new RequestDao(),
+            new SessionDao(),
+            new TokenDao(),
+            new UserDao()
     );
 
-    public static <T> Dao getDao(Class<T> cl){
+    private static <T extends Dao> T getDao(Class<T> cl){
         for(Dao dao : daoList){
-            if (cl.isInstance(dao.getParameterizedClass()))
-                return dao;
+            if (cl.isInstance(dao))
+                return cl.cast(dao);
         }
         return null;
     }
 
+    public static AdministratorDao getAdministratorDao(){
+        return getDao(AdministratorDao.class);
+    }
+
+    public static AdvertisingPlatformDao getAdvertisingPlatformDao(){
+        return getDao(AdvertisingPlatformDao.class);
+    }
+
+    public static AdvertisingPlatformStatisticsDao getAdvertisingPlatformStatisticsDao(){
+        return getDao(AdvertisingPlatformStatisticsDao.class);
+    }
+
+    public static CampaignDao getCampaignDao(){
+        return getDao(CampaignDao.class);
+    }
+
+    public static CampaignStatisticsDao getCampaignStatisticsDao(){
+        return getDao(CampaignStatisticsDao.class);
+    }
+
+    public static CustomerDao getCustomerDao(){
+        return getDao(CustomerDao.class);
+    }
+
+    public static PartnerDao getPartnerDao(){
+        return getDao(PartnerDao.class);
+    }
+
+    public static PictureFormatDao getPictureFormatDao(){
+        return getDao(PictureFormatDao.class);
+    }
+
+    public static RequestDao getRequestDao(){
+        return getDao(RequestDao.class);
+    }
+
+    public static SessionDao getSessionDao(){
+        return getDao(SessionDao.class);
+    }
+
+    public static TokenDao getTokenDao(){
+        return getDao(TokenDao.class);
+    }
+
     public static UserDao getUserDao(){
-        return (UserDao) getDao(User.class);
+        return getDao(UserDao.class);
     }
 }

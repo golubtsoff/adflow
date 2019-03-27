@@ -2,7 +2,6 @@ package dao;
 
 import org.hibernate.LockMode;
 import org.hibernate.Session;
-import service.DBService;
 
 import java.util.List;
 
@@ -21,14 +20,14 @@ public abstract class AbstractDao<T> implements Dao<T> {
 
     @Override
     public T get(long id) {
-        return DBService.getSessionFactory()
+        return DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .get(parameterizedClass, id, LockMode.PESSIMISTIC_READ);
     }
 
     @Override
     public List<T> getAll() {
-        return DBService.getSessionFactory()
+        return DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .createQuery("from " + parameterizedClass.getSimpleName(), parameterizedClass)
                 .list();
@@ -36,20 +35,20 @@ public abstract class AbstractDao<T> implements Dao<T> {
 
     @Override
     public long create(T t) {
-        return (Long) DBService.getSessionFactory()
+        return (Long) DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .save(t);
     }
 
     @Override
     public void update(T t) {
-        DBService.getSessionFactory().getCurrentSession()
+        DbAssistant.getSessionFactory().getCurrentSession()
                 .update(t);
     }
 
     @Override
     public T delete(long id) {
-        Session session = DBService.getSessionFactory().getCurrentSession();
+        Session session = DbAssistant.getSessionFactory().getCurrentSession();
         T t = session.byId(parameterizedClass).load(id);
         session.delete(t);
         return t;
@@ -57,7 +56,7 @@ public abstract class AbstractDao<T> implements Dao<T> {
 
     @Override
     public void deleteAll() {
-        DBService.getSessionFactory()
+        DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .createQuery("delete from " + parameterizedClass.getSimpleName())
                 .executeUpdate();

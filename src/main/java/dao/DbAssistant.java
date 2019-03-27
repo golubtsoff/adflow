@@ -1,4 +1,4 @@
-package service;
+package dao;
 
 import entity.statistics.AdvertisingPlatformStatistics;
 import entity.statistics.CampaignStatistics;
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public abstract class DBService {
+public abstract class DbAssistant {
 //    validate: validate the schema, makes no changes to the database.
 //    update: update the schema.
 //    create: creates the schema, destroying previous data.
@@ -43,12 +43,12 @@ public abstract class DBService {
         }
     }
 
-    private DBService() {
+    private DbAssistant() {
     }
 
     public static Transaction getTransaction(){
-        Session session = DBService.getSessionFactory().getCurrentSession();
-        Transaction transaction = DBService.getSessionFactory().getCurrentSession().getTransaction();
+        Session session = DbAssistant.getSessionFactory().getCurrentSession();
+        Transaction transaction = DbAssistant.getSessionFactory().getCurrentSession().getTransaction();
         if (!transaction.isActive()) {
             transaction = session.beginTransaction();
         }
@@ -70,7 +70,7 @@ public abstract class DBService {
         Configuration configuration = new Configuration();
         addAnnotatedClassToConfiguration(configuration);
 
-        try (InputStream is = DBService.class.getResourceAsStream(path)) {
+        try (InputStream is = DbAssistant.class.getResourceAsStream(path)) {
             Properties props = new Properties();
             props.load(is);
 

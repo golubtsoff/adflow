@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -19,12 +20,15 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    private Account account;
+     private Account account;
 
     @OneToMany(mappedBy = "customer",
         fetch = FetchType.LAZY,
@@ -47,8 +51,8 @@ public class Customer {
     public Customer(Long id, User user) {
         this.id = id;
         this.user = user;
-        this.account = account;
-        this.status = UserStatus.working;
+        this.account = new Account(BigDecimal.valueOf(0));
+        this.status = UserStatus.CHECKING;
     }
 
     public Long getId() {

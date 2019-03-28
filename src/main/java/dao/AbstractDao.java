@@ -25,11 +25,23 @@ public abstract class AbstractDao<T> implements Dao<T> {
                 .get(parameterizedClass, id, LockMode.PESSIMISTIC_READ);
     }
 
+
+
     @Override
     public List<T> getAll() {
         return DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .createQuery("from " + parameterizedClass.getSimpleName(), parameterizedClass)
+                .list();
+    }
+
+    @Override
+    public List<T> getAll(String fieldName, String value) {
+        return DbAssistant.getSessionFactory()
+                .getCurrentSession()
+                .createQuery("from " + parameterizedClass.getSimpleName()
+                        + " where " + fieldName + " = :value", parameterizedClass)
+                .setParameter("value", value)
                 .list();
     }
 

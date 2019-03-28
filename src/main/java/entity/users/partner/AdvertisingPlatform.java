@@ -60,7 +60,7 @@ public class AdvertisingPlatform {
         this.description = description;
         this.cpmRate = cpmRate;
         this.status = Status.checking;
-        this.action = Action.stop;
+        this.action = Action.STOP;
     }
 
     public Long getId() {

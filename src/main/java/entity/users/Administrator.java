@@ -16,7 +16,10 @@ public class Administrator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "USER_ID")
     private User user;

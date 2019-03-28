@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface Dao<T> {
     T get(long id);
+    List<T> getAll(String fieldName, String value);
     List<T> getAll();
     long create(T t);
     void update(T t);

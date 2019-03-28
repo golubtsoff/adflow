@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,14 +21,14 @@ public class Partner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 
     @OneToMany(mappedBy = "partner",
@@ -43,8 +44,8 @@ public class Partner {
 
     public Partner() {}
 
-    public Partner(User user, Account account, UserStatus status) {
-        this(null, user, account, status);
+    public Partner(User user) {
+        this(null, user, new Account(BigDecimal.valueOf(0)), UserStatus.CHECKING);
     }
 
     public Partner(Long id, User user, Account account, UserStatus status) {

@@ -1,12 +1,12 @@
 package service;
 
 import entity.users.user.Role;
-import entity.users.user.User;
-import exception.DBException;
+import exception.DbException;
+import exception.ServiceException;
 
 public interface UserService<T> {
-    T signIn(String name, String password) throws DBException;
-    T signUp(String name, String password) throws DBException;
-    T signUp(String name, String password, Role role) throws DBException;
-    boolean isExist(String name) throws DBException;
+    T signIn(String login, String password) throws DbException;
+    T signUp(String login, String password) throws DbException;
+    T signUp(String login, String password, Role role) throws DbException, ServiceException;
+    boolean isExist(String login) throws DbException;
 }

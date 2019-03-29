@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "administrators")
-public class Administrator implements ConcreteUser {
+public class Administrator implements ConcreteRole {
 
     @Id
     @Column(name = "ID")

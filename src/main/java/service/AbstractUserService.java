@@ -3,7 +3,7 @@ package service;
 import dao.Dao;
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.ConcreteUser;
+import entity.users.ConcreteRole;
 import entity.users.user.Role;
 import entity.users.user.User;
 import exception.DbException;
@@ -16,7 +16,7 @@ import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class AbstractUserService<T extends ConcreteUser> implements UserService<T> {
+public abstract class AbstractUserService<T extends ConcreteRole> implements UserService<T> {
 
     private Class<T> parameterizedClass;
 

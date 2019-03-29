@@ -1,7 +1,7 @@
 package entity.users.user;
 
 import entity.users.Administrator;
-import entity.users.ConcreteUser;
+import entity.users.ConcreteRole;
 import entity.users.customer.Customer;
 import entity.users.partner.Partner;
 
@@ -12,7 +12,7 @@ public enum Role {
 
     private Class parametrizedClass;
 
-    <T extends ConcreteUser> Role(Class<T> parametrizedClass){
+    <T extends ConcreteRole> Role(Class<T> parametrizedClass){
         this.parametrizedClass = parametrizedClass;
     }
 
@@ -20,7 +20,7 @@ public enum Role {
         return parametrizedClass;
     }
 
-    public static <T extends ConcreteUser> Role getRole(Class<T> cl){
+    public static <T extends ConcreteRole> Role getRole(Class<T> cl){
         for(Role role : Role.values()){
             if (cl == role.getParametrizedClass())
                 return role;

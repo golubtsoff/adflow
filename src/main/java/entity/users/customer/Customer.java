@@ -2,7 +2,7 @@ package entity.users.customer;
 
 import entity.users.Account;
 import entity.users.UserStatus;
-import entity.users.ConcreteUser;
+import entity.users.ConcreteRole;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,7 +13,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "customers")
-public class Customer implements ConcreteUser {
+public class Customer implements ConcreteRole {
 
     @Id
     @Column(name = "ID")

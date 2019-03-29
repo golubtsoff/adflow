@@ -30,6 +30,15 @@ public abstract class DaoFactory {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Dao<T> getDaoByParametrizedClass(Class<T> cl){
+        for(Dao dao : daoList){
+            if (cl == dao.getParameterizedClass())
+                return dao;
+        }
+        return null;
+    }
+
     public static AdministratorDao getAdministratorDao(){
         return getDao(AdministratorDao.class);
     }

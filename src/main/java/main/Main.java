@@ -13,14 +13,14 @@ import service.impl.PartnerService;
 public class Main {
     public static void main(String[] args) throws DbException, ServiceException {
         AdministratorService administratorService = UserServiceFactory.getAdministratorService();
-        administratorService.signUp("admin", "123", Role.ADMIN);
-        administratorService.signUp("admin", "123", Role.ADMIN);
+        administratorService.signUp("admin", "123");
+        administratorService.signUp("admin", "123");
 
         PartnerService partnerService = UserServiceFactory.getPartnerService();
-        partnerService.signUp("partner", "123", Role.PARTNER);
+        partnerService.signUp("partner", "123");
 
         CustomerService customerService = UserServiceFactory.getCustomerService();
-        customerService.signUp("custom", "123", Role.CUSTOMER);
+        customerService.signUp("custom", "123");
 
         DbAssistant.close();
     }

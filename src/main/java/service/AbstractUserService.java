@@ -3,11 +3,11 @@ package service;
 import dao.Dao;
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.Administrator;
-import entity.users.partner.Partner;
+import entity.users.ConcreteUser;
 import entity.users.user.Role;
 import entity.users.user.User;
 import exception.DbException;
+import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import util.Hash;
@@ -16,7 +16,7 @@ import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class AbstractUserService<T> implements UserService<T> {
+public abstract class AbstractUserService<T extends ConcreteUser> implements UserService<T> {
 
     private Class<T> parameterizedClass;
 
@@ -30,8 +30,8 @@ public abstract class AbstractUserService<T> implements UserService<T> {
     }
 
     @Override
-    public T signUp(String login, String password) throws DbException{
-        Role role = getRole(parameterizedClass);
+    public T signUp(String login, String password) throws DbException, ServiceException {
+        Role role = Role.getRole(parameterizedClass);
 
         Transaction transaction = DbAssistant.getTransaction();
         try {
@@ -49,20 +49,13 @@ public abstract class AbstractUserService<T> implements UserService<T> {
 
             transaction.commit();
             return parameterizedClass.cast(object);
-        } catch (HibernateException | NoResultException | NullPointerException | IllegalAccessException
-                | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException(e);
         }
-    }
-
-    private Role getRole(Class cl){
-        if (cl == Administrator.class)
-            return Role.ADMIN;
-        else if (cl == Partner.class)
-            return Role.PARTNER;
-        else
-            return Role.CUSTOMER;
     }
 
     protected boolean isExist(String login) {

@@ -2,6 +2,7 @@ package entity.users.partner;
 
 import entity.users.Account;
 import entity.users.UserStatus;
+import entity.users.ConcreteUser;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "partners")
-public class Partner {
+public class Partner implements ConcreteUser {
 
     @Id
     @Column(name = "ID")

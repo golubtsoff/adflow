@@ -1,8 +1,8 @@
 package entity.users.customer;
 
 import entity.users.Account;
-import entity.users.Status;
 import entity.users.UserStatus;
+import entity.users.ConcreteUser;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,7 +13,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "customers")
-public class Customer {
+public class Customer implements ConcreteUser {
 
     @Id
     @Column(name = "ID")

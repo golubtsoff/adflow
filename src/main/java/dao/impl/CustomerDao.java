@@ -8,4 +8,8 @@ public class CustomerDao extends AbstractDao<Customer> {
     public CustomerDao(){
         super(Customer.class);
     }
+
+    public Customer getByUserId(Long userId) {
+        return get("USER_ID", userId.toString());
+    }
 }

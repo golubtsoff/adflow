@@ -16,17 +16,46 @@ import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public abstract class AbstractUserService<T extends ConcreteRole> implements UserService<T> {
+@Deprecated
+public abstract class AbstractConcreteRoleService<T extends ConcreteRole> implements ConcreteRoleService<T> {
 
     private Class<T> parameterizedClass;
 
-    protected AbstractUserService(Class<T> cl){
+    protected AbstractConcreteRoleService(Class<T> cl){
         this.parameterizedClass = cl;
     }
 
     @Override
     public T signIn(String login, String password) throws DbException {
-        return null;
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            List<User> users = DaoFactory.getUserDao().getByName(login);
+            if (users.isEmpty()){
+                DbAssistant.transactionRollback(transaction);
+                return null;
+            }
+
+            User user = users.get(0);
+            if (!user.getHash().equalsIgnoreCase(Hash.getHash(password))){
+                DbAssistant.transactionRollback(transaction);
+                return null;
+            }
+
+            Object object;
+            if (user.getRole() == Role.ADMIN){
+                object = DaoFactory.getAdministratorDao().getByUserId(user.getId());
+            } else if (user.getRole() == Role.PARTNER){
+                object = DaoFactory.getPartnerDao().getByUserId(user.getId());
+            } else {
+                object = DaoFactory.getCustomerDao().getByUserId(user.getId());
+            }
+
+            transaction.commit();
+            return parameterizedClass.cast(object);
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
     }
 
     @Override

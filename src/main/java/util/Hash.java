@@ -5,7 +5,7 @@ import com.google.common.hash.Hashing;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 
-public class Hash {
+public abstract class Hash {
 
     @NotNull
     public static String getHash(@NotNull String source) {

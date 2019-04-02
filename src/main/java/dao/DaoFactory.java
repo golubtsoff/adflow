@@ -16,9 +16,10 @@ public abstract class DaoFactory {
             new CustomerDao(),
             new PartnerDao(),
             new PictureFormatDao(),
+            new PlatformTokenDao(),
             new RequestDao(),
             new SessionDao(),
-            new TokenDao(),
+            new UserTokenDao(),
             new UserDao()
     );
 
@@ -71,6 +72,10 @@ public abstract class DaoFactory {
         return getDao(PictureFormatDao.class);
     }
 
+    public static PlatformTokenDao getPlatformTokenDao(){
+        return getDao(PlatformTokenDao.class);
+    }
+
     public static RequestDao getRequestDao(){
         return getDao(RequestDao.class);
     }
@@ -79,8 +84,8 @@ public abstract class DaoFactory {
         return getDao(SessionDao.class);
     }
 
-    public static TokenDao getTokenDao(){
-        return getDao(TokenDao.class);
+    public static UserTokenDao getTokenDao(){
+        return getDao(UserTokenDao.class);
     }
 
     public static UserDao getUserDao(){

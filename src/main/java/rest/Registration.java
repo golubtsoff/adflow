@@ -18,8 +18,7 @@ public class Registration {
                                  @FormParam("role")String roleString)
     {
         try {
-            if (roleString.equalsIgnoreCase(Role.ADMIN.toString())
-                    || UserService.signUp(login, password, roleString) == null)
+            if (UserService.signUp(login, password, roleString) == null)
                 return Response.status(Response.Status.FORBIDDEN).build();
             return Response.ok().build();
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Secured
 @Path("/persons")
 public class RestServiceSimple {

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
+@Deprecated
 @Secured
 @Provider
 @Priority(Priorities.AUTHENTICATION)

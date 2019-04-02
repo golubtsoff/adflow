@@ -2,6 +2,7 @@ package rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+@Deprecated
 @XmlRootElement
 public class Person {
     private long id;

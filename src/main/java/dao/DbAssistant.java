@@ -9,6 +9,7 @@ import entity.users.customer.Customer;
 import entity.users.customer.PictureFormat;
 import entity.users.partner.AdvertisingPlatform;
 import entity.users.partner.Partner;
+import entity.users.partner.PlatformToken;
 import entity.users.user.*;
 
 import exception.ServiceException;
@@ -102,9 +103,10 @@ public abstract class DbAssistant {
                 .addAnnotatedClass(Customer.class)
                 .addAnnotatedClass(Partner.class)
                 .addAnnotatedClass(PictureFormat.class)
+                .addAnnotatedClass(PlatformToken.class)
                 .addAnnotatedClass(Request.class)
                 .addAnnotatedClass(entity.statistics.Session.class)
-                .addAnnotatedClass(Token.class)
+                .addAnnotatedClass(UserToken.class)
                 .addAnnotatedClass(User.class)
         ;
     }

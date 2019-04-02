@@ -10,8 +10,15 @@ import service.impl.AdministratorService;
 import service.impl.CustomerService;
 import service.impl.PartnerService;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 public class Main {
     public static void main(String[] args) throws DbException, ServiceException {
+
+        LocalDateTime ldt = LocalDateTime.now();
+        LocalDateTime ldt2 = ldt.plusMinutes(15);
+        long minutes = ChronoUnit.MINUTES.between(ldt, ldt2);
 
         UserService.signUp("customer", "123", "customer");
         UserService.signUp("partner", "123", "partner");

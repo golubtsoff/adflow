@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.List;
 
+@Deprecated
 @Path("/json")
 public class RestServiceJson {
     private static List<Person> persons = new Persons();

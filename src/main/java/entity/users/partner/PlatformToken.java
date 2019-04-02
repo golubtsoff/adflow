@@ -1,10 +1,11 @@
-package entity.users.user;
+package entity.users.partner;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import entity.users.user.User;
+import javafx.application.Platform;
+import org.junit.Assert;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tokens")
-public class Token {
+@Table(name = "PLATFORM_TOKENS")
+public class PlatformToken {
 
     @Id
     private Long id;
@@ -23,20 +24,22 @@ public class Token {
             optional = false
     )
     @PrimaryKeyJoinColumn
-    private User user;
+    private AdvertisingPlatform platform;
 
     @Column(name = "TOKEN")
     private String token;
 
-    @Column(name = "RELEASE_DATE_TIME")
-    private LocalDateTime dateTime;
+    @Column(name = "RELEASED_DATE_TIME")
+    private LocalDateTime releasedDateTime;
 
-    public Token(){}
+    public PlatformToken(){}
 
-    public Token(long userId, @NotNull String passwordHash) throws Exception {
-        id = userId;
-        dateTime = LocalDateTime.now();
-        token = issueToken(userId, getSecret(passwordHash, dateTime));
+    public PlatformToken(AdvertisingPlatform platform) throws Exception {
+        id = platform.getId();
+        assert (id != null);
+        this.platform = platform;
+        releasedDateTime = LocalDateTime.now();
+        token = issueToken(id, getSecret(platform.getPartner().getUser().getHash(), releasedDateTime));
     }
 
     @NotNull
@@ -45,13 +48,13 @@ public class Token {
     }
 
     @NotNull
-    private String issueToken(long userId, @NotNull String secret) throws Exception {
+    private String issueToken(long platformId, @NotNull String secret) throws Exception {
         token = "";
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             token = JWT.create()
                     .withIssuer("app4pro.ru")
-                    .withClaim("pid", userId)
+                    .withClaim("pid", platformId)
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new Exception(exception);
@@ -63,14 +66,14 @@ public class Token {
         return token;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
+    public LocalDateTime getReleasedDateTime() {
+        return releasedDateTime;
     }
 
     @NotNull
-    public Token updateToken(@NotNull String passwordHash) throws Exception {
-        dateTime = LocalDateTime.now();
-        token = issueToken(id, getSecret(passwordHash, dateTime));
+    public PlatformToken updateToken() throws Exception {
+        releasedDateTime = LocalDateTime.now();
+        token = issueToken(id, getSecret(platform.getPartner().getUser().getHash(), releasedDateTime));
         return this;
     }
 
@@ -82,29 +85,29 @@ public class Token {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public AdvertisingPlatform getPlatform() {
+        return platform;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setPlatform(AdvertisingPlatform platform) {
+        this.platform = platform;
     }
 
     @Override
     public String toString() {
-        return "Token{" +
+        return "PlatformToken{" +
                 "id=" + id +
-                ", user=" + user +
+                ", platform=" + platform +
                 ", token='" + token + '\'' +
-                ", dateTime=" + dateTime +
+                ", releasedDateTime=" + releasedDateTime +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Token)) return false;
-        Token token1 = (Token) o;
+        if (!(o instanceof PlatformToken)) return false;
+        PlatformToken token1 = (PlatformToken) o;
         return Objects.equals(getId(), token1.getId()) &&
                 Objects.equals(getToken(), token1.getToken());
     }

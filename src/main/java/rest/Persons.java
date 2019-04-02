@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @XmlRootElement
 @XmlSeeAlso(Person.class)
 public class Persons extends ArrayList<Person> {

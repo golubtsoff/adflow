@@ -36,12 +36,21 @@ public abstract class UserService {
         }
     }
 
-
     public static User signUp(String login, String password, String roleString)
+            throws DbException, ServiceException {
+        try {
+            Role role = Role.valueOf(roleString.toUpperCase());
+            if (role == Role.ADMIN) return null;
+            return signUp(login, password, role);
+        } catch (IllegalArgumentException e){
+            throw new ServiceException(e);
+        }
+    }
+
+    private static User signUp(String login, String password, Role role)
             throws DbException, ServiceException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            Role role = Role.valueOf(roleString.toUpperCase());
             if (isExist(login)){
                 DbAssistant.transactionRollback(transaction);
                 return null;

@@ -5,6 +5,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.List;
 
+@Deprecated
 @Path("/xml")
 public class RestServiceXml {
     private static List<Person> persons = new Persons();

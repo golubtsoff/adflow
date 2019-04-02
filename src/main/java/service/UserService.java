@@ -7,6 +7,7 @@ import entity.users.customer.Customer;
 import entity.users.partner.Partner;
 import entity.users.user.Role;
 import entity.users.user.User;
+import entity.users.user.UserToken;
 import exception.DbException;
 import exception.ServiceException;
 import org.hibernate.HibernateException;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public abstract class UserService {
 
-    public static User signIn(String login, String password) throws DbException {
+    public static UserToken signIn(String login, String password) throws DbException, ServiceException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             List<User> users = DaoFactory.getUserDao().getByName(login);
@@ -27,12 +28,17 @@ public abstract class UserService {
                 DbAssistant.transactionRollback(transaction);
                 return null;
             }
+            UserToken userToken = new UserToken(users.get(0));
+            DaoFactory.getUserTokenDao().create(userToken);
 
             transaction.commit();
-            return users.get(0);
+            return userToken;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (Exception e){
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException(e);
         }
     }
 

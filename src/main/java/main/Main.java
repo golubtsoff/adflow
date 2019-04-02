@@ -2,6 +2,7 @@ package main;
 
 import dao.DbAssistant;
 import entity.users.user.User;
+import entity.users.user.UserToken;
 import exception.DbException;
 import exception.ServiceException;
 import service.ConcreteRoleServiceFactory;
@@ -25,7 +26,7 @@ public class Main {
         UserService.signUp("admin", "123", "ADMIN");
         UserService.signUp("admin", "123", "admin");
         UserService.signUp("admin2", "123", "ADMIN");
-        User user2 = UserService.signIn("partner", "123");
+        UserToken token = UserService.signIn("partner", "123");
 
         DbAssistant.close();
     }

@@ -84,7 +84,7 @@ public abstract class DaoFactory {
         return getDao(SessionDao.class);
     }
 
-    public static UserTokenDao getTokenDao(){
+    public static UserTokenDao getUserTokenDao(){
         return getDao(UserTokenDao.class);
     }
 

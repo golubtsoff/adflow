@@ -8,10 +8,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/signin")
+@Path("/authenticate")
 public class AuthenticationEndpoint {
+
     @POST
-    @Path("/")
+    @Path("/signin")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response authenticateUser(@FormParam("login") String login,
@@ -25,4 +26,10 @@ public class AuthenticationEndpoint {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
     }
+
+//    @Secured
+//    @Path("/signout")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+//    public Response revokeUser(){}
 }

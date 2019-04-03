@@ -93,4 +93,39 @@ public abstract class UserService {
         }
     }
 
+    public static void signOut(Long userId) throws DbException{
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            UserToken token = DaoFactory.getUserTokenDao().get(userId);
+            token.setExpired();
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static UserToken getToken(Long userId) throws DbException{
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            UserToken token = DaoFactory.getUserTokenDao().get(userId);
+            transaction.commit();
+            return token;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static void setToken(UserToken token) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            DaoFactory.getUserTokenDao().update(token);
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
 }

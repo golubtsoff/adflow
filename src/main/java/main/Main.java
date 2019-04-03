@@ -27,6 +27,8 @@ public class Main {
         UserService.signUp("admin", "123", "admin");
         UserService.signUp("admin2", "123", "ADMIN");
         UserToken token = UserService.signIn("partner", "123");
+        assert (token != null);
+        UserService.signOut(token.getUser().getId());
 
         DbAssistant.close();
     }

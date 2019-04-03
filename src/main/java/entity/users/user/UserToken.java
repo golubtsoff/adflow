@@ -72,8 +72,12 @@ public class UserToken {
         return token;
     }
 
-    public LocalDateTime getDateTime() {
+    public LocalDateTime getReleasedDateTime() {
         return releasedDateTime;
+    }
+
+    public LocalDateTime getExpiredDateTime() {
+        return expiredDateTime;
     }
 
     @NotNull
@@ -85,11 +89,21 @@ public class UserToken {
     }
 
     public boolean updateExpiredDateTime(){
+        if (!isActual()) return false;
         long minutes = ChronoUnit.MINUTES.between(LocalDateTime.now(), expiredDateTime);
-        if (minutes < 0) return false;
         if (minutes < ACTION_TIME_MINUTES)
             expiredDateTime = expiredDateTime.plusMinutes(EXTENDED_TIME_MINUTES);
         return true;
+    }
+
+    private boolean isActual(){
+        return LocalDateTime.now().isBefore(expiredDateTime);
+    }
+
+    public void setExpired(){
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(expiredDateTime))
+            expiredDateTime = now;
     }
 
     public Long getId() {

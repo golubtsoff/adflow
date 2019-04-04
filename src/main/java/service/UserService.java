@@ -3,6 +3,7 @@ package service;
 import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Administrator;
+import entity.users.user.UserStatus;
 import entity.users.customer.Customer;
 import entity.users.partner.Partner;
 import entity.users.user.Role;
@@ -24,6 +25,7 @@ public abstract class UserService {
         try {
             List<User> users = DaoFactory.getUserDao().getByName(login);
             if (users.isEmpty()
+                    || users.get(0).getStatus() != UserStatus.WORKING
                     || !users.get(0).getHash().equalsIgnoreCase(Hash.getHash(password))){
                 DbAssistant.transactionRollback(transaction);
                 return null;

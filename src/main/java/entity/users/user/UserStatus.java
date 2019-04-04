@@ -1,4 +1,4 @@
-package entity.users;
+package entity.users.user;
 
 public enum UserStatus {
     WORKING,

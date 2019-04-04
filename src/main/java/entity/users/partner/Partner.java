@@ -1,7 +1,6 @@
 package entity.users.partner;
 
 import entity.users.Account;
-import entity.users.UserStatus;
 import entity.users.ConcreteRole;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
@@ -39,21 +38,16 @@ public class Partner implements ConcreteRole {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<AdvertisingPlatform> platforms = new HashSet<>();
 
-    @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
-
     public Partner() {}
 
     public Partner(User user) {
-        this(null, user, new Account(BigDecimal.valueOf(0)), UserStatus.CHECKING);
+        this(null, user, new Account(BigDecimal.valueOf(0)));
     }
 
-    public Partner(Long id, User user, Account account, UserStatus status) {
+    public Partner(Long id, User user, Account account) {
         this.id = id;
         this.user = user;
         this.account = account;
-        this.status = status;
     }
 
     public Long getId() {
@@ -84,14 +78,6 @@ public class Partner implements ConcreteRole {
         this.platforms = platforms;
     }
 
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
     @Override
     public String toString() {
         return "Partner{" +
@@ -99,7 +85,6 @@ public class Partner implements ConcreteRole {
                 ", user=" + user +
                 ", account=" + account +
                 ", platforms=" + platforms +
-                ", status=" + status +
                 '}';
     }
 

@@ -1,7 +1,6 @@
 package entity.users.customer;
 
 import entity.users.Account;
-import entity.users.UserStatus;
 import entity.users.ConcreteRole;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
@@ -37,10 +36,6 @@ public class Customer implements ConcreteRole {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Campaign> campaigns = new HashSet<>();
 
-    @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
-
     public Customer() {
     }
 
@@ -52,7 +47,6 @@ public class Customer implements ConcreteRole {
         this.id = id;
         this.user = user;
         this.account = new Account(BigDecimal.valueOf(0));
-        this.status = UserStatus.CHECKING;
     }
 
     public Long getId() {
@@ -83,14 +77,6 @@ public class Customer implements ConcreteRole {
         this.campaigns = campaigns;
     }
 
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
     @Override
     public String toString() {
         return "Customer{" +
@@ -98,7 +84,6 @@ public class Customer implements ConcreteRole {
                 ", user=" + user +
                 ", account=" + account +
                 ", campaigns=" + campaigns +
-                ", status=" + status +
                 '}';
     }
 

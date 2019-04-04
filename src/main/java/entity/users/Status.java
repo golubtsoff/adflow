@@ -1,9 +1,9 @@
 package entity.users;
 
 public enum Status {
-    removed,
-    auto,
-    checking,
-    rejected,
-    frozen
+    REMOVED,
+    AUTO,
+    CHECKING,
+    REJECTED,
+    FROZEN
 }

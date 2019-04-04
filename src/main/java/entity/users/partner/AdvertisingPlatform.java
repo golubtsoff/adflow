@@ -59,7 +59,7 @@ public class AdvertisingPlatform {
         this.title = title;
         this.description = description;
         this.cpmRate = cpmRate;
-        this.status = Status.checking;
+        this.status = Status.CHECKING;
         this.action = Action.STOP;
     }
 

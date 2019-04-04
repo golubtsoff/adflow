@@ -1,8 +1,5 @@
 package entity.users.user;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -41,6 +38,10 @@ public class User {
     })
     private Contact contact;
 
+    @Column(name = "STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
     public User() {
     }
 
@@ -53,6 +54,7 @@ public class User {
         this.login = login;
         this.hash = hash;
         this.role = role;
+        this.status = UserStatus.CHECKING;
     }
 
     public Long getId() {
@@ -99,6 +101,14 @@ public class User {
         this.contact = contact;
     }
 
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -108,6 +118,7 @@ public class User {
                 ", role=" + role +
                 ", person=" + person +
                 ", contact=" + contact +
+                ", status=" + status +
                 '}';
     }
 

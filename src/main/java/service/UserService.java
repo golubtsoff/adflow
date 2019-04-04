@@ -50,7 +50,7 @@ public abstract class UserService {
         }
     }
 
-    public static User signUp(String login, String password, String roleString)
+    public static User signUpExceptAdministrator(String login, String password, String roleString)
             throws DbException, ServiceException {
         try {
             Role role = Role.valueOf(roleString.toUpperCase());

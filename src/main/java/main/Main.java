@@ -21,11 +21,11 @@ public class Main {
         LocalDateTime ldt2 = ldt.plusMinutes(15);
         long minutes = ChronoUnit.MINUTES.between(ldt, ldt2);
 
-        UserService.signUp("customer", "123", "customer");
-        UserService.signUp("partner", "123", "partner");
-        UserService.signUp("admin", "123", "ADMIN");
-        UserService.signUp("admin", "123", "admin");
-        UserService.signUp("admin2", "123", "ADMIN");
+        UserService.signUpExceptAdministrator("customer", "123", "customer");
+        UserService.signUpExceptAdministrator("partner", "123", "partner");
+        UserService.signUpExceptAdministrator("admin", "123", "ADMIN");
+        UserService.signUpExceptAdministrator("admin", "123", "admin");
+        UserService.signUpExceptAdministrator("admin2", "123", "ADMIN");
         UserToken token = UserService.signIn("partner", "123");
         assert (token != null);
         UserService.signOut(token.getUser().getId());

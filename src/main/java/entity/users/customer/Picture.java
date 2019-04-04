@@ -9,12 +9,15 @@ import java.util.Objects;
 @Embeddable
 public class Picture {
 
+    public static final String PICTURE_FORMAT_ID = "PICTURE_FORMAT_ID";
+    public static final String FILENAME = "FILENAME";
+
     @OneToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "PICTURE_FORMAT_ID")
+    @JoinColumn(name = PICTURE_FORMAT_ID)
     private PictureFormat pictureFormat;
 
-    @Column(name = "FILENAME")
+    @Column(name = FILENAME)
     private String fileName;
 
     public Picture(){}

@@ -14,8 +14,11 @@ import java.util.*;
 @Table(name = "customers")
 public class Customer implements ConcreteRole {
 
+    public static final String ID = "ID";
+    public static final String USER_ID = "USER_ID";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,10 +27,10 @@ public class Customer implements ConcreteRole {
             optional = false
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = USER_ID)
     private User user;
 
-     private Account account;
+    private Account account;
 
     @OneToMany(mappedBy = "customer",
         fetch = FetchType.LAZY,

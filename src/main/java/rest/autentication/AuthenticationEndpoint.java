@@ -11,15 +11,20 @@ import javax.ws.rs.core.*;
 @Path("/authenticate")
 public class AuthenticationEndpoint {
 
+    public static final String LOGIN_FORM_NAME = "login";
+    public static final String PASSWORD_FORM_NAME = "password";
+    public static final String AUTHENTICATE_USER_PATH = "/signin";
+    public static final String REVOKE_AUTHENTICATION_PATH = "/signout";
+
     @Context
     UriInfo uriInfo;
 
     @POST
-    @Path("/signin")
+    @Path(AUTHENTICATE_USER_PATH)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response authenticateUser(@FormParam("login") String login,
-                                     @FormParam("password") String password) {
+    public Response authenticateUser(@FormParam(LOGIN_FORM_NAME) String login,
+                                     @FormParam(PASSWORD_FORM_NAME) String password) {
         try {
             UserToken token = UserService.signIn(login.toLowerCase(), password);
             if (token == null)
@@ -32,11 +37,11 @@ public class AuthenticationEndpoint {
 
     @Secured
     @POST
-    @Path("/signout")
+    @Path(REVOKE_AUTHENTICATION_PATH)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response revokeAuthentication(@Context HttpHeaders headers) {
-        long userId = Long.valueOf(headers.getHeaderString("uid"));
+        long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
         try {
             UserService.signOut(userId);
         } catch (DbException e) {

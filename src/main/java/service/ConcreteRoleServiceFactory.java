@@ -7,7 +7,6 @@ import service.impl.PartnerService;
 import java.util.Arrays;
 import java.util.List;
 
-@Deprecated
 public abstract class ConcreteRoleServiceFactory {
     private static final List<ConcreteRoleService> userServiceList = Arrays.asList(
             new PartnerService(),

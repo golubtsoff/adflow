@@ -7,10 +7,13 @@ import java.util.Objects;
 @Embeddable
 public class Account {
 
-    @Column(name = "BALANCE")
+    public static final String BALANCE = "BALANCE";
+    public static final String PAYMENT_DETAILS = "PAYMENT_DETAILS";
+
+    @Column(name = BALANCE)
     private BigDecimal balance;
 
-    @Column(name = "PAYMENT_DETAILS")
+    @Column(name = PAYMENT_DETAILS)
     private String paymentDetails;
 
 

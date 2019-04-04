@@ -6,10 +6,13 @@ import java.util.Objects;
 @Embeddable
 public class Contact {
 
-    @Column(name = "email", unique = true, updatable = true)
+    public static final String EMAIL = "EMAIL";
+    public static final String PHONE = "PHONE";
+
+    @Column(name = EMAIL, unique = true, updatable = true)
     private String email;
 
-    @Column(name = "phone", unique = true, updatable = true)
+    @Column(name = PHONE, unique = true, updatable = true)
     private String phone;
 
     public Contact(){}

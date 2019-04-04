@@ -12,9 +12,12 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "ADVERTISING_PLATFORM_STATISTICS")
 public class AdvertisingPlatformStatistics extends AbstractStatistics {
+
+    public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";
+
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "ADVERTISING_PLATFORM_ID")
+    @JoinColumn(name = ADVERTISING_PLATFORM_ID)
     private AdvertisingPlatform platform;
 
     public AdvertisingPlatformStatistics(){

@@ -16,6 +16,9 @@ import java.util.Objects;
 @Table(name = "PLATFORM_TOKENS")
 public class PlatformToken {
 
+    public static final String TOKEN = "TOKEN";
+    public static final String RELEASED_DATE_TIME = "RELEASED_DATE_TIME";
+
     @Id
     private Long id;
 
@@ -26,10 +29,10 @@ public class PlatformToken {
     @PrimaryKeyJoinColumn
     private AdvertisingPlatform platform;
 
-    @Column(name = "TOKEN")
+    @Column(name = TOKEN)
     private String token;
 
-    @Column(name = "RELEASED_DATE_TIME")
+    @Column(name = RELEASED_DATE_TIME)
     private LocalDateTime releasedDateTime;
 
     public PlatformToken(){}

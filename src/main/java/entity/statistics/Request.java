@@ -12,19 +12,24 @@ import java.util.Objects;
 @Entity
 @Table(name = "REQUESTS")
 public class Request {
+
+    public static final String ID = "ID";
+    public static final String SESSION_ID = "SESSION_ID";
+    public static final String CAMPAIGN_ID = "CAMPAIGN_ID";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "SESSION_ID")
+    @JoinColumn(name = SESSION_ID)
     private Session session;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "CAMPAIGN_ID")
+    @JoinColumn(name = CAMPAIGN_ID)
     private Campaign campaign;
 
     private LocalDate date;

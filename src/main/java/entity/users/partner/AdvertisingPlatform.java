@@ -14,35 +14,44 @@ import java.util.Objects;
 @Table(name = "ADVERTISING_PLATFORMS")
 public class AdvertisingPlatform {
 
+    public static final String ID = "ID";
+    public static final String PARTNER_ID = "PARTNER_ID";
+    public static final String TITLE = "TITLE";
+    public static final String DESCRIPTION = "DESCRIPTION";
+    public static final String CPM_RATE = "CPM_RATE";
+    public static final String PICTURE_FORMAT_ID = "PICTURE_FORMAT_ID";
+    public static final String ACTION = "ACTION";
+    public static final String STATUS = "STATUS";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "PARTNER_ID")
+    @JoinColumn(name = PARTNER_ID)
     private Partner partner;
 
-    @Column(name = "TITLE")
+    @Column(name = TITLE)
     private String title;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = DESCRIPTION)
     private String description;
 
-    @Column(name = "CPM_RATE")
+    @Column(name = CPM_RATE)
     private BigDecimal cpmRate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "PICTURE_FORMAT_ID")
+    @JoinColumn(name = PICTURE_FORMAT_ID)
     private PictureFormat pictureFormat;
 
-    @Column(name = "ACTION")
+    @Column(name = ACTION)
     @Enumerated(EnumType.STRING)
     private Action action;
 
-    @Column(name = "STATUS")
+    @Column(name = STATUS)
     @Enumerated(EnumType.STRING)
     private Status status;
 

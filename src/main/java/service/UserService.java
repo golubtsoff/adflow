@@ -136,4 +136,60 @@ public abstract class UserService {
         }
     }
 
+    public static User get(long id) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            User user = DaoFactory.getUserDao().get(id);
+            transaction.commit();
+            return user;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static User get(String login) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            User user = DaoFactory.getUserDao().getByName(login).get(0);
+            transaction.commit();
+            return user;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static List<User> getAll() throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            List<User> users = DaoFactory.getUserDao().getAll();
+            transaction.commit();
+            return users;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static List<User> getByStatus(UserStatus status) throws DbException {
+        return getByCustomField(User.STATUS, status.toString());
+    }
+
+    public static List<User> getByRole(Role role) throws DbException {
+        return getByCustomField(User.ROLE, role.toString());
+    }
+
+    private static List<User> getByCustomField(String fieldName, String value) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            List<User> users = DaoFactory.getUserDao().getAll(fieldName, value);
+            transaction.commit();
+            return users;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
 }

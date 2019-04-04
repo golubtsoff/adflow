@@ -16,44 +16,56 @@ import java.util.Set;
 @Table(name = "campaigns")
 public class Campaign {
 
+    public static final String ID = "ID";
+    public static final String CUSTOMER_ID = "CUSTOMER_ID";
+    public static final String TITLE = "TITLE";
+    public static final String DESCRIPTION = "DESCRIPTION";
+    public static final String URL = "URL";
+    public static final String PICTURES = "PICTURES";
+    public static final String DAILY_BUDGET = "DAILY_BUDGET";
+    public static final String CPM_RATE = "CPM_RATE";
+    public static final String CREATION_DATE = "CREATION_DATE";
+    public static final String ACTION = "ACTION";
+    public static final String STATUS = "STATUS";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "CUSTOMER_ID")
+    @JoinColumn(name = CUSTOMER_ID)
     private Customer customer;
 
-    @Column(name = "TITLE")
+    @Column(name = TITLE)
     private String Title;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = DESCRIPTION)
     private String Description;
 
 
-    @Column(name = "URL")
+    @Column(name = URL)
     private String pathOnClick;
 
     @ElementCollection
-    @CollectionTable(name = "PICTURES")
+    @CollectionTable(name = PICTURES)
     private Set<Picture> pictures = new HashSet<>();
 
-    @Column(name = "DAILY_BUDGET")
+    @Column(name = DAILY_BUDGET)
     private BigDecimal dailyBudget;
 
-    @Column(name = "CPM_RATE")
+    @Column(name = CPM_RATE)
     private BigDecimal cpmRate;
 
-    @Column(name = "CREATION_DATE")
+    @Column(name = CREATION_DATE)
     private LocalDateTime creationDate;
 
-    @Column(name = "ACTION")
+    @Column(name = ACTION)
     @Enumerated(EnumType.STRING)
     private Action action;
 
-    @Column(name = "STATUS")
+    @Column(name = STATUS)
     @Enumerated(EnumType.STRING)
     private Status status;
 

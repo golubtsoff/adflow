@@ -7,15 +7,19 @@ import java.util.Objects;
 @Table(name = "PICTURE_FORMATS")
 public class PictureFormat {
 
+    public static final String ID = "ID";
+    public static final String WIDTH = "WIDTH";
+    public static final String HEIGHT = "HEIGHT";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "WIDTH")
+    @Column(name = WIDTH)
     private int width;
 
-    @Column(name = "HEIGHT")
+    @Column(name = HEIGHT)
     private int height;
 
 

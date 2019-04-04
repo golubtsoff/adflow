@@ -15,8 +15,15 @@ import java.util.Objects;
 @Table(name = "USER_TOKENS")
 public class UserToken {
 
-    private static long ACTION_TIME_MINUTES = 30;
-    private static long EXTENDED_TIME_MINUTES = 15;
+    private static final long ACTION_TIME_MINUTES = 30;
+    private static final long EXTENDED_TIME_MINUTES = 15;
+
+    public static final String TOKEN = "TOKEN";
+    public static final String RELEASE_DATE_TIME = "RELEASE_DATE_TIME";
+    public static final String EXPIRED_DATE_TIME = "EXPIRED_DATE_TIME";
+
+    public static final String TOKEN_ISSUER = "app4pro.ru";
+    public static final String UID = "uid";
 
     @Id
     private Long id;
@@ -28,13 +35,13 @@ public class UserToken {
     @PrimaryKeyJoinColumn
     private User user;
 
-    @Column(name = "TOKEN")
+    @Column(name = TOKEN)
     private String token;
 
-    @Column(name = "RELEASE_DATE_TIME")
+    @Column(name = RELEASE_DATE_TIME)
     private LocalDateTime releasedDateTime;
 
-    @Column(name = "EXPIRED_DATE_TIME")
+    @Column(name = EXPIRED_DATE_TIME)
     private LocalDateTime expiredDateTime;
 
     public UserToken(){}
@@ -59,8 +66,8 @@ public class UserToken {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             token = JWT.create()
-                    .withIssuer("app4pro.ru")
-                    .withClaim("uid", userId)
+                    .withIssuer(TOKEN_ISSUER)
+                    .withClaim(UID, userId)
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new Exception(exception);

@@ -6,10 +6,13 @@ import java.util.Objects;
 @Embeddable
 public class Person {
 
-    @Column(name = "firstname")
+    public static final String FIRSTNAME = "FIRSTNAME";
+    public static final String LASTNAME = "LASTNAME";
+
+    @Column(name = FIRSTNAME)
     private String firstname;
 
-    @Column(name = "lastname")
+    @Column(name = LASTNAME)
     private String lastname;
 
     public Person() {}

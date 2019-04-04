@@ -1,6 +1,7 @@
 package entity.users.user;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -11,34 +12,48 @@ import java.util.Objects;
 })
 public class User {
 
+    public static final String ID = "ID";
+    public static final String LOGIN = "LOGIN";
+    public static final String PASSWORD_HASH = "PASSWORD_HASH";
+    public static final String ROLE = "ROLE";
+    public static final String CREATION_DATE = "CREATION_DATE";
+    public static final String FIRSTNAME = "FIRSTNAME";
+    public static final String LASTNAME = "LASTNAME";
+    public static final String EMAIL = "EMAIL";
+    public static final String PHONE = "PHONE";
+    public static final String STATUS = "STATUS";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "LOGIN", unique = true, updatable = false, nullable = false)
+    @Column(name = LOGIN, unique = true, updatable = false, nullable = false)
     private String login;
 
-    @Column(name = "PASSWORD_HASH", nullable = false)
+    @Column(name = PASSWORD_HASH, nullable = false)
     private String hash;
 
-    @Column(name = "ROLE", nullable = false)
+    @Column(name = ROLE, nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = CREATION_DATE, nullable = false)
+    private LocalDateTime creationDateTime;
+
     @AttributeOverrides({
-            @AttributeOverride(name="firstname", column=@Column(table="persons")),
-            @AttributeOverride(name="lastname", column=@Column(table="persons"))
+            @AttributeOverride(name=FIRSTNAME, column=@Column(table="persons")),
+            @AttributeOverride(name=LASTNAME, column=@Column(table="persons"))
     })
     private Person person;
 
     @AttributeOverrides({
-            @AttributeOverride(name="email", column=@Column(table="contacts")),
-            @AttributeOverride(name="phone", column=@Column(table="contacts"))
+            @AttributeOverride(name=EMAIL, column=@Column(table="contacts")),
+            @AttributeOverride(name=PHONE, column=@Column(table="contacts"))
     })
     private Contact contact;
 
-    @Column(name = "STATUS", nullable = false)
+    @Column(name = STATUS, nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
@@ -55,6 +70,7 @@ public class User {
         this.hash = hash;
         this.role = role;
         this.status = UserStatus.CHECKING;
+        this.creationDateTime = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -109,6 +125,10 @@ public class User {
         this.status = status;
     }
 
+    public LocalDateTime getCreationDateTime() {
+        return creationDateTime;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -116,6 +136,7 @@ public class User {
                 ", login='" + login + '\'' +
                 ", hash='" + hash + '\'' +
                 ", role=" + role +
+                ", creationDateTime=" + creationDateTime +
                 ", person=" + person +
                 ", contact=" + contact +
                 ", status=" + status +

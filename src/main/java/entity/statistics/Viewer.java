@@ -6,10 +6,13 @@ import java.util.Objects;
 @Embeddable
 public class Viewer {
 
-    @Column(name = "NAME")
+    public static final String NAME = "NAME";
+    public static final String IP = "IP";
+
+    @Column(name = NAME)
     private String name;
 
-    @Column(name = "IP")
+    @Column(name = IP)
     private String ip;
 
     public Viewer() {

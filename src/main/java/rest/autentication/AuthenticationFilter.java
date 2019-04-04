@@ -62,7 +62,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         DecodedJWT jwt;
         try {
             jwt = JWT.decode(token);
-            Long userId = jwt.getClaim("uid").asLong();
+            Long userId = jwt.getClaim(UserToken.UID).asLong();
             UserToken savedToken = UserService.getToken(userId);
             if (savedToken.getUser().getStatus() == UserStatus.WORKING
                     && savedToken.updateExpiredDateTime()

@@ -11,8 +11,11 @@ import java.util.Objects;
 @Table(name = "administrators")
 public class Administrator implements ConcreteRole {
 
+    public static final String ID = "ID";
+    public static final String USER_ID = "USER_ID";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

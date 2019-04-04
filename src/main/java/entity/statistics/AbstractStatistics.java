@@ -6,8 +6,11 @@ import java.time.LocalDate;
 
 @MappedSuperclass
 public abstract class AbstractStatistics {
+
+    public static final String ID = "ID";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     protected LocalDate date;

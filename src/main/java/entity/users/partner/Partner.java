@@ -16,8 +16,11 @@ import java.util.Set;
 @Table(name = "partners")
 public class Partner implements ConcreteRole {
 
+    public static final String ID = "ID";
+    public static final String USER_ID = "USER_ID";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -26,7 +29,7 @@ public class Partner implements ConcreteRole {
             optional = false
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = USER_ID)
     private User user;
 
     private Account account;

@@ -10,9 +10,12 @@ import javax.persistence.*;
 @Entity
 @Table(name = "CAMPAIGN_STATISTICS")
 public class CampaignStatistics extends AbstractStatistics {
+
+    public static final String CAMPAIGN_ID = "CAMPAIGN_ID";
+
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "CAMPAIGN_ID")
+    @JoinColumn(name = CAMPAIGN_ID)
     private Campaign campaign;
 
     public Campaign getCampaign() {

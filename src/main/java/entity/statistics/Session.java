@@ -13,32 +13,41 @@ import java.util.Objects;
 @SecondaryTable(name = "VIEWERS")
 public class Session {
 
+    public static final String ID = "ID";
+    public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";
+    public static final String DISPLAYS_COUNTER = "DISPLAYS_COUNTER";
+    public static final String CLICK_COUNTER = "CLICK_COUNTER";
+    public static final String NAME = "NAME";
+    public static final String IP = "IP";
+    public static final String CREATION_TIME = "CREATION_TIME";
+    public static final String CLOSING_TIME = "CLOSING_TIME";
+
     @Id
-    @Column(name = "ID")
+    @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = "ADVERTISING_PLATFORM_ID")
+    @JoinColumn(name = ADVERTISING_PLATFORM_ID)
     private AdvertisingPlatform advertisingPlatform;
 
-    @Column(name = "DISPLAYS_COUNTER")
+    @Column(name = DISPLAYS_COUNTER)
     private int displaysCounter;
 
-    @Column(name = "CLICK_COUNTER")
+    @Column(name = CLICK_COUNTER)
     private int clickCounter;
 
     @AttributeOverrides({
-            @AttributeOverride(name="NAME", column=@Column(table="VIEWERS")),
-            @AttributeOverride(name="IP", column=@Column(table="VIEWERS"))
+            @AttributeOverride(name=NAME, column=@Column(table="VIEWERS")),
+            @AttributeOverride(name=IP, column=@Column(table="VIEWERS"))
     })
     private Viewer viewer;
 
-    @Column(name = "CREATION_TIME")
+    @Column(name = CREATION_TIME)
     private LocalDateTime creationTime;
 
-    @Column(name = "CLOSING_TIME")
+    @Column(name = CLOSING_TIME)
     private LocalDateTime closingTime;
 
     public Session() {

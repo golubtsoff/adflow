@@ -28,11 +28,17 @@ public abstract class UserService {
                 DbAssistant.transactionRollback(transaction);
                 return null;
             }
-            UserToken userToken = new UserToken(users.get(0));
-            DaoFactory.getUserTokenDao().create(userToken);
+            UserToken token = DaoFactory.getUserTokenDao().get(users.get(0).getId());
+            if (token == null){
+                token = new UserToken(users.get(0));
+                DaoFactory.getUserTokenDao().create(token);
+            } else {
+                token.updateToken();
+                DaoFactory.getUserTokenDao().update(token);
+            }
 
             transaction.commit();
-            return userToken;
+            return token;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);

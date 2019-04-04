@@ -35,8 +35,10 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 .substring(AUTHENTICATION_SCHEME.length()).trim();
 
         try {
-            if (!validateToken(token))
+            long[] uid = new long[1];
+            if (!validateToken(token, uid))
                 abortWithUnauthorized(requestContext);
+            requestContext.getHeaders().add("uid", Long.toString(uid[0]));
         } catch (Exception e) {
             abortWithUnauthorized(requestContext);
         }
@@ -55,7 +57,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                         .build());
     }
 
-    private boolean validateToken(String token) throws Exception {
+    private boolean validateToken(String token, long[] uid) throws Exception {
         DecodedJWT jwt;
         try {
             jwt = JWT.decode(token);
@@ -64,6 +66,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
             if (savedToken.updateExpiredDateTime()
                     && savedToken.getToken().equals(token)){
                 UserService.setToken(savedToken);
+                uid[0] = userId;
                 return true;
             }
             return false;

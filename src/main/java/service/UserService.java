@@ -3,7 +3,7 @@ package service;
 import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Administrator;
-import entity.users.user.UserStatus;
+import entity.users.Status;
 import entity.users.customer.Customer;
 import entity.users.partner.Partner;
 import entity.users.user.Role;
@@ -25,7 +25,7 @@ public abstract class UserService {
         try {
             List<User> users = DaoFactory.getUserDao().getByName(login);
             if (users.isEmpty()
-                    || users.get(0).getStatus() != UserStatus.WORKING
+                    || users.get(0).getStatus() != Status.WORKING
                     || !users.get(0).getHash().equalsIgnoreCase(Hash.getHash(password))){
                 DbAssistant.transactionRollback(transaction);
                 return null;
@@ -172,7 +172,7 @@ public abstract class UserService {
         }
     }
 
-    public static List<User> getByStatus(UserStatus status) throws DbException {
+    public static List<User> getByStatus(Status status) throws DbException {
         return getByCustomField(User.STATUS, status.toString());
     }
 

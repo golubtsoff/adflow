@@ -44,7 +44,6 @@ public class Campaign {
     @Column(name = DESCRIPTION)
     private String Description;
 
-
     @Column(name = URL)
     private String pathOnClick;
 

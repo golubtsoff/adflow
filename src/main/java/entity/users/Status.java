@@ -1,9 +1,8 @@
 package entity.users;
 
 public enum Status {
+    WORKING,
+    LOCKED,
     REMOVED,
-    AUTO,
-    CHECKING,
-    REJECTED,
-    FROZEN
+    CHECKING
 }

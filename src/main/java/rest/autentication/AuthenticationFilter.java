@@ -2,7 +2,7 @@ package rest.autentication;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import entity.users.user.UserStatus;
+import entity.users.Status;
 import entity.users.user.UserToken;
 import service.UserService;
 
@@ -64,7 +64,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
             jwt = JWT.decode(token);
             Long userId = jwt.getClaim(UserToken.UID).asLong();
             UserToken savedToken = UserService.getToken(userId);
-            if (savedToken.getUser().getStatus() == UserStatus.WORKING
+            if (savedToken.getUser().getStatus() == Status.WORKING
                     && savedToken.updateExpiredDateTime()
                     && savedToken.getToken().equals(token)){
                 UserService.setToken(savedToken);

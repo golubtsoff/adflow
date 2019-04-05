@@ -1,5 +1,7 @@
 package entity.users.user;
 
+import entity.users.Status;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -55,7 +57,7 @@ public class User {
 
     @Column(name = STATUS, nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    private Status status;
 
     public User() {
     }
@@ -69,7 +71,7 @@ public class User {
         this.login = login;
         this.hash = hash;
         this.role = role;
-        this.status = UserStatus.CHECKING;
+        this.status = Status.CHECKING;
         this.creationDateTime = LocalDateTime.now();
     }
 
@@ -117,11 +119,11 @@ public class User {
         this.contact = contact;
     }
 
-    public UserStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(UserStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

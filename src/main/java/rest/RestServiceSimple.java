@@ -1,6 +1,6 @@
 package rest;
 
-import rest.autentication.Secured;
+import rest.users.autentication.Secured;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;

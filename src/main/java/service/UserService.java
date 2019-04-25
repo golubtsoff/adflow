@@ -2,6 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import dao.impl.UserDao;
 import entity.users.Administrator;
 import entity.users.Status;
 import entity.users.customer.Customer;
@@ -186,6 +187,28 @@ public abstract class UserService {
             List<User> users = DaoFactory.getUserDao().getAll(fieldName, value);
             transaction.commit();
             return users;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static void update(User user) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            DaoFactory.getUserDao().update(user);
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static void delete(long id) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            DaoFactory.getUserDao().delete(id);
+            transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);

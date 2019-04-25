@@ -1,4 +1,4 @@
-package rest.autentication;
+package rest.users.autentication;
 
 import entity.users.user.UserToken;
 import exception.DbException;
@@ -8,19 +8,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-@Path("/authenticate")
+@Path("/authentication")
 public class AuthenticationEndpoint {
 
     public static final String LOGIN_FORM_NAME = "login";
     public static final String PASSWORD_FORM_NAME = "password";
-    public static final String AUTHENTICATE_USER_PATH = "/signin";
-    public static final String REVOKE_AUTHENTICATION_PATH = "/signout";
 
-    @Context
-    UriInfo uriInfo;
+//    @Context
+//    UriInfo uriInfo;
 
     @POST
-    @Path(AUTHENTICATE_USER_PATH)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response authenticateUser(@FormParam(LOGIN_FORM_NAME) String login,
@@ -36,8 +33,7 @@ public class AuthenticationEndpoint {
     }
 
     @Secured
-    @POST
-    @Path(REVOKE_AUTHENTICATION_PATH)
+    @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response revokeAuthentication(@Context HttpHeaders headers) {

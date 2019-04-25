@@ -27,8 +27,9 @@ public class Main {
         UserService.signUpExceptAdministrator("admin", "123", "admin");
         UserService.signUpExceptAdministrator("admin2", "123", "ADMIN");
         UserToken token = UserService.signIn("partner", "123");
-        assert (token != null);
-        UserService.signOut(token.getUser().getId());
+//        assert (token != null);
+//        UserService.signOut(token.getUser().getId());
+        User user = UserService.get(1);
 
         DbAssistant.close();
     }

@@ -24,6 +24,7 @@ public class UserToken {
 
     public static final String TOKEN_ISSUER = "app4pro.ru";
     public static final String UID = "uid";
+    public static final String ROLE = "role";
 
     @Id
     private Long id;
@@ -52,7 +53,7 @@ public class UserToken {
         this.user = user;
         releasedDateTime = LocalDateTime.now();
         expiredDateTime = releasedDateTime.plusMinutes(ACTION_TIME_MINUTES);
-        token = issueToken(id, getSecret(user.getHash(), releasedDateTime));
+        token = issueToken(id, user.getRole(), getSecret(user.getHash(), releasedDateTime));
     }
 
     @NotNull
@@ -61,13 +62,14 @@ public class UserToken {
     }
 
     @NotNull
-    private String issueToken(long userId, @NotNull String secret) throws Exception {
+    private String issueToken(long userId, Role role, @NotNull String secret) throws Exception {
         token = "";
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             token = JWT.create()
                     .withIssuer(TOKEN_ISSUER)
                     .withClaim(UID, userId)
+                    .withClaim(ROLE, role.toString())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new Exception(exception);
@@ -91,7 +93,7 @@ public class UserToken {
     public UserToken updateToken() throws Exception {
         releasedDateTime = LocalDateTime.now();
         expiredDateTime = releasedDateTime.plusMinutes(ACTION_TIME_MINUTES);
-        token = issueToken(id, getSecret(user.getHash(), releasedDateTime));
+        token = issueToken(id, user.getRole(), getSecret(user.getHash(), releasedDateTime));
         return this;
     }
 

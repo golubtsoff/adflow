@@ -3,6 +3,7 @@ package rest.users.autentication;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import entity.users.Status;
+import entity.users.user.Role;
 import entity.users.user.UserToken;
 import service.UserService;
 
@@ -21,8 +22,13 @@ import java.io.IOException;
 public class AuthenticationFilter implements ContainerRequestFilter {
     private static final String AUTHENTICATION_SCHEME = "Basic";
 
+    private class Validation{
+        private long id;
+        private Role role;
+    }
+
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext){
 
         String authorizationHeader =
                 requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
@@ -36,10 +42,13 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 .substring(AUTHENTICATION_SCHEME.length()).trim();
 
         try {
-            long[] uid = new long[1];
-            if (!validateToken(token, uid))
+            Validation validation = validateToken(token);
+            if (validation == null){
                 abortWithUnauthorized(requestContext);
-            requestContext.getHeaders().add("uid", Long.toString(uid[0]));
+                return;
+            }
+            requestContext.getHeaders().add(UserToken.UID, Long.toString(validation.id));
+            requestContext.getHeaders().add(UserToken.ROLE, validation.role.toString());
         } catch (Exception e) {
             abortWithUnauthorized(requestContext);
         }
@@ -58,20 +67,21 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                         .build());
     }
 
-    private boolean validateToken(String token, long[] uid) throws Exception {
+    private Validation validateToken(String token) throws Exception {
         DecodedJWT jwt;
         try {
+            Validation validation = new Validation();
             jwt = JWT.decode(token);
-            Long userId = jwt.getClaim(UserToken.UID).asLong();
-            UserToken savedToken = UserService.getToken(userId);
+            validation.id = jwt.getClaim(UserToken.UID).asLong();
+            UserToken savedToken = UserService.getToken(validation.id);
             if (savedToken.getUser().getStatus() == Status.WORKING
                     && savedToken.updateExpiredDateTime()
                     && savedToken.getToken().equals(token)){
                 UserService.setToken(savedToken);
-                uid[0] = userId;
-                return true;
+                validation.role = Role.valueOf(jwt.getClaim(UserToken.ROLE).asString());
+                return validation;
             }
-            return false;
+            return null;
         } catch (Exception e){
             throw new Exception(e);
         }

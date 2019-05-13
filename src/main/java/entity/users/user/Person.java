@@ -6,8 +6,8 @@ import java.util.Objects;
 @Embeddable
 public class Person {
 
-    public static final String FIRSTNAME = "FIRSTNAME";
-    public static final String LASTNAME = "LASTNAME";
+    public static final String FIRSTNAME = "firstname";
+    public static final String LASTNAME = "lastname";
 
     @Column(name = FIRSTNAME)
     private String firstname;

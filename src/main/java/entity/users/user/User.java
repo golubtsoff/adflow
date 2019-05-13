@@ -14,15 +14,11 @@ import java.util.Objects;
 })
 public class User {
 
-    public static final String ID = "ID";
+    public static final String ID = "USER_ID";
     public static final String LOGIN = "LOGIN";
     public static final String PASSWORD_HASH = "PASSWORD_HASH";
     public static final String ROLE = "ROLE";
     public static final String CREATION_DATE = "CREATION_DATE";
-    public static final String FIRSTNAME = "FIRSTNAME";
-    public static final String LASTNAME = "LASTNAME";
-    public static final String EMAIL = "EMAIL";
-    public static final String PHONE = "PHONE";
     public static final String STATUS = "STATUS";
 
     @Id
@@ -44,14 +40,14 @@ public class User {
     private LocalDateTime creationDateTime;
 
     @AttributeOverrides({
-            @AttributeOverride(name=FIRSTNAME, column=@Column(table="persons")),
-            @AttributeOverride(name=LASTNAME, column=@Column(table="persons"))
+            @AttributeOverride(name=Person.FIRSTNAME, column=@Column(table="persons")),
+            @AttributeOverride(name=Person.LASTNAME, column=@Column(table="persons"))
     })
     private Person person;
 
     @AttributeOverrides({
-            @AttributeOverride(name=EMAIL, column=@Column(table="contacts")),
-            @AttributeOverride(name=PHONE, column=@Column(table="contacts"))
+            @AttributeOverride(name=Contact.EMAIL, column=@Column(table="contacts")),
+            @AttributeOverride(name=Contact.PHONE, column=@Column(table="contacts"))
     })
     private Contact contact;
 

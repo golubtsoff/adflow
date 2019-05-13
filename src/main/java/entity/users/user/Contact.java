@@ -6,8 +6,8 @@ import java.util.Objects;
 @Embeddable
 public class Contact {
 
-    public static final String EMAIL = "EMAIL";
-    public static final String PHONE = "PHONE";
+    public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
 
     @Column(name = EMAIL, unique = true, updatable = true)
     private String email;

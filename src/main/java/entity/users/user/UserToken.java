@@ -30,7 +30,7 @@ public class UserToken {
     private Long id;
 
     @OneToOne(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             optional = false
     )
     @PrimaryKeyJoinColumn

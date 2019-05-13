@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import entity.users.user.User;
 import exception.DbException;
 import service.UserService;
+import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
@@ -39,7 +40,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(String content){
         try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = JsonHelper.getGson();
             Credential credential = gson.fromJson(content, Credential.class);
 
             User user = UserService.signUpExceptAdministrator(credential.login.toLowerCase(), credential.password, credential.role);
@@ -64,7 +65,7 @@ public class UserResource {
             User user = UserService.get(id);
             if (user == null) return Response.status(Response.Status.NOT_FOUND).build();
 
-            Gson dOut = new GsonBuilder().setPrettyPrinting().create();
+            Gson dOut = JsonHelper.getGson();
             return Response.ok(dOut.toJson(user)).build();
         } catch (DbException e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -76,7 +77,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response readAll(){
         try{
-            Gson dOut = new GsonBuilder().setPrettyPrinting().create();
+            Gson dOut = JsonHelper.getGson();
             return Response.ok(dOut.toJson(UserService.getAll())).build();
         } catch (DbException e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -88,7 +89,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("uid") long id, String content){
         try{
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = JsonHelper.getGson();
             User user = gson.fromJson(content, User.class);
             UserService.update(user);
             return Response.ok(gson.toJson(user)).build();

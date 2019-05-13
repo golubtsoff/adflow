@@ -37,8 +37,8 @@ public class AuthenticationEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response revokeAuthentication(@Context HttpHeaders headers) {
-        long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
         try {
+            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
             UserService.signOut(userId);
         } catch (DbException e) {
             return Response.status(Response.Status.FORBIDDEN).build();

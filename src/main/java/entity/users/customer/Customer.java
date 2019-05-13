@@ -23,7 +23,7 @@ public class Customer implements ConcreteRole {
     private Long id;
 
     @OneToOne(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             optional = false
     )
     @OnDelete(action = OnDeleteAction.CASCADE)

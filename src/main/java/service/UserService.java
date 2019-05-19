@@ -62,7 +62,7 @@ public abstract class UserService {
         }
     }
 
-    private static User signUp(String login, String password, Role role)
+    public static User signUp(String login, String password, Role role)
             throws DbException, ServiceException {
         Transaction transaction = DbAssistant.getTransaction();
         try {

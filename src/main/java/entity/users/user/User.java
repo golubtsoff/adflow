@@ -1,5 +1,7 @@
 package entity.users.user;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import entity.users.Status;
 
 import javax.persistence.*;
@@ -14,12 +16,12 @@ import java.util.Objects;
 })
 public class User {
 
-    public static final String ID = "USER_ID";
-    public static final String LOGIN = "LOGIN";
-    public static final String PASSWORD_HASH = "PASSWORD_HASH";
-    public static final String ROLE = "ROLE";
-    public static final String CREATION_DATE = "CREATION_DATE";
-    public static final String STATUS = "STATUS";
+    public static final String ID = "user_id";
+    public static final String LOGIN = "login";
+    public static final String PASSWORD_HASH = "password_hash";
+    public static final String ROLE = "role";
+    public static final String CREATION_DATE = "creation_date";
+    public static final String STATUS = "status";
 
     @Id
     @Column(name = ID)

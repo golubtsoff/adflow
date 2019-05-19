@@ -8,14 +8,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-@Path("/authentication")
+@Path("/users/authentication")
 public class AuthenticationEndpoint {
 
     public static final String LOGIN_FORM_NAME = "login";
     public static final String PASSWORD_FORM_NAME = "password";
-
-//    @Context
-//    UriInfo uriInfo;
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)

@@ -2,12 +2,16 @@ package rest.personal;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import entity.users.Status;
+import entity.users.user.Contact;
+import entity.users.user.Person;
 import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
 import rest.users.autentication.Secured;
 import service.UserService;
+import util.Hash;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -19,13 +23,13 @@ import javax.ws.rs.core.Response;
 
 // TODO: сделать сброс и смену пароля пользователя
 @Path("/profile")
+@Secured
 public class ProfileResourse {
 
     @Context
     HttpHeaders headers;
 
     @GET
-    @Secured
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(){
         try {
@@ -38,7 +42,6 @@ public class ProfileResourse {
     }
 
     @PUT
-    @Secured
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUser(String content){
@@ -46,10 +49,14 @@ public class ProfileResourse {
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
             Gson gson = JsonHelper.getGson();
             User userFromClient = gson.fromJson(content, User.class);
+            if (userFromClient == null)
+                return Response.notModified().build();
 
             User userFromBase = UserService.get(userId);
-            userFromBase.setContact(userFromClient.getContact());
-            userFromBase.setPerson(userFromClient.getPerson());
+            if (userFromBase == null)
+                return Response.status(Response.Status.NOT_FOUND).build();
+
+            userFromBase = partlyUpdateUser(userFromClient, userFromBase);
             UserService.update(userFromBase);
 
             return Response.ok(getJsonString(userFromBase)).build();
@@ -62,8 +69,17 @@ public class ProfileResourse {
         }
     }
 
+    private User partlyUpdateUser(User userFromClient, User userFromBase){
+        Contact contact = userFromClient.getContact();
+        Person person = userFromClient.getPerson();
+        if (contact != null)
+            userFromBase.setContact(contact);
+        if (person != null)
+            userFromBase.setPerson(person);
+        return userFromBase;
+    }
+
     @DELETE
-    @Secured
     public Response deleteUser(){
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
@@ -86,4 +102,25 @@ public class ProfileResourse {
         jo.remove("status");
         return JsonHelper.getGson().toJson(jo);
     }
+
+    @PUT
+    @Path("/password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updatePassword(String content){
+        try{
+            JsonObject jsonObject = new JsonParser().parse(content).getAsJsonObject();
+            String password = jsonObject.get("password").getAsString();
+            String hash = Hash.getHash(password);
+
+            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            User user = UserService.get(userId);
+            user.setHash(hash);
+            UserService.update(user);
+
+            return Response.ok().build();
+        } catch (DbException e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

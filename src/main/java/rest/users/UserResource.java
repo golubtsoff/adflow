@@ -19,10 +19,6 @@ import java.net.URI;
 @Path("/users")
 public class UserResource {
 
-    public static final String LOGIN_FIELD_NAME = "login";
-    public static final String PASSWORD_FIELD_NAME = "password";
-    public static final String ROLE_FIELD_NAME = "role";
-
     public static final String URI_FIELD_NAME = "uri";
 
     @Context

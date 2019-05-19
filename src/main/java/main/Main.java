@@ -1,6 +1,7 @@
 package main;
 
 import dao.DbAssistant;
+import entity.users.user.Role;
 import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
@@ -25,7 +26,7 @@ public class Main {
         UserService.signUpExceptAdministrator("partner", "123", "partner");
         UserService.signUpExceptAdministrator("admin", "123", "ADMIN");
         UserService.signUpExceptAdministrator("admin", "123", "admin");
-        UserService.signUpExceptAdministrator("admin2", "123", "ADMIN");
+        UserService.signUp("admin", "123", Role.ADMIN);
         UserToken token = UserService.signIn("partner", "123");
 //        assert (token != null);
 //        UserService.signOut(token.getUser().getId());

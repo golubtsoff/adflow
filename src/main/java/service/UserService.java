@@ -11,12 +11,16 @@ import entity.users.user.Role;
 import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
+import exception.NotFoundException;
 import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import rest.personal.ProfileResourse;
 import util.Hash;
+import util.NullAware;
 
 import javax.persistence.NoResultException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public abstract class UserService {
@@ -193,14 +197,40 @@ public abstract class UserService {
         }
     }
 
-    public static void update(User user) throws DbException {
+    public static User update(User user) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             DaoFactory.getUserDao().update(user);
             transaction.commit();
+            return user;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        }
+    }
+
+    public static User updateExcludeNull(long userId, Object userFromClient)
+            throws DbException, NotFoundException, ServiceException {
+        Transaction transaction = DbAssistant.getTransaction();
+        User userFromBase = null;
+        try {
+            userFromBase = get(userId);
+            if (userFromBase == null){
+                DbAssistant.transactionRollback(transaction);
+                throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
+            }
+            NullAware.getInstance().copyProperties(userFromBase, userFromClient.getClass().cast(userFromClient));
+            DaoFactory.getUserDao().update(userFromBase);
+
+            transaction.commit();
+            return userFromBase;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException("Error copy objects: "
+                    + userFromClient.toString() + " to " + userFromBase.toString());
         }
     }
 

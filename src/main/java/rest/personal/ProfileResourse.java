@@ -9,6 +9,7 @@ import entity.users.user.Person;
 import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
+import exception.NotFoundException;
 import rest.users.autentication.Secured;
 import service.UserService;
 import util.Hash;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 
 // TODO: сделать сброс и смену пароля пользователя
 @Path("/profile")
@@ -29,13 +31,57 @@ public class ProfileResourse {
     @Context
     HttpHeaders headers;
 
+    public class UserDto {
+        private String hash;
+        private Person person;
+        private Contact contact;
+        private Status status;
+
+        public String getHash() {
+            return hash;
+        }
+
+        public void setHash(String hash) {
+            this.hash = hash;
+        }
+
+        public Person getPerson() {
+            return person;
+        }
+
+        public void setPerson(Person person) {
+            this.person = person;
+        }
+
+        public Contact getContact() {
+            return contact;
+        }
+
+        public void setContact(Contact contact) {
+            this.contact = contact;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(){
         try {
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
             User user = UserService.get(userId);
-            return Response.ok(getJsonString(user)).build();
+            return Response.ok(JsonHelper.getJsonStringExcludeFields(
+                    user,
+                    Arrays.asList("hash", "status"))
+            ).build();
+        } catch (DbException | ClassCastException e){
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e){
             return Response.status(Response.Status.FORBIDDEN).build();
         }
@@ -48,59 +94,40 @@ public class ProfileResourse {
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
             Gson gson = JsonHelper.getGson();
-            User userFromClient = gson.fromJson(content, User.class);
-            if (userFromClient == null)
-                return Response.notModified().build();
+            UserDto userDto = gson.fromJson(content, UserDto.class);
+            if (userDto == null)
+                return Response.status(Response.Status.BAD_REQUEST).build();
 
-            User userFromBase = UserService.get(userId);
-            if (userFromBase == null)
-                return Response.status(Response.Status.NOT_FOUND).build();
+            UserDto userToUpdate = new UserDto();
+            userToUpdate.setContact(userDto.getContact());
+            userToUpdate.setPerson(userDto.getPerson());
 
-            userFromBase = partlyUpdateUser(userFromClient, userFromBase);
-            UserService.update(userFromBase);
+            User userFromBase = UserService.updateExcludeNull(userId, userToUpdate);
 
-            return Response.ok(getJsonString(userFromBase)).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (OptimisticLockException e){
+            return Response.ok(JsonHelper.getJsonStringExcludeFields(
+                    userFromBase,
+                    Arrays.asList("hash", "status"))
+            ).build();
+        } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private User partlyUpdateUser(User userFromClient, User userFromBase){
-        Contact contact = userFromClient.getContact();
-        Person person = userFromClient.getPerson();
-        if (contact != null)
-            userFromBase.setContact(contact);
-        if (person != null)
-            userFromBase.setPerson(person);
-        return userFromBase;
     }
 
     @DELETE
     public Response deleteUser(){
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            User user = UserService.get(userId);
-            user.setStatus(Status.REMOVED);
-            UserService.update(user);
+            UserDto userToUpdate = new UserDto();
+            userToUpdate.setStatus(Status.REMOVED);
+            UserService.updateExcludeNull(userId, userToUpdate);
             return Response.noContent().build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private String getJsonString(User user){
-        JsonObject jo = JsonHelper.getGson().toJsonTree(user).getAsJsonObject();
-        jo.remove("hash");
-        jo.remove("status");
-        return JsonHelper.getGson().toJson(jo);
     }
 
     @PUT
@@ -113,12 +140,14 @@ public class ProfileResourse {
             String hash = Hash.getHash(password);
 
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            User user = UserService.get(userId);
-            user.setHash(hash);
-            UserService.update(user);
+            UserDto userDto = new UserDto();
+            userDto.setHash(hash);
+            UserService.updateExcludeNull(userId, userDto);
 
             return Response.ok().build();
-        } catch (DbException e){
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

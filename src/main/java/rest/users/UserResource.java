@@ -48,6 +48,8 @@ public class UserResource {
             jsonObject.addProperty(URI_FIELD_NAME, userUri.toString());
 
             return Response.ok(gson.toJson(jsonObject)).build();
+        } catch (DbException e){
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }

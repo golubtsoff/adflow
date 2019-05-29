@@ -7,6 +7,7 @@ import entity.users.Status;
 import entity.users.user.*;
 import exception.DbException;
 import rest.Roles;
+import rest.admin.strategy.UserExclusionStrategy;
 import rest.users.autentication.Secured;
 import service.UserService;
 import util.JsonHelper;
@@ -15,6 +16,7 @@ import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
+import java.util.Arrays;
 
 @Path("/admin/users")
 @Secured
@@ -58,16 +60,13 @@ public class UserResource {
             User user = UserService.get(id);
             if (user == null)
                 return Response.status(Response.Status.NOT_FOUND).build();
-            return Response.ok(getJsonString(user)).build();
+            return Response.ok(JsonHelper.getJsonStringExcludeFields(
+                    user,
+                    Arrays.asList("hash")
+            )).build();
         } catch (DbException e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private String getJsonString(User user){
-        JsonObject jo = JsonHelper.getGson().toJsonTree(user).getAsJsonObject();
-        jo.remove("hash");
-        return JsonHelper.getGson().toJson(jo);
     }
 
     @POST
@@ -110,7 +109,10 @@ public class UserResource {
             userFromBase = partlyUpdateUser(userFromClient, userFromBase);
             UserService.update(userFromBase);
 
-            return Response.ok(getJsonString(userFromBase)).build();
+            return Response.ok(JsonHelper.getJsonStringExcludeFields(
+                    userFromBase,
+                    Arrays.asList("hash")
+            )).build();
         } catch (DbException e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (OptimisticLockException e){

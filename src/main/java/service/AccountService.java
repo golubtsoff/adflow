@@ -16,21 +16,21 @@ import javax.validation.constraints.NotNull;
 
 public class AccountService {
 
+    @NotNull
     public static Account get(long userId) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             User user = DaoFactory.getUserDao().get(userId);
-            if (user == null || user.getRole() == Role.ADMIN){
-                throw new NoResultException();
-            }
 
-            Account account = null;
+            Account account;
             if (user.getRole() == Role.PARTNER){
                 Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
                 account = partner.getAccount();
             } else if (user.getRole() == Role.CUSTOMER){
                 Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
                 account = customer.getAccount();
+            } else {
+                throw new NoResultException();
             }
             transaction.commit();
             return account;
@@ -44,10 +44,6 @@ public class AccountService {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             User user = DaoFactory.getUserDao().get(userId);
-            if (user == null
-                    || user.getRole() == Role.ADMIN){
-                throw new NoResultException();
-            }
 
             if (user.getRole() == Role.PARTNER){
                 Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
@@ -57,6 +53,8 @@ public class AccountService {
                 Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
                 customer.setAccount(account);
                 DaoFactory.getCustomerDao().update(customer);
+            } else {
+                throw new NoResultException();
             }
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {

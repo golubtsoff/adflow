@@ -129,6 +129,10 @@ public class User {
         return creationDateTime;
     }
 
+    public void setCreationDateTime(LocalDateTime creationDateTime) {
+        this.creationDateTime = creationDateTime;
+    }
+
     @Override
     public String toString() {
         return "User{" +

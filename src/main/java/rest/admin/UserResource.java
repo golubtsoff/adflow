@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import entity.users.Status;
 import entity.users.user.*;
 import exception.DbException;
+import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.UserExclusionStrategy;
 import rest.users.autentication.Secured;
@@ -34,6 +35,37 @@ public class UserResource {
     private class Credential{
         private String login;
         private String password;
+    }
+
+    public class UserDto {
+
+        private Person person;
+        private Contact contact;
+        private Status status;
+
+        public Person getPerson() {
+            return person;
+        }
+
+        public void setPerson(Person person) {
+            this.person = person;
+        }
+
+        public Contact getContact() {
+            return contact;
+        }
+
+        public void setContact(Contact contact) {
+            this.contact = contact;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
     }
 
     // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
@@ -98,41 +130,20 @@ public class UserResource {
     public Response updateUser(@PathParam("uid") long id, String content){
         try{
             Gson gson = JsonHelper.getGson();
-            User userFromClient = gson.fromJson(content, User.class);
-            if (userFromClient == null)
-                return Response.notModified().build();
+            UserDto userDto = gson.fromJson(content, UserDto.class);
+            if (userDto == null)
+                return Response.status(Response.Status.BAD_REQUEST).build();
 
-            User userFromBase = UserService.get(id);
-            if (userFromBase == null)
-                return Response.status(Response.Status.NOT_FOUND).build();
-
-            userFromBase = partlyUpdateUser(userFromClient, userFromBase);
-            UserService.update(userFromBase);
-
+            User userFromBase = UserService.updateExcludeNull(id, userDto);
             return Response.ok(JsonHelper.getJsonStringExcludeFields(
                     userFromBase,
                     Arrays.asList("hash")
             )).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (OptimisticLockException e){
+        } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private User partlyUpdateUser(User userFromClient, User userFromBase){
-        Contact contact = userFromClient.getContact();
-        Person person = userFromClient.getPerson();
-        Status status = userFromClient.getStatus();
-        if (contact != null)
-            userFromBase.setContact(contact);
-        if (person != null)
-            userFromBase.setPerson(person);
-        if (status != null)
-            userFromBase.setStatus(status);
-        return userFromBase;
     }
 
     @DELETE
@@ -141,12 +152,10 @@ public class UserResource {
         try{
             UserService.delete(id);
             return Response.noContent().build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (IllegalArgumentException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 

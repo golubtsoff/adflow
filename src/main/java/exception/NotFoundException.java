@@ -18,4 +18,8 @@ public class NotFoundException extends Exception {
     public NotFoundException(Exception e) {
         this(e.getMessage(), e);
     }
+
+    public NotFoundException(){
+        super();
+    }
 }

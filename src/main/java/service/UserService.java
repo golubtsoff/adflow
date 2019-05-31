@@ -230,7 +230,7 @@ public abstract class UserService {
         } catch (IllegalAccessException | InvocationTargetException e) {
             DbAssistant.transactionRollback(transaction);
             throw new ServiceException("Error copy objects: "
-                    + userFromClient.toString() + " to " + userFromBase.toString());
+                    + userFromClient.toString() + " to " + userFromBase.toString(), e);
         }
     }
 

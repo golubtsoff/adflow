@@ -8,6 +8,7 @@ import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
 import exception.DbException;
+import exception.NotFoundException;
 import rest.Roles;
 import rest.users.autentication.Secured;
 import service.AccountService;
@@ -34,7 +35,7 @@ public class AccountResource {
             if (account == null)
                 return Response.status(Response.Status.NOT_FOUND).build();
             return Response.ok(JsonHelper.getGson().toJson(account)).build();
-        } catch (DbException e){
+        } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -48,33 +49,15 @@ public class AccountResource {
             Gson gson = JsonHelper.getGson();
             Account accountFromClient = gson.fromJson(content, Account.class);
             if (accountFromClient == null)
-                return Response.notModified().build();
+                return Response.status(Response.Status.BAD_REQUEST).build();
 
-            Account accountFromBase = AccountService.get(userId);
-            if (accountFromBase == null)
-                return Response.status(Response.Status.NOT_FOUND).build();
-
-            accountFromBase = partlyUpdateAccount(accountFromClient, accountFromBase);
-            AccountService.update(userId, accountFromBase);
-
+            Account accountFromBase = AccountService.updateExcludeNull(userId, accountFromClient);
             return Response.ok(JsonHelper.getGson().toJson(accountFromBase)).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (OptimisticLockException e){
+        } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private Account partlyUpdateAccount(Account accountFromClient, Account accountFromBase){
-        BigDecimal balance = accountFromClient.getBalance();
-        String paymentDetails = accountFromClient.getPaymentDetails();
-        if (balance != null)
-            accountFromBase.setBalance(balance);
-        if (paymentDetails != null)
-            accountFromBase.setPaymentDetails(paymentDetails);
-        return accountFromBase;
     }
 
 }

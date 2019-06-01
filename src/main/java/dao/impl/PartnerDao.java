@@ -1,9 +1,10 @@
 package dao.impl;
 
 import dao.AbstractDao;
+import dao.CustomerPartnerDao;
 import entity.users.partner.Partner;
 
-public class PartnerDao extends AbstractDao<Partner> {
+public class PartnerDao extends AbstractDao<Partner> implements CustomerPartnerDao<Partner> {
 
     public PartnerDao(){
         super(Partner.class);

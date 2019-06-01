@@ -1,26 +1,33 @@
 package main;
 
+import dao.CustomerPartnerDao;
+import dao.Dao;
+import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.users.Account;
+import entity.users.Accountable;
+import entity.users.partner.Partner;
 import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
+import exception.NotFoundException;
 import exception.ServiceException;
-import service.ConcreteRoleServiceFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Transaction;
 import service.UserService;
-import service.impl.AdministratorService;
-import service.impl.CustomerService;
-import service.impl.PartnerService;
 import util.NullAware;
 
+import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 public class Main {
 
-    public static void main(String[] args) throws DbException, ServiceException {
+    public static void main(String[] args) throws DbException, ServiceException, IllegalAccessException, NotFoundException, InvocationTargetException {
 
         foo();
 
@@ -37,6 +44,8 @@ public class Main {
 //        assert (token != null);
 //        UserService.signOut(token.getUser().getId());
         User user = UserService.get(1);
+
+        bar(user, new Account(BigDecimal.valueOf(40L)));
 
         DbAssistant.close();
     }
@@ -57,5 +66,37 @@ public class Main {
             e.printStackTrace();
         }
 
+    }
+
+    public static void bar(User userFromBase, Account accountFromClient)
+            throws NotFoundException, InvocationTargetException, IllegalAccessException, DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+
+        Account accountFromBase;
+        CustomerPartnerDao dao;
+        Accountable accountable;
+        try {
+            if (userFromBase.getRole() == Role.PARTNER) {
+                dao = DaoFactory.getPartnerDao();
+            } else if (userFromBase.getRole() == Role.CUSTOMER) {
+                dao = DaoFactory.getCustomerDao();
+            } else {
+                throw new NotFoundException();
+            }
+
+            accountable = (Accountable) dao.getByUserId(userFromBase.getId());
+            accountFromBase = accountable.getAccount();
+            NullAware.getInstance().copyProperties(accountFromBase, accountFromClient);
+            accountable.setAccount(accountFromBase);
+            dao.update(accountable);
+            Class cl = accountable.getClass();
+
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            DbAssistant.transactionRollback(transaction);
+        }
     }
 }

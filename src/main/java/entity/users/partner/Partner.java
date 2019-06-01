@@ -1,6 +1,7 @@
 package entity.users.partner;
 
 import entity.users.Account;
+import entity.users.Accountable;
 import entity.users.ConcreteRole;
 import entity.users.user.User;
 import org.hibernate.annotations.OnDelete;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "partners")
-public class Partner implements ConcreteRole {
+public class Partner implements ConcreteRole, Accountable {
 
     public static final String ID = "ID";
     public static final String USER_ID = "USER_ID";

@@ -1,13 +1,10 @@
 package service;
 
-import dao.Dao;
+import dao.CustomerPartnerDao;
 import dao.DaoFactory;
 import dao.DbAssistant;
-import dao.impl.CustomerDao;
-import dao.impl.PartnerDao;
 import entity.users.Account;
-import entity.users.customer.Customer;
-import entity.users.partner.Partner;
+import entity.users.Accountable;
 import entity.users.user.Role;
 import entity.users.user.User;
 import exception.DbException;
@@ -24,21 +21,21 @@ import java.lang.reflect.InvocationTargetException;
 public class AccountService {
 
     @NotNull
-    public static Account get(long userId) throws DbException {
+    public static Account get(long userId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             User user = DaoFactory.getUserDao().get(userId);
+            checkUserNotNull(userId,  user, transaction);
 
-            Account account;
+            Accountable accountable;
             if (user.getRole() == Role.PARTNER){
-                Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-                account = partner.getAccount();
+                accountable = DaoFactory.getPartnerDao().getByUserId(userId);
             } else if (user.getRole() == Role.CUSTOMER){
-                Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-                account = customer.getAccount();
+                accountable = DaoFactory.getCustomerDao().getByUserId(userId);
             } else {
                 throw new NoResultException();
             }
+            Account account = accountable.getAccount();
             transaction.commit();
             return account;
         } catch (HibernateException | NoResultException | NullPointerException e) {
@@ -47,22 +44,33 @@ public class AccountService {
         }
     }
 
-    public static void update(long userId, @NotNull Account account) throws DbException {
+    private static void checkUserNotNull(long userId, User user, Transaction transaction)
+            throws NotFoundException {
+        if (user == null){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
+        }
+    }
+
+    public static void update(long userId, @NotNull Account account) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             User user = DaoFactory.getUserDao().get(userId);
+            checkUserNotNull(userId,  user, transaction);
 
+            CustomerPartnerDao dao;
             if (user.getRole() == Role.PARTNER){
-                Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-                partner.setAccount(account);
-                DaoFactory.getPartnerDao().update(partner);
+                dao = DaoFactory.getPartnerDao();
             } else if (user.getRole() == Role.CUSTOMER){
-                Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-                customer.setAccount(account);
-                DaoFactory.getCustomerDao().update(customer);
+                dao = DaoFactory.getCustomerDao();
             } else {
                 throw new NoResultException();
             }
+
+            Accountable accountable = (Accountable)dao.getByUserId(userId);
+            accountable.setAccount(account);
+            dao.update(accountable);
+
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
@@ -76,28 +84,24 @@ public class AccountService {
         Account accountFromBase = null;
         try {
             User userFromBase = DaoFactory.getUserDao().get(userId);
-            if (userFromBase == null){
-                DbAssistant.transactionRollback(transaction);
-                throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
-            }
+            checkUserNotNull(userId,  userFromBase, transaction);
 
+            CustomerPartnerDao dao;
+            Accountable accountable;
             if (userFromBase.getRole() == Role.PARTNER){
-                PartnerDao dao = DaoFactory.getPartnerDao();
-                Partner partner = dao.getByUserId(userId);
-                accountFromBase = partner.getAccount();
-                NullAware.getInstance().copyProperties(accountFromBase, accountFromClient);
-                partner.setAccount(accountFromBase);
-                dao.update(partner);
+                dao = DaoFactory.getPartnerDao();
             } else if (userFromBase.getRole() == Role.CUSTOMER){
-                CustomerDao dao = DaoFactory.getCustomerDao();
-                Customer customer = dao.getByUserId(userId);
-                accountFromBase = customer.getAccount();
-                NullAware.getInstance().copyProperties(accountFromBase, accountFromClient);
-                customer.setAccount(accountFromBase);
-                dao.update(customer);
+                dao = DaoFactory.getCustomerDao();
             } else {
                 throw new NotFoundException();
             }
+
+            accountable = (Accountable)dao.getByUserId(userId);
+            accountFromBase = accountable.getAccount();
+            NullAware.getInstance().copyProperties(accountFromBase, accountFromClient);
+            accountable.setAccount(accountFromBase);
+            dao.update(accountable);
+
             transaction.commit();
             return accountFromBase;
         } catch (HibernateException | NoResultException | NullPointerException e) {

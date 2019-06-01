@@ -3,11 +3,13 @@ package rest.admin;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.user.Role;
 import entity.users.user.User;
 import exception.DbException;
+import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
 import rest.users.autentication.Secured;
@@ -19,6 +21,7 @@ import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +30,27 @@ import java.util.List;
 @Roles(Role.ADMIN)
 public class CampaignResource {
 
+    public class CampaignDto{
+        private BigDecimal cpmRate;
+        private Status status;
+
+        public BigDecimal getCpmRate() {
+            return cpmRate;
+        }
+
+        public void setCpmRate(BigDecimal cpmRate) {
+            this.cpmRate = cpmRate;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
+    }
+
     // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
     @GET
     @Path("{uid}/campaigns")
@@ -34,15 +58,14 @@ public class CampaignResource {
     public Response readAll(@PathParam("uid") long userId){
         try{
             List<Campaign> campaigns = CampaignService.getAllByUserId(userId);
-            if (campaigns == null)
-                return Response.status(Response.Status.NOT_FOUND).build();
-
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new CampaignExclusionStrategy())
                     .create();
             return Response.ok(dOut.toJson(campaigns)).build();
-        } catch (DbException e){
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -53,13 +76,13 @@ public class CampaignResource {
     public Response read(@PathParam("uid") long userId, @PathParam("cid") long campaignId){
         try{
             Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
-            if (campaign == null)
-                return Response.status(Response.Status.NOT_FOUND).build();
             return Response.ok(JsonHelper.getJsonStringExcludeFields(
                     campaign,
                     Arrays.asList("customer")
             )).build();
-        } catch (DbException | ClassCastException e){
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -74,15 +97,33 @@ public class CampaignResource {
     ){
         try{
             Gson gson = JsonHelper.getGson();
-            Campaign campaign = gson.fromJson(content, Campaign.class);
-            CampaignService.update(campaign);
-            return Response.ok(gson.toJson(campaign)).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (OptimisticLockException e){
+            CampaignDto campaignDto = gson.fromJson(content, CampaignDto.class);
+            if (campaignDto == null)
+                return Response.status(Response.Status.BAD_REQUEST).build();
+
+            Campaign campaignFromBase = CampaignService.updateExcludeNullWithChecking(userId, campaignId, campaignDto);
+            return Response.ok(gson.toJson(campaignFromBase)).build();
+        } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
-            return Response.notModified().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DELETE
+    @Path("{uid}/campaigns/{cid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(
+            @PathParam("uid") long userId,
+            @PathParam("cid") long campaignId
+    ){
+        try{
+            CampaignService.deleteWithChecking(userId, campaignId);
+            return Response.noContent().build();
+        } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 

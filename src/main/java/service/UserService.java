@@ -219,7 +219,7 @@ public abstract class UserService {
                 DbAssistant.transactionRollback(transaction);
                 throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
             }
-            NullAware.getInstance().copyProperties(userFromBase, userFromClient.getClass().cast(userFromClient));
+            NullAware.getInstance().copyProperties(userFromBase, userFromClient);
             DaoFactory.getUserDao().update(userFromBase);
 
             transaction.commit();

@@ -6,23 +6,30 @@ import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.user.User;
 import exception.DbException;
+import exception.NotFoundException;
+import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import util.NullAware;
 
 import javax.persistence.NoResultException;
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class CampaignService {
 
-    public static List<Campaign> getAllByUserId(long userId) throws DbException {
+    @NotNull
+    public static List<Campaign> getAllByUserId(long userId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-            if (customer == null) {
+            if (customer == null){
                 DbAssistant.transactionRollback(transaction);
-                return null;
+                throw new NotFoundException("Customer with userId=" + String.valueOf(userId) + " not found");
             }
+
             List<Campaign> campaigns = DaoFactory.getCampaignDao().getAllByCustomerId(customer.getId());
             transaction.commit();
             return campaigns;
@@ -44,13 +51,13 @@ public class CampaignService {
         }
     }
 
-    public static Campaign get(long id) throws DbException {
+    public static Campaign get(long id) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             Campaign campaign = DaoFactory.getCampaignDao().get(id);
             if (campaign == null) {
                 DbAssistant.transactionRollback(transaction);
-                return null;
+                throw new NotFoundException("Campaign with id=" + String.valueOf(id) + " not found");
             }
             transaction.commit();
             return campaign;
@@ -60,22 +67,28 @@ public class CampaignService {
         }
     }
 
-    public static Campaign getWithChecking(long userId, long campaignId) throws DbException {
+    public static Campaign getWithChecking(long userId, long campaignId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
             Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-            if (campaign == null
-                    || customer == null
-                    || !campaign.getCustomer().getId().equals(customer.getId())){
-                DbAssistant.transactionRollback(transaction);
-                return null;
-            }
+            checkCampaign(campaign, customer, transaction);
+
             transaction.commit();
             return campaign;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        }
+    }
+
+    private static void checkCampaign(Campaign campaign, Customer customer, Transaction transaction)
+            throws NotFoundException {
+        if (campaign == null
+                || customer == null
+                || !campaign.getCustomer().getId().equals(customer.getId())){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException();
         }
     }
 
@@ -90,21 +103,29 @@ public class CampaignService {
         }
     }
 
-    public static void updateWithChecking(long userId, @NotNull Campaign campaign) throws DbException {
+    public static Campaign updateExcludeNullWithChecking(
+            long userId, long campaignId, @NotNull Object campaignFromClient
+    )
+            throws DbException, NotFoundException, ServiceException {
         Transaction transaction = DbAssistant.getTransaction();
+        Campaign campaignFromBase = null;
         try {
-            Campaign campaignFromBase = DaoFactory.getCampaignDao().get(campaign.getId());
+            campaignFromBase = DaoFactory.getCampaignDao().get(campaignId);
             Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-            if (campaignFromBase == null
-                    || customer == null
-                    || !campaignFromBase.getCustomer().getId().equals(customer.getId())){
-                DbAssistant.transactionRollback(transaction);
-            }
-            DaoFactory.getCampaignDao().update(campaign);
+            checkCampaign(campaignFromBase, customer, transaction);
+
+            NullAware.getInstance().copyProperties(campaignFromBase, campaignFromClient);
+            DaoFactory.getCampaignDao().update(campaignFromBase);
+
             transaction.commit();
+            return campaignFromBase;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException("Error copy objects: "
+                    + campaignFromClient.toString() + " to " + campaignFromBase.toString(), e);
         }
     }
 
@@ -112,6 +133,22 @@ public class CampaignService {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             DaoFactory.getCampaignDao().delete(id);
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    public static void deleteWithChecking(long userId, long campaignId) throws DbException, NotFoundException {
+        Transaction transaction = DbAssistant.getTransaction();
+        Campaign campaignFromBase;
+        try {
+            campaignFromBase = DaoFactory.getCampaignDao().get(campaignId);
+            Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
+            checkCampaign(campaignFromBase, customer, transaction);
+
+            DaoFactory.getCampaignDao().delete(campaignId);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);

@@ -44,11 +44,11 @@ public abstract class DaoFactory {
         return getDao(AdministratorDao.class);
     }
 
-    public static PlatformDao getAdvertisingPlatformDao(){
+    public static PlatformDao getPlatformDao(){
         return getDao(PlatformDao.class);
     }
 
-    public static PlatformStatisticsDao getAdvertisingPlatformStatisticsDao(){
+    public static PlatformStatisticsDao getPlatformStatisticsDao(){
         return getDao(PlatformStatisticsDao.class);
     }
 

@@ -1,13 +1,13 @@
 package dao;
 
-import entity.statistics.AdvertisingPlatformStatistics;
+import entity.statistics.PlatformStatistics;
 import entity.statistics.CampaignStatistics;
 import entity.statistics.Request;
 import entity.users.Administrator;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.customer.PictureFormat;
-import entity.users.partner.AdvertisingPlatform;
+import entity.users.partner.Platform;
 import entity.users.partner.Partner;
 import entity.users.partner.PlatformToken;
 import entity.users.user.*;
@@ -96,8 +96,8 @@ public abstract class DbAssistant {
     private static void addAnnotatedClassToConfiguration(Configuration configuration) {
         configuration
                 .addAnnotatedClass(Administrator.class)
-                .addAnnotatedClass(AdvertisingPlatform.class)
-                .addAnnotatedClass(AdvertisingPlatformStatistics.class)
+                .addAnnotatedClass(Platform.class)
+                .addAnnotatedClass(PlatformStatistics.class)
                 .addAnnotatedClass(Campaign.class)
                 .addAnnotatedClass(CampaignStatistics.class)
                 .addAnnotatedClass(Customer.class)

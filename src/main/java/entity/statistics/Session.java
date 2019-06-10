@@ -1,6 +1,6 @@
 package entity.statistics;
 
-import entity.users.partner.AdvertisingPlatform;
+import entity.users.partner.Platform;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -30,7 +30,7 @@ public class Session {
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = ADVERTISING_PLATFORM_ID)
-    private AdvertisingPlatform advertisingPlatform;
+    private Platform platform;
 
     @Column(name = DISPLAYS_COUNTER)
     private int displaysCounter;
@@ -54,26 +54,26 @@ public class Session {
     }
 
     public Session(
-            AdvertisingPlatform advertisingPlatform,
+            Platform platform,
             int displaysCounter,
             int clickCounter,
             Viewer viewer,
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
-        this(null, advertisingPlatform, displaysCounter,
+        this(null, platform, displaysCounter,
                 clickCounter, viewer, creationTime, closingTime);
     }
 
     public Session(
             Long id,
-            AdvertisingPlatform advertisingPlatform,
+            Platform platform,
             int displaysCounter,
             int clickCounter,
             Viewer viewer,
             LocalDateTime creationTime,
             LocalDateTime closingTime) {
         this.id = id;
-        this.advertisingPlatform = advertisingPlatform;
+        this.platform = platform;
         this.displaysCounter = displaysCounter;
         this.clickCounter = clickCounter;
         this.viewer = viewer;
@@ -85,12 +85,12 @@ public class Session {
         return id;
     }
 
-    public AdvertisingPlatform getAdvertisingPlatform() {
-        return advertisingPlatform;
+    public Platform getPlatform() {
+        return platform;
     }
 
-    public void setAdvertisingPlatform(AdvertisingPlatform advertisingPlatform) {
-        this.advertisingPlatform = advertisingPlatform;
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     public int getDisplaysCounter() {
@@ -137,7 +137,7 @@ public class Session {
     public String toString() {
         return "Session{" +
                 "id=" + id +
-                ", advertisingPlatform=" + advertisingPlatform +
+                ", platform=" + platform +
                 ", displaysCounter=" + displaysCounter +
                 ", clickCounter=" + clickCounter +
                 ", viewer=" + viewer +
@@ -154,7 +154,7 @@ public class Session {
         return displaysCounter == session.displaysCounter &&
                 clickCounter == session.clickCounter &&
                 Objects.equals(id, session.id) &&
-                Objects.equals(advertisingPlatform, session.advertisingPlatform) &&
+                Objects.equals(platform, session.platform) &&
                 Objects.equals(viewer, session.viewer) &&
                 Objects.equals(creationTime, session.creationTime) &&
                 Objects.equals(closingTime, session.closingTime);
@@ -163,6 +163,6 @@ public class Session {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, advertisingPlatform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
+        return Objects.hash(id, platform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
     }
 }

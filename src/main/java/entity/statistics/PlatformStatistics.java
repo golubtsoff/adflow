@@ -1,6 +1,6 @@
 package entity.statistics;
 
-import entity.users.partner.AdvertisingPlatform;
+import entity.users.partner.Platform;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import java.util.Objects;
@@ -11,39 +11,39 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "ADVERTISING_PLATFORM_STATISTICS")
-public class AdvertisingPlatformStatistics extends AbstractStatistics {
+public class PlatformStatistics extends AbstractStatistics {
 
     public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = ADVERTISING_PLATFORM_ID)
-    private AdvertisingPlatform platform;
+    private Platform platform;
 
-    public AdvertisingPlatformStatistics(){
+    public PlatformStatistics(){
         super();
     }
 
-    public AdvertisingPlatformStatistics(AdvertisingPlatform platform, LocalDate date){
+    public PlatformStatistics(Platform platform, LocalDate date){
         this(platform, date, 0, 0, BigDecimal.valueOf(0));
     }
 
-    public AdvertisingPlatformStatistics(AdvertisingPlatform platform, LocalDate date, int displaysCount, int clickCount, BigDecimal cost){
+    public PlatformStatistics(Platform platform, LocalDate date, int displaysCount, int clickCount, BigDecimal cost){
         super(date, displaysCount, clickCount, cost);
         this.platform = platform;
     }
 
-    public AdvertisingPlatform getPlatform() {
+    public Platform getPlatform() {
         return platform;
     }
 
-    public void setPlatform(AdvertisingPlatform platform) {
+    public void setPlatform(Platform platform) {
         this.platform = platform;
     }
 
     @Override
     public String toString() {
-        return "AdvertisingPlatformStatistics{" +
+        return "PlatformStatistics{" +
                 "platform=" + platform +
                 ", id=" + id +
                 ", date=" + date +
@@ -56,8 +56,8 @@ public class AdvertisingPlatformStatistics extends AbstractStatistics {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AdvertisingPlatformStatistics)) return false;
-        AdvertisingPlatformStatistics that = (AdvertisingPlatformStatistics) o;
+        if (!(o instanceof PlatformStatistics)) return false;
+        PlatformStatistics that = (PlatformStatistics) o;
         return Objects.equals(getPlatform(), that.getPlatform()) &&
                 Objects.equals(getDate(), that.getDate());
     }

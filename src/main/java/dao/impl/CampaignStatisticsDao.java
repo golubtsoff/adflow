@@ -8,4 +8,6 @@ public class CampaignStatisticsDao extends AbstractDao<CampaignStatistics> {
     public CampaignStatisticsDao(){
         super(CampaignStatistics.class);
     }
+
+
 }

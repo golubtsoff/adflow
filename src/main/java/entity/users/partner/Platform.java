@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "ADVERTISING_PLATFORMS")
-public class AdvertisingPlatform {
+public class Platform {
 
     public static final String ID = "ID";
     public static final String PARTNER_ID = "PARTNER_ID";
@@ -55,14 +55,14 @@ public class AdvertisingPlatform {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public AdvertisingPlatform() {
+    public Platform() {
     }
 
-    public AdvertisingPlatform(Partner partner, String title, String description, BigDecimal cpmRate) {
+    public Platform(Partner partner, String title, String description, BigDecimal cpmRate) {
         this(null, partner, title, description, cpmRate);
     }
 
-    public AdvertisingPlatform(Long id, Partner partner, String title, String description, BigDecimal cpmRate) {
+    public Platform(Long id, Partner partner, String title, String description, BigDecimal cpmRate) {
         this.id = id;
         this.partner = partner;
         this.title = title;
@@ -134,7 +134,7 @@ public class AdvertisingPlatform {
 
     @Override
     public String toString() {
-        return "AdvertisingPlatform{" +
+        return "Platform{" +
                 "id=" + id +
                 ", partner=" + partner +
                 ", title='" + title + '\'' +
@@ -149,8 +149,8 @@ public class AdvertisingPlatform {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AdvertisingPlatform)) return false;
-        AdvertisingPlatform that = (AdvertisingPlatform) o;
+        if (!(o instanceof Platform)) return false;
+        Platform that = (Platform) o;
         return Objects.equals(getId(), that.getId()) &&
                 Objects.equals(getTitle(), that.getTitle());
     }

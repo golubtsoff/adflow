@@ -40,7 +40,7 @@ public class Partner implements ConcreteRole, Accountable {
             cascade = CascadeType.PERSIST
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<AdvertisingPlatform> platforms = new HashSet<>();
+    private Set<Platform> platforms = new HashSet<>();
 
     public Partner() {}
 
@@ -74,11 +74,11 @@ public class Partner implements ConcreteRole, Accountable {
         this.account = account;
     }
 
-    public Set<AdvertisingPlatform> getPlatforms() {
+    public Set<Platform> getPlatforms() {
         return platforms;
     }
 
-    public void setPlatforms(Set<AdvertisingPlatform> platforms) {
+    public void setPlatforms(Set<Platform> platforms) {
         this.platforms = platforms;
     }
 

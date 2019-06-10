@@ -3,9 +3,6 @@ package entity.users.partner;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import entity.users.user.User;
-import javafx.application.Platform;
-import org.junit.Assert;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -27,7 +24,7 @@ public class PlatformToken {
             optional = false
     )
     @PrimaryKeyJoinColumn
-    private AdvertisingPlatform platform;
+    private Platform platform;
 
     @Column(name = TOKEN)
     private String token;
@@ -37,7 +34,7 @@ public class PlatformToken {
 
     public PlatformToken(){}
 
-    public PlatformToken(AdvertisingPlatform platform) throws Exception {
+    public PlatformToken(Platform platform) throws Exception {
         id = platform.getId();
         assert (id != null);
         this.platform = platform;
@@ -88,11 +85,11 @@ public class PlatformToken {
         this.id = id;
     }
 
-    public AdvertisingPlatform getPlatform() {
+    public Platform getPlatform() {
         return platform;
     }
 
-    public void setPlatform(AdvertisingPlatform platform) {
+    public void setPlatform(Platform platform) {
         this.platform = platform;
     }
 

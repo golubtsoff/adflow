@@ -6,6 +6,11 @@ import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Account;
 import entity.users.Accountable;
+import entity.users.Status;
+import entity.users.customer.Campaign;
+import entity.users.customer.Customer;
+import entity.users.customer.Picture;
+import entity.users.customer.PictureFormat;
 import entity.users.partner.Partner;
 import entity.users.user.Person;
 import entity.users.user.Role;
@@ -20,34 +25,67 @@ import service.UserService;
 import util.NullAware;
 
 import javax.persistence.NoResultException;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Set;
 
 public class Main {
 
-    public static void main(String[] args) throws DbException, ServiceException, IllegalAccessException, NotFoundException, InvocationTargetException {
-
-        foo();
-
-        LocalDateTime ldt = LocalDateTime.now();
-        LocalDateTime ldt2 = ldt.plusMinutes(15);
-        long minutes = ChronoUnit.MINUTES.between(ldt, ldt2);
-
-        UserService.signUpExceptAdministrator("customer", "123", "customer");
-        UserService.signUpExceptAdministrator("partner", "123", "partner");
-        UserService.signUpExceptAdministrator("admin", "123", "ADMIN");
-        UserService.signUpExceptAdministrator("admin", "123", "admin");
-        UserService.signUp("admin", "123", Role.ADMIN);
-        UserToken token = UserService.signIn("partner", "123");
-//        assert (token != null);
-//        UserService.signOut(token.getUser().getId());
-        User user = UserService.get(1);
-
-        bar(user, new Account(BigDecimal.valueOf(40L)));
-
+    public static void main(String[] args) throws DbException, ServiceException, NotFoundException {
+        initData();
         DbAssistant.close();
+    }
+
+    public static void initData() throws DbException, ServiceException, NotFoundException {
+        User userCustomer_1 = UserService.signUpExceptAdministrator("customer_1", "123", "customer");
+        User userPartner_1 = UserService.signUpExceptAdministrator("partner_1", "123", "partner");
+        User userAdmin_1 = UserService.signUp("admin_1", "123", Role.ADMIN);
+
+        assert userCustomer_1 != null;
+        userCustomer_1.setStatus(Status.WORKING);
+        UserService.update(userCustomer_1);
+
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            Customer customer_1 = DaoFactory.getCustomerDao().getByUserId(userCustomer_1.getId());
+            Campaign campaign_1 = new Campaign(
+                    customer_1,
+                    "Campaign_1",
+                    "Title of Campaign_1",
+                    "http://somesite.come",
+                    BigDecimal.valueOf(100),
+                    BigDecimal.valueOf(57)
+            );
+            PictureFormat pictureFormat = new PictureFormat(800, 600);
+            DaoFactory.getPictureFormatDao().create(pictureFormat);
+            Picture picture = new Picture("filename.jpg", pictureFormat);
+            campaign_1.addPicture(picture);
+            DaoFactory.getCampaignDao().create(campaign_1);
+
+            transaction.commit();
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+                DbAssistant.transactionRollback(transaction);
+                throw new DbException(e);
+        }
+
+        Customer customer = getCustomer(userCustomer_1.getId());
+    }
+
+    private static Customer getCustomer(long userId) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
+            Set<Campaign> campaigns = customer.getCampaigns();
+            transaction.commit();
+            return customer;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
     }
 
     public static void foo(){

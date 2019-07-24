@@ -81,6 +81,14 @@ public class Customer implements ConcreteRole, Accountable {
         this.campaigns = campaigns;
     }
 
+    public void addCampaign(Campaign campaign){
+        this.campaigns.add(campaign);
+    }
+
+    public void removeCampaign(Campaign campaign){
+        this.campaigns.remove(campaign);
+    }
+
     @Override
     public String toString() {
         return "Customer{" +

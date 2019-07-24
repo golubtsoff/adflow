@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "ADVERTISING_PLATFORM_STATISTICS")
+@Table(name = "PLATFORM_STATISTICS")
 public class PlatformStatistics extends AbstractStatistics {
 
     public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";

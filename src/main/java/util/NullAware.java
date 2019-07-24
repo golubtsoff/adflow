@@ -7,7 +7,9 @@ public class NullAware extends BeanUtilsBean{
 
     private static NullAware nullAware = new NullAware();
 
-    private NullAware(){};
+    public NullAware(){
+
+    }
 
     @Override
     public void copyProperty(Object dest, String name, Object value)

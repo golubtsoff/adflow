@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-@Table(name = "ADVERTISING_PLATFORMS")
+@Table(name = "PLATFORMS")
 public class Platform {
 
     public static final String ID = "ID";

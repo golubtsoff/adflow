@@ -1,27 +1,33 @@
-package entity.users.customer;
+package entity.users;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "PICTURE_FORMATS")
+@Table(
+        name = "PICTURE_FORMATS",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"WIDTH", "HEIGHT"})}
+)
 public class PictureFormat {
 
     public static final String ID = "ID";
     public static final String WIDTH = "WIDTH";
     public static final String HEIGHT = "HEIGHT";
+    public static final String CAN_BE_USED = "CAN_BE_USED";
 
     @Id
     @Column(name = ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = WIDTH)
+    @Column(name = WIDTH, nullable=false)
     private int width;
 
-    @Column(name = HEIGHT)
+    @Column(name = HEIGHT, nullable=false)
     private int height;
 
+    @Column(name = CAN_BE_USED)
+    private boolean canBeUsed;
 
     public PictureFormat() {}
 
@@ -33,6 +39,7 @@ public class PictureFormat {
         this.id = id;
         this.width = width;
         this.height = height;
+        this.canBeUsed = true;
     }
 
     public Long getId() {
@@ -62,6 +69,7 @@ public class PictureFormat {
                 "id=" + id +
                 ", width=" + width +
                 ", height=" + height +
+                ", canBeUsed=" + canBeUsed +
                 '}';
     }
 

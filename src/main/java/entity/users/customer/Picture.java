@@ -1,5 +1,6 @@
 package entity.users.customer;
 
+import entity.users.PictureFormat;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

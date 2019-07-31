@@ -6,7 +6,7 @@ import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.customer.Picture;
-import entity.users.customer.PictureFormat;
+import entity.users.PictureFormat;
 import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;

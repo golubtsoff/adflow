@@ -63,6 +63,14 @@ public class PictureFormat {
         this.height = height;
     }
 
+    public boolean isCanBeUsed() {
+        return canBeUsed;
+    }
+
+    public void setCanBeUsed(boolean canBeUsed) {
+        this.canBeUsed = canBeUsed;
+    }
+
     @Override
     public String toString() {
         return "PictureFormat{" +

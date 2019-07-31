@@ -1,6 +1,6 @@
 package entity.users.partner;
 
-import entity.users.customer.PictureFormat;
+import entity.users.PictureFormat;
 import entity.users.Action;
 import entity.users.Status;
 import org.hibernate.annotations.OnDelete;
@@ -33,7 +33,7 @@ public class Platform {
     @JoinColumn(name = PARTNER_ID)
     private Partner partner;
 
-    @Column(name = TITLE)
+    @Column(name = TITLE, unique = true)
     private String title;
 
     @Column(name = DESCRIPTION)

@@ -1,7 +1,6 @@
 package main;
 
 import dao.CustomerPartnerDao;
-import dao.Dao;
 import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Account;
@@ -10,12 +9,10 @@ import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.customer.Picture;
-import entity.users.customer.PictureFormat;
-import entity.users.partner.Partner;
+import entity.users.PictureFormat;
 import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
-import entity.users.user.UserToken;
 import exception.DbException;
 import exception.NotFoundException;
 import exception.ServiceException;
@@ -25,12 +22,8 @@ import service.UserService;
 import util.NullAware;
 
 import javax.persistence.NoResultException;
-import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Set;
 
 public class Main {

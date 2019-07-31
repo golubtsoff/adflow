@@ -6,7 +6,7 @@ import entity.statistics.Request;
 import entity.users.Administrator;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
-import entity.users.customer.PictureFormat;
+import entity.users.PictureFormat;
 import entity.users.partner.Platform;
 import entity.users.partner.Partner;
 import entity.users.partner.PlatformToken;

@@ -2,23 +2,99 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.customer.Campaign;
-import entity.users.customer.Customer;
+import entity.users.customer.Picture;
+import entity.users.PictureFormat;
 import entity.users.partner.Partner;
 import entity.users.partner.Platform;
+import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
 import exception.ServiceException;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import rest.partner.PlatformResource;
 import util.NullAware;
 
 import javax.persistence.NoResultException;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Set;
 
 public class PlatformService {
+
+//    public static Platform create(long userId, @NotNull Object platformDto)
+//            throws NotFoundException, DbException, ServiceException, ConflictException {
+//        Transaction transaction = DbAssistant.getTransaction();
+//        Platform platform = null;
+//        try {
+//            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
+//            if (partner == null){
+//                DbAssistant.transactionRollback(transaction);
+//                throw new NotFoundException("Partner with user's id=" + String.valueOf(userId) + " not found");
+//            }
+//            Hibernate.initialize(partner.getPlatforms());
+//            checkPlatformDtoByPartner(partner, platformDto);
+//
+//            platform = new Platform(partner);
+//            NullAware.getInstance().copyProperties(platform, platformDto);
+//            DaoFactory.getPlatformDao().create(platform);
+//            transaction.commit();
+//            return platform;
+//        } catch (HibernateException | NoResultException | NullPointerException e) {
+//            DbAssistant.transactionRollback(transaction);
+//            throw new DbException(e);
+//        } catch (IllegalAccessException | InvocationTargetException e) {
+//            DbAssistant.transactionRollback(transaction);
+//            throw new ServiceException("Error copy objects: "
+//                    + platformDto.toString() + " to " + platform.toString(), e);
+//        }
+//    }
+
+//    private static void checkPlatformDtoByPartner(@NotNull Partner partner, @NotNull Object platformDto)
+//            throws ConflictException, NotFoundException {
+//        if (platformDto instanceof PlatformResource.PlatformDto) {
+//            PlatformResource.PlatformDto platformDtoCast
+//                    = (PlatformResource.PlatformDto) platformDto;
+//
+//            if (titleIsExist(partner.getPlatforms(), platformDtoCast.getTitle())){
+//                throw new ConflictException("Title '" + platformDtoCast.getTitle() + "' is already used");
+//            }
+//
+//            if (platformDtoCast.getPictures() != null){
+//                List<PictureFormat> formats = DaoFactory.getPictureFormatDao().getAll();
+//                Set<Picture> pictures = platformDtoCast.getPictures();
+//                checkAndPersistFormats(pictures, formats);
+//            }
+//        }
+//    }
+
+    private static boolean titleIsExist(Set<Platform> platforms, String title){
+        for (Platform platform : platforms){
+            if (platform.getTitle().equals(title)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void checkAndPersistFormat(Set<Picture> pictures, List<PictureFormat> formats)
+            throws NotFoundException {
+        for (Picture picture : pictures) {
+            boolean formatIsExist = false;
+            for (PictureFormat pictureFormat : formats) {
+                if (picture.getPictureFormat().equals(pictureFormat)) {
+                    picture.setPictureFormat(pictureFormat);
+                    formatIsExist = true;
+                    break;
+                }
+            }
+            if (!formatIsExist) {
+                throw new NotFoundException("Unknown picture's format: " + picture.getPictureFormat());
+            }
+        }
+    }
 
     @NotNull
     public static List<Platform> getAllByUserId(long userId) throws DbException, NotFoundException {

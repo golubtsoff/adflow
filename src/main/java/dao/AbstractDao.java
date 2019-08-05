@@ -2,8 +2,10 @@ package dao;
 
 import org.hibernate.LockMode;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import java.util.List;
+import java.util.Queue;
 
 public abstract class AbstractDao<T> implements Dao<T> {
 

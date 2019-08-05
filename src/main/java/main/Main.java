@@ -13,23 +13,30 @@ import entity.users.PictureFormat;
 import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
+import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
 import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import service.PictureFormatService;
 import service.UserService;
 import util.NullAware;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 public class Main {
 
-    public static void main(String[] args) throws DbException, ServiceException, NotFoundException {
+    public static void main(String[] args)
+            throws DbException, ServiceException, NotFoundException, ConflictException {
         initData();
+//        deletePictureFormat(new PictureFormat(800, 600));
         DbAssistant.close();
     }
 
@@ -41,6 +48,12 @@ public class Main {
         assert userCustomer_1 != null;
         userCustomer_1.setStatus(Status.WORKING);
         UserService.update(userCustomer_1);
+        assert userPartner_1 != null;
+        userPartner_1.setStatus(Status.WORKING);
+        UserService.update(userPartner_1);
+        assert userAdmin_1 != null;
+        userAdmin_1.setStatus(Status.WORKING);
+        UserService.update(userAdmin_1);
 
         Transaction transaction = DbAssistant.getTransaction();
         try {
@@ -79,6 +92,11 @@ public class Main {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
         }
+    }
+
+    private static void deletePictureFormat(PictureFormat pictureFormat)
+            throws DbException, NotFoundException, ConflictException {
+        PictureFormatService.delete(1);
     }
 
     public static void foo(){

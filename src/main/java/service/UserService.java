@@ -2,7 +2,6 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
-import dao.impl.UserDao;
 import entity.users.Administrator;
 import entity.users.Status;
 import entity.users.customer.Customer;
@@ -35,17 +34,17 @@ public abstract class UserService {
                 DbAssistant.transactionRollback(transaction);
                 return null;
             }
-            UserToken token = DaoFactory.getUserTokenDao().get(users.get(0).getId());
-            if (token == null){
-                token = new UserToken(users.get(0));
-                DaoFactory.getUserTokenDao().create(token);
+            UserToken userToken = DaoFactory.getUserTokenDao().get(users.get(0).getId());
+            if (userToken == null){
+                userToken = new UserToken(users.get(0));
+                DaoFactory.getUserTokenDao().create(userToken);
             } else {
-                token.updateToken();
-                DaoFactory.getUserTokenDao().update(token);
+                userToken.updateToken();
+                DaoFactory.getUserTokenDao().update(userToken);
             }
 
             transaction.commit();
-            return token;
+            return userToken;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);

@@ -15,7 +15,6 @@ import rest.admin.strategy.CampaignExclusionStrategy;
 import rest.users.autentication.Secured;
 import service.CampaignService;
 import util.JsonHelper;
-import util.NullAware;
 
 import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
@@ -100,6 +99,7 @@ public class CampaignResource {
         }
     }
 
+    // TODO: copy picture's images in directory on server's side from client
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

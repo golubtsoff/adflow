@@ -33,7 +33,7 @@ public class Platform {
     @JoinColumn(name = PARTNER_ID)
     private Partner partner;
 
-    @Column(name = TITLE, unique = true)
+    @Column(name = TITLE)
     private String title;
 
     @Column(name = DESCRIPTION)
@@ -56,6 +56,10 @@ public class Platform {
     private Status status;
 
     public Platform() {
+    }
+
+    public Platform(Partner partner) {
+        this(null, partner, null, null, null);
     }
 
     public Platform(Partner partner, String title, String description, BigDecimal cpmRate) {

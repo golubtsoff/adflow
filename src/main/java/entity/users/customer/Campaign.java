@@ -40,7 +40,7 @@ public class Campaign {
     @JoinColumn(name = CUSTOMER_ID)
     private Customer customer;
 
-    @Column(name = TITLE, unique = true)
+    @Column(name = TITLE)
     private String title;
 
     @Column(name = DESCRIPTION)

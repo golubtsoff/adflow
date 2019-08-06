@@ -18,7 +18,7 @@ public class Picture {
     @JoinColumn(name = PICTURE_FORMAT_ID)
     private PictureFormat pictureFormat;
 
-    @Column(name = FILENAME)
+    @Column(name = FILENAME, unique = true)
     private String fileName;
 
     public Picture(){}

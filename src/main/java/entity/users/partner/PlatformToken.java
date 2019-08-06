@@ -108,13 +108,11 @@ public class PlatformToken {
         if (this == o) return true;
         if (!(o instanceof PlatformToken)) return false;
         PlatformToken token1 = (PlatformToken) o;
-        return Objects.equals(getId(), token1.getId()) &&
-                Objects.equals(getToken(), token1.getToken());
+        return Objects.equals(getToken(), token1.getToken());
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(getId(), getToken());
+        return Objects.hash(getToken());
     }
 }

@@ -8,7 +8,6 @@ public class CampaignExclusionStrategy implements ExclusionStrategy {
     public boolean shouldSkipField(FieldAttributes fieldAttributes) {
         String fieldName = fieldAttributes.getName();
         return fieldName.equals("customer")
-//                || fieldName.equals("id")
                 || fieldName.equals("removedDate");
     }
 

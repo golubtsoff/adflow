@@ -35,7 +35,14 @@ public class CampaignService {
                 throw new NotFoundException("Customer with user's id=" + String.valueOf(userId) + " not found");
             }
             Hibernate.initialize(customer.getCampaigns());
-            checkCampaignDtoByCustomer(customer, campaignDto);
+
+            if (campaignDto instanceof rest.customer.CampaignResource.CampaignDto) {
+                rest.customer.CampaignResource.CampaignDto campaignDtoCast
+                        = (rest.customer.CampaignResource.CampaignDto) campaignDto;
+
+                checkExistedTitle(customer.getCampaigns(), campaignDtoCast.getTitle());
+                checkAndPersistPictureFormats(campaignDtoCast);
+            }
 
             campaign = new Campaign(customer);
             NullAware.getInstance().copyProperties(campaign, campaignDto);
@@ -52,31 +59,34 @@ public class CampaignService {
         }
     }
 
-    private static void checkCampaignDtoByCustomer(@NotNull Customer customer, @NotNull Object campaignDto)
-            throws ConflictException, NotFoundException {
-        if (campaignDto instanceof rest.customer.CampaignResource.CampaignDto) {
-            rest.customer.CampaignResource.CampaignDto campaignDtoCast
-                    = (rest.customer.CampaignResource.CampaignDto) campaignDto;
+    private static void checkAndPersistPictureFormats(rest.customer.CampaignResource.CampaignDto campaignDto)
+            throws NotFoundException {
+        Set<Picture> pictures = campaignDto.getPictures();
+        if (pictures == null) return;
 
-            if (titleIsExist(customer.getCampaigns(), campaignDtoCast.getTitle())){
-                throw new ConflictException("Title '" + campaignDtoCast.getTitle() + "' is already used");
+        List<PictureFormat> formats = DaoFactory.getPictureFormatDao().getAll();
+
+        for (Picture picture : pictures) {
+            boolean formatIsExist = false;
+            for (PictureFormat pictureFormat : formats) {
+                if (picture.getPictureFormat().equals(pictureFormat)) {
+                    picture.setPictureFormat(pictureFormat);
+                    formatIsExist = true;
+                    break;
+                }
             }
-
-            if (campaignDtoCast.getPictures() != null){
-                List<PictureFormat> formats = DaoFactory.getPictureFormatDao().getAll();
-                Set<Picture> pictures = campaignDtoCast.getPictures();
-                checkAndPersistFormats(pictures, formats);
+            if (!formatIsExist) {
+                throw new NotFoundException("Unknown picture's format: " + picture.getPictureFormat());
             }
         }
     }
 
-    private static boolean titleIsExist(Set<Campaign> campaigns, String title){
+    private static void checkExistedTitle(Set<Campaign> campaigns, String title) throws ConflictException {
         for (Campaign campaign : campaigns){
             if (campaign.getTitle().equals(title)){
-                return true;
+                throw new ConflictException("Title '" + title + "' is already used");
             }
         }
-        return false;
     }
 
     @NotNull
@@ -173,7 +183,17 @@ public class CampaignService {
         Campaign campaign = null;
         try {
             campaign = checkAndGetCampaign(campaignId, userId);
-            checkCampaignDtoByCustomer(campaign.getCustomer(), campaignDto);
+
+            if (campaignDto instanceof rest.customer.CampaignResource.CampaignDto) {
+                rest.customer.CampaignResource.CampaignDto campaignDtoCast
+                        = (rest.customer.CampaignResource.CampaignDto) campaignDto;
+
+                if (!campaign.getTitle().equals(campaignDtoCast.getTitle())){
+                    checkExistedTitle(campaign.getCustomer().getCampaigns(), campaignDtoCast.getTitle());
+                }
+
+                checkAndPersistPictureFormats(campaignDtoCast);
+            }
 
             NullAware.getInstance().copyProperties(campaign, campaignDto);
             DaoFactory.getCampaignDao().update(campaign);
@@ -190,23 +210,6 @@ public class CampaignService {
             DbAssistant.transactionRollback(transaction);
             throw new ServiceException("Error copy objects: "
                     + campaignDto.toString() + " to " + campaign.toString(), e);
-        }
-    }
-
-    private static void checkAndPersistFormats(Set<Picture> pictures, List<PictureFormat> formats)
-            throws NotFoundException {
-        for (Picture picture : pictures) {
-            boolean formatIsExist = false;
-            for (PictureFormat pictureFormat : formats) {
-                if (picture.getPictureFormat().equals(pictureFormat)) {
-                    picture.setPictureFormat(pictureFormat);
-                    formatIsExist = true;
-                    break;
-                }
-            }
-            if (!formatIsExist) {
-                throw new NotFoundException("Unknown picture's format: " + picture.getPictureFormat());
-            }
         }
     }
 

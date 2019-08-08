@@ -8,7 +8,6 @@ public class PlatformExclusionStrategy implements ExclusionStrategy {
     public boolean shouldSkipField(FieldAttributes fieldAttributes) {
         String fieldName = fieldAttributes.getName();
         return fieldName.equals("partner")
-//                || fieldName.equals("id")
                 || fieldName.equals("removedDate");
     }
 

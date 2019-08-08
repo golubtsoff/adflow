@@ -7,6 +7,7 @@ import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.PictureFormat;
 import entity.users.partner.Platform;
+import entity.users.partner.PlatformToken;
 import entity.users.user.Role;
 import entity.users.user.UserToken;
 import exception.ConflictException;
@@ -84,54 +85,55 @@ public class PlatformResource {
         }
     }
 
-//    @POST
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public Response create(String content){
-//        try{
-//            Gson gson = JsonHelper.getGson();
-//            PlatformDto platformDto = gson.fromJson(content, PlatformDto.class);
-//            if (platformDto == null)
-//                return Response.status(Response.Status.BAD_REQUEST).build();
-//
-//            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-//            Platform platform = PlatformService.create(userId, platformDto);
-//            if (platform == null || platform.getStatus() == Status.REMOVED)
-//                return Response.status(Response.Status.NOT_FOUND).build();
-//
-//            Gson dOut = new GsonBuilder()
-//                    .setPrettyPrinting()
-//                    .setExclusionStrategies(new rest.partner.strategy.PlatformExclusionStrategy())
-//                    .create();
-//
-//            return Response.ok(dOut.toJson(platform)).build();
-//        } catch (NotFoundException e) {
-//            return Response.status(Response.Status.NOT_FOUND).build();
-//        } catch (ConflictException e) {
-//            return Response.status(Response.Status.CONFLICT).build();
-//        } catch (Exception e){
-//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(String content){
+        try{
+            Gson gson = JsonHelper.getGson();
+            PlatformDto platformDto = gson.fromJson(content, PlatformDto.class);
+            if (platformDto == null
+                    || platformDto.getPictureFormat() == null)
+                return Response.status(Response.Status.BAD_REQUEST).build();
+
+            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            Platform platform = PlatformService.create(userId, platformDto);
+            if (platform == null || platform.getStatus() == Status.REMOVED)
+                return Response.status(Response.Status.NOT_FOUND).build();
+
+            Gson dOut = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .setExclusionStrategies(new rest.partner.strategy.PlatformExclusionStrategy())
+                    .create();
+
+            return Response.ok(dOut.toJson(platform)).build();
+        } catch (NotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (ConflictException e) {
+            return Response.status(Response.Status.CONFLICT).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response readAll(){
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            List<Campaign> campaigns = CampaignService.getAllByUserId(userId);
+            List<Platform> platforms = PlatformService.getAllByUserId(userId);
 
-            List<Campaign> notRemovedCampaigns = new ArrayList<>();
-            for (Campaign campaign : campaigns){
-                if (campaign.getStatus() != Status.REMOVED)
-                    notRemovedCampaigns.add(campaign);
+            List<Platform> notRemovedPlatforms = new ArrayList<>();
+            for (Platform platform : platforms){
+                if (platform.getStatus() != Status.REMOVED)
+                    notRemovedPlatforms.add(platform);
             }
 
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new CampaignExclusionStrategy())
                     .create();
-            return Response.ok(dOut.toJson(notRemovedCampaigns)).build();
+            return Response.ok(dOut.toJson(notRemovedPlatforms)).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
@@ -140,13 +142,13 @@ public class PlatformResource {
     }
 
     @GET
-    @Path("{cid}")
+    @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response read(@PathParam("cid") long campaignId){
+    public Response read(@PathParam("pid") long platformId){
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
-            if (campaign.getStatus() == Status.REMOVED){
+            Platform platform = PlatformService.getWithChecking(userId, platformId);
+            if (platform.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
@@ -155,7 +157,7 @@ public class PlatformResource {
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
                     .create();
 
-            return Response.ok(dOut.toJson(campaign)).build();
+            return Response.ok(dOut.toJson(platform)).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
@@ -164,27 +166,27 @@ public class PlatformResource {
     }
 
     @PUT
-    @Path("{cid}")
+    @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(
-            @PathParam("cid") long campaignId,
+            @PathParam("pid") long platformId,
             String content
     ){
         try{
             Gson gson = JsonHelper.getGson();
-            PlatformDto campaignDto = gson.fromJson(content, PlatformDto.class);
-            if (campaignDto == null)
+            PlatformDto platformDto = gson.fromJson(content, PlatformDto.class);
+            if (platformDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            Campaign campaignFromBase = CampaignService.updateExcludeNullWithChecking(userId, campaignId, campaignDto);
+            Platform platform = PlatformService.updateExcludeNullWithChecking(userId, platformId, platformDto);
 
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
                     .create();
 
-            return Response.ok(dOut.toJson(campaignFromBase)).build();
+            return Response.ok(dOut.toJson(platform)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {
@@ -195,16 +197,60 @@ public class PlatformResource {
     }
 
     @DELETE
-    @Path("{cid}")
+    @Path("{pid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(
-            @PathParam("cid") long campaignId
+            @PathParam("pid") long platformId
     ){
         try{
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            CampaignService.setStatusRemovedWithChecking(userId, campaignId);
+            PlatformService.setStatusRemovedWithChecking(userId, platformId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("{pid}/token")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response readToken(@PathParam("pid") long platformId){
+        try{
+            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            Platform platform = PlatformService.getWithChecking(userId, platformId);
+            if (platform.getStatus() == Status.REMOVED){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            PlatformToken token = PlatformService.getToken(platform);
+            return Response.ok(token.getToken()).build();
+        } catch (NotFoundException e){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PUT
+    @Path("{pid}/token")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("pid") long platformId){
+        try{
+            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            Platform platform = PlatformService.getWithChecking(userId, platformId);
+            if (platform.getStatus() == Status.REMOVED){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            PlatformToken token = PlatformService.updateToken(platform);
+            if (token == null){
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            return Response.ok(token.getToken()).build();
+        } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

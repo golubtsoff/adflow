@@ -2,10 +2,11 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.customer.Picture;
 import entity.users.PictureFormat;
+import entity.users.Status;
 import entity.users.partner.Partner;
 import entity.users.partner.Platform;
+import entity.users.partner.PlatformToken;
 import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
@@ -24,76 +25,58 @@ import java.util.Set;
 
 public class PlatformService {
 
-//    public static Platform create(long userId, @NotNull Object platformDto)
-//            throws NotFoundException, DbException, ServiceException, ConflictException {
-//        Transaction transaction = DbAssistant.getTransaction();
-//        Platform platform = null;
-//        try {
-//            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-//            if (partner == null){
-//                DbAssistant.transactionRollback(transaction);
-//                throw new NotFoundException("Partner with user's id=" + String.valueOf(userId) + " not found");
-//            }
-//            Hibernate.initialize(partner.getPlatforms());
-//            checkPlatformDtoByPartner(partner, platformDto);
-//
-//            platform = new Platform(partner);
-//            NullAware.getInstance().copyProperties(platform, platformDto);
-//            DaoFactory.getPlatformDao().create(platform);
-//            transaction.commit();
-//            return platform;
-//        } catch (HibernateException | NoResultException | NullPointerException e) {
-//            DbAssistant.transactionRollback(transaction);
-//            throw new DbException(e);
-//        } catch (IllegalAccessException | InvocationTargetException e) {
-//            DbAssistant.transactionRollback(transaction);
-//            throw new ServiceException("Error copy objects: "
-//                    + platformDto.toString() + " to " + platform.toString(), e);
-//        }
-//    }
-
-//    private static void checkPlatformDtoByPartner(@NotNull Partner partner, @NotNull Object platformDto)
-//            throws ConflictException, NotFoundException {
-//        if (platformDto instanceof PlatformResource.PlatformDto) {
-//            PlatformResource.PlatformDto platformDtoCast
-//                    = (PlatformResource.PlatformDto) platformDto;
-//
-//            if (titleIsExist(partner.getPlatforms(), platformDtoCast.getTitle())){
-//                throw new ConflictException("Title '" + platformDtoCast.getTitle() + "' is already used");
-//            }
-//
-//            if (platformDtoCast.getPictures() != null){
-//                List<PictureFormat> formats = DaoFactory.getPictureFormatDao().getAll();
-//                Set<Picture> pictures = platformDtoCast.getPictures();
-//                checkAndPersistFormats(pictures, formats);
-//            }
-//        }
-//    }
-
-    private static boolean titleIsExist(Set<Platform> platforms, String title){
-        for (Platform platform : platforms){
-            if (platform.getTitle().equals(title)){
-                return true;
+    public static Platform create(long userId, @NotNull Object platformDto)
+            throws Exception {
+        Transaction transaction = DbAssistant.getTransaction();
+        Platform platform = null;
+        try {
+            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
+            if (partner == null){
+                DbAssistant.transactionRollback(transaction);
+                throw new NotFoundException("Partner with user's id=" + String.valueOf(userId) + " not found");
             }
+            Hibernate.initialize(partner.getPlatforms());
+
+            if (platformDto instanceof PlatformResource.PlatformDto) {
+                PlatformResource.PlatformDto platformDtoCast = (PlatformResource.PlatformDto) platformDto;
+                checkExistedTitle(partner.getPlatforms(), platformDtoCast.getTitle());
+                checkAndPersistPictureFormat(platformDtoCast);
+            }
+
+            platform = new Platform(partner);
+            NullAware.getInstance().copyProperties(platform, platformDto);
+            DaoFactory.getPlatformDao().create(platform);
+
+            PlatformToken platformToken = new PlatformToken(platform);
+            DaoFactory.getPlatformTokenDao().create(platformToken);
+
+            transaction.commit();
+            return platform;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException("Error copy objects: "
+                    + platformDto.toString() + " to " + platform.toString(), e);
         }
-        return false;
     }
 
-    private static void checkAndPersistFormat(Set<Picture> pictures, List<PictureFormat> formats)
-            throws NotFoundException {
-        for (Picture picture : pictures) {
-            boolean formatIsExist = false;
-            for (PictureFormat pictureFormat : formats) {
-                if (picture.getPictureFormat().equals(pictureFormat)) {
-                    picture.setPictureFormat(pictureFormat);
-                    formatIsExist = true;
-                    break;
-                }
-            }
-            if (!formatIsExist) {
-                throw new NotFoundException("Unknown picture's format: " + picture.getPictureFormat());
+    private static void checkExistedTitle(Set<Platform> platforms, String title) throws ConflictException {
+        for (Platform platform : platforms){
+            if (platform.getTitle().equals(title)){
+                throw new ConflictException("Title '" + title + "' is already used");
             }
         }
+    }
+
+    private static void checkAndPersistPictureFormat(PlatformResource.PlatformDto platformDto)
+            throws NotFoundException {
+        List<PictureFormat> formats = DaoFactory.getPictureFormatDao().get(platformDto.getPictureFormat());
+        if (formats.isEmpty() || !formats.get(0).isCanBeUsed()){
+            throw new NotFoundException("Unknown picture's format: " + platformDto.getPictureFormat());
+        }
+        platformDto.setPictureFormat(formats.get(0));
     }
 
     @NotNull
@@ -146,26 +129,29 @@ public class PlatformService {
     public static Platform getWithChecking(long userId, long platformId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            Platform platform = DaoFactory.getPlatformDao().get(platformId);
-            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-            checkPlatform(platform, partner, transaction);
-
+            Platform platform = checkAndGetPlatform(platformId, userId);
+            Hibernate.initialize(platform.getPartner());
             transaction.commit();
             return platform;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (NotFoundException e){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException(e);
         }
     }
 
-    private static void checkPlatform(Platform platform, Partner partner, Transaction transaction)
+    private static Platform checkAndGetPlatform(long platformId, long userId)
             throws NotFoundException {
+        Platform platform = DaoFactory.getPlatformDao().get(platformId);
+        Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
         if (platform == null
                 || partner == null
                 || !platform.getPartner().getId().equals(partner.getId())){
-            DbAssistant.transactionRollback(transaction);
             throw new NotFoundException();
         }
+        return platform;
     }
 
     public static void update(Platform platform) throws DbException {
@@ -180,31 +166,42 @@ public class PlatformService {
     }
 
     public static Platform updateExcludeNullWithChecking(
-            long userId, long platformId, @NotNull Object platformFromClient
-    )
-            throws DbException, NotFoundException, ServiceException {
+            long userId, long platformId, @NotNull Object platformDto)
+            throws DbException, NotFoundException, ServiceException, ConflictException {
         Transaction transaction = DbAssistant.getTransaction();
-        Platform platformFromBase = null;
+        Platform platform = null;
         try {
-            platformFromBase = DaoFactory.getPlatformDao().get(platformId);
-            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-            checkPlatform(platformFromBase, partner, transaction);
+            platform = checkAndGetPlatform(platformId, userId);
 
-            NullAware.getInstance().copyProperties(platformFromBase, platformFromClient);
-            DaoFactory.getPlatformDao().update(platformFromBase);
+            if (platformDto instanceof PlatformResource.PlatformDto) {
+                PlatformResource.PlatformDto platformDtoCast = (PlatformResource.PlatformDto) platformDto;
+
+                if (!platform.getTitle().equals(platformDtoCast.getTitle())){
+                    checkExistedTitle(platform.getPartner().getPlatforms(), platformDtoCast.getTitle());
+                }
+
+                checkAndPersistPictureFormat(platformDtoCast);
+            }
+
+            NullAware.getInstance().copyProperties(platform, platformDto);
+            DaoFactory.getPlatformDao().update(platform);
 
             transaction.commit();
-            return platformFromBase;
+            return platform;
+        }catch (NotFoundException e){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException(e);
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
         } catch (IllegalAccessException | InvocationTargetException e) {
             DbAssistant.transactionRollback(transaction);
             throw new ServiceException("Error copy objects: "
-                    + platformFromClient.toString() + " to " + platformFromBase.toString(), e);
+                    + platformDto.toString() + " to " + platform.toString(), e);
         }
     }
 
+//    TODO: check platform's token deletion when removing the platform
     public static void delete(long id) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
@@ -218,17 +215,79 @@ public class PlatformService {
 
     public static void deleteWithChecking(long userId, long platformId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
-        Platform platformFromBase;
         try {
-            platformFromBase = DaoFactory.getPlatformDao().get(platformId);
-            Partner partner = DaoFactory.getPartnerDao().getByUserId(userId);
-            checkPlatform(platformFromBase, partner, transaction);
-
+            checkAndGetPlatform(platformId, userId);
             DaoFactory.getPlatformDao().delete(platformId);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (NotFoundException e){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException(e);
         }
     }
+
+    public static Platform setStatusRemovedWithChecking(long userId, long platformId)
+            throws NotFoundException, DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        Platform platform;
+        try {
+            platform = checkAndGetPlatform(platformId, userId);
+
+            platform.setStatus(Status.REMOVED);
+            DaoFactory.getPlatformDao().update(platform);
+            transaction.commit();
+            return platform;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (NotFoundException e){
+            DbAssistant.transactionRollback(transaction);
+            throw new NotFoundException(e);
+        }
+    }
+
+    public static PlatformToken getToken(Platform platform) throws DbException, ServiceException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            PlatformToken token = DaoFactory.getPlatformTokenDao().get(platform.getId());
+            if (token == null){
+                token = new PlatformToken(platform);
+                DaoFactory.getPlatformTokenDao().create(token);
+            }
+
+            transaction.commit();
+            return token;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (Exception e){
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException(e);
+        }
+    }
+
+    public static PlatformToken updateToken(Platform platform) throws DbException, ServiceException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            PlatformToken token = DaoFactory.getPlatformTokenDao().get(platform.getId());
+            if (token == null){
+                return null;
+            }
+
+            token = new PlatformToken(platform);
+            DaoFactory.getPlatformTokenDao().update(token);
+
+            transaction.commit();
+            return token;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (Exception e){
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException(e);
+        }
+    }
+
 }

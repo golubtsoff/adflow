@@ -64,11 +64,11 @@ public class CampaignService {
         Set<Picture> pictures = campaignDto.getPictures();
         if (pictures == null) return;
 
-        List<PictureFormat> formats = DaoFactory.getPictureFormatDao().getAll();
+        List<PictureFormat> canBeUsedFormats = DaoFactory.getPictureFormatDao().getCanBeUsedFormats();
 
         for (Picture picture : pictures) {
             boolean formatIsExist = false;
-            for (PictureFormat pictureFormat : formats) {
+            for (PictureFormat pictureFormat : canBeUsedFormats) {
                 if (picture.getPictureFormat().equals(pictureFormat)) {
                     picture.setPictureFormat(pictureFormat);
                     formatIsExist = true;

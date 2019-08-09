@@ -14,6 +14,7 @@ import exception.ConflictException;
 import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
+import rest.admin.strategy.PlatformExclusionStrategy;
 import rest.users.autentication.Secured;
 import service.CampaignService;
 import service.PlatformService;
@@ -101,12 +102,7 @@ public class PlatformResource {
             if (platform == null || platform.getStatus() == Status.REMOVED)
                 return Response.status(Response.Status.NOT_FOUND).build();
 
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.partner.strategy.PlatformExclusionStrategy())
-                    .create();
-
-            return Response.ok(dOut.toJson(platform)).build();
+            return Response.ok(getOutJson().toJson(platform)).build();
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {
@@ -114,6 +110,13 @@ public class PlatformResource {
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private Gson getOutJson(){
+        return new GsonBuilder()
+            .setPrettyPrinting()
+            .setExclusionStrategies(new rest.partner.strategy.PlatformExclusionStrategy())
+            .create();
     }
 
     @GET
@@ -128,12 +131,7 @@ public class PlatformResource {
                 if (platform.getStatus() != Status.REMOVED)
                     notRemovedPlatforms.add(platform);
             }
-
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new CampaignExclusionStrategy())
-                    .create();
-            return Response.ok(dOut.toJson(notRemovedPlatforms)).build();
+            return Response.ok(getOutJson().toJson(notRemovedPlatforms)).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
@@ -152,12 +150,7 @@ public class PlatformResource {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
-                    .create();
-
-            return Response.ok(dOut.toJson(platform)).build();
+            return Response.ok(getOutJson().toJson(platform)).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
@@ -181,12 +174,7 @@ public class PlatformResource {
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.updateExcludeNullWithChecking(userId, platformId, platformDto);
 
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
-                    .create();
-
-            return Response.ok(dOut.toJson(platform)).build();
+            return Response.ok(getOutJson().toJson(platform)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {

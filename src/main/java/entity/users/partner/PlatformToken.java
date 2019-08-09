@@ -99,7 +99,7 @@ public class PlatformToken {
     public String toString() {
         return "PlatformToken{" +
                 "id=" + id +
-                ", platform=" + platform +
+                ", platform=" + platform.getId() +
                 ", token='" + token + '\'' +
                 ", releasedDateTime=" + releasedDateTime +
                 '}';

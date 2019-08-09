@@ -173,13 +173,16 @@ public class PlatformService {
         try {
             platform = checkAndGetPlatform(platformId, userId);
 
-            if (platformDto instanceof PlatformResource.PlatformDto) {
-                PlatformResource.PlatformDto platformDtoCast = (PlatformResource.PlatformDto) platformDto;
+            if (platformDto instanceof rest.partner.PlatformResource.PlatformDto) {
+                if (platform.getStatus() == Status.REMOVED){
+                    throw new NotFoundException();
+                }
+                rest.partner.PlatformResource.PlatformDto platformDtoCast
+                        = (rest.partner.PlatformResource.PlatformDto) platformDto;
 
                 if (!platform.getTitle().equals(platformDtoCast.getTitle())){
                     checkExistedTitle(platform.getPartner().getPlatforms(), platformDtoCast.getTitle());
                 }
-
                 checkAndPersistPictureFormat(platformDtoCast);
             }
 
@@ -234,9 +237,13 @@ public class PlatformService {
         Platform platform;
         try {
             platform = checkAndGetPlatform(platformId, userId);
-
+            if (platform.getStatus() == Status.REMOVED){
+                return platform;
+            }
             platform.setStatus(Status.REMOVED);
             DaoFactory.getPlatformDao().update(platform);
+
+            DaoFactory.getPlatformTokenDao().delete(platformId);
             transaction.commit();
             return platform;
         } catch (HibernateException | NoResultException | NullPointerException e) {
@@ -276,9 +283,8 @@ public class PlatformService {
                 return null;
             }
 
-            token = new PlatformToken(platform);
+            token.updateToken();
             DaoFactory.getPlatformTokenDao().update(token);
-
             transaction.commit();
             return token;
         } catch (HibernateException | NoResultException | NullPointerException e) {

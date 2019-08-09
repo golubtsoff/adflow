@@ -205,7 +205,7 @@ public class Platform {
     public String toString() {
         return "Platform{" +
                 "id=" + id +
-                ", partner=" + partner +
+                ", partner=" + partner.getId() +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", cpmRate=" + cpmRate +

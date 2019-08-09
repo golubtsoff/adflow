@@ -185,6 +185,9 @@ public class CampaignService {
             campaign = checkAndGetCampaign(campaignId, userId);
 
             if (campaignDto instanceof rest.customer.CampaignResource.CampaignDto) {
+                if (campaign.getStatus() == Status.REMOVED){
+                    throw new NotFoundException();
+                }
                 rest.customer.CampaignResource.CampaignDto campaignDtoCast
                         = (rest.customer.CampaignResource.CampaignDto) campaignDto;
 

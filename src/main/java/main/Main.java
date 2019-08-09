@@ -3,13 +3,13 @@ package main;
 import dao.CustomerPartnerDao;
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.Account;
-import entity.users.Accountable;
-import entity.users.Status;
+import entity.users.*;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.customer.Picture;
-import entity.users.PictureFormat;
+import entity.users.partner.Partner;
+import entity.users.partner.Platform;
+import entity.users.partner.PlatformToken;
 import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
@@ -19,6 +19,7 @@ import exception.NotFoundException;
 import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
+import service.CampaignService;
 import service.PictureFormatService;
 import service.UserService;
 import util.NullAware;
@@ -34,13 +35,12 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args)
-            throws DbException, ServiceException, NotFoundException, ConflictException {
+            throws Exception {
         initData();
-//        deletePictureFormat(new PictureFormat(800, 600));
         DbAssistant.close();
     }
 
-    public static void initData() throws DbException, ServiceException, NotFoundException {
+    public static void initData() throws Exception {
         User userCustomer_1 = UserService.signUpExceptAdministrator("customer_1", "123", "customer");
         User userPartner_1 = UserService.signUpExceptAdministrator("partner_1", "123", "partner");
         User userAdmin_1 = UserService.signUp("admin_1", "123", Role.ADMIN);
@@ -55,30 +55,86 @@ public class Main {
         userAdmin_1.setStatus(Status.WORKING);
         UserService.update(userAdmin_1);
 
+        PictureFormat pictureFormat = new PictureFormat(800, 600);
+        createPictureFormat(pictureFormat);
+
+        Picture picture = new Picture("filename.jpg", pictureFormat);
+
+        Campaign campaign = new Campaign(
+                null,
+                "Campaign_1",
+                "Title of Campaign_1",
+                "http://somesite.come",
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(57),
+                Action.RUN,
+                Status.WORKING
+        );
+        createCampaign(userCustomer_1, pictureFormat, picture, campaign);
+
+        Platform platform = new Platform(
+                null,
+                "Platform_1",
+                "Title of Platform_1",
+                BigDecimal.valueOf(100),
+                pictureFormat,
+                Action.RUN,
+                Status.WORKING
+        );
+        createPlatform(userPartner_1, platform);
+    }
+
+    private static Platform createPlatform(User userPartner, Platform platform) throws Exception {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            Customer customer_1 = DaoFactory.getCustomerDao().getByUserId(userCustomer_1.getId());
-            Campaign campaign_1 = new Campaign(
-                    customer_1,
-                    "Campaign_1",
-                    "Title of Campaign_1",
-                    "http://somesite.come",
-                    BigDecimal.valueOf(100),
-                    BigDecimal.valueOf(57)
-            );
-            PictureFormat pictureFormat = new PictureFormat(800, 600);
-            DaoFactory.getPictureFormatDao().create(pictureFormat);
-            Picture picture = new Picture("filename.jpg", pictureFormat);
-            campaign_1.addPicture(picture);
-            DaoFactory.getCampaignDao().create(campaign_1);
+            Partner partner = DaoFactory.getPartnerDao().getByUserId(userPartner.getId());
+            platform.setPartner(partner);
+
+            DaoFactory.getPlatformDao().create(platform);
+            PlatformToken platformToken = new PlatformToken(platform);
+            DaoFactory.getPlatformTokenDao().create(platformToken);
 
             transaction.commit();
+            return platform;
         } catch (HibernateException | NoResultException | NullPointerException e) {
-                DbAssistant.transactionRollback(transaction);
-                throw new DbException(e);
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
         }
+    }
 
-        Customer customer = getCustomer(userCustomer_1.getId());
+    private static Campaign createCampaign(
+            User userCustomer,
+            PictureFormat pictureFormat,
+            Picture picture,
+            Campaign campaign
+    ) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            Customer customer = DaoFactory.getCustomerDao().getByUserId(userCustomer.getId());
+            campaign.setCustomer(customer);
+
+            campaign.addPicture(picture);
+            DaoFactory.getCampaignDao().create(campaign);
+
+            transaction.commit();
+            return campaign;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+
+    private static PictureFormat createPictureFormat(PictureFormat pictureFormat) throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            DaoFactory.getPictureFormatDao().create(pictureFormat);
+            transaction.commit();
+            return pictureFormat;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
     }
 
     private static Customer getCustomer(long userId) throws DbException {
@@ -94,58 +150,4 @@ public class Main {
         }
     }
 
-    private static void deletePictureFormat(PictureFormat pictureFormat)
-            throws DbException, NotFoundException, ConflictException {
-        PictureFormatService.delete(1);
-    }
-
-    public static void foo(){
-        User user1 = new User("admin", "987", Role.ADMIN);
-        User user2 = new User();
-        Person person = new Person("Павел", "Иванов");
-        user2.setPerson(person);
-        AnotherUser anotherUser = new AnotherUser();
-
-        try {
-            NullAware.getInstance().copyProperties(user1, user2);
-            NullAware.getInstance().copyProperties(user2, anotherUser);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void bar(User userFromBase, Account accountFromClient)
-            throws NotFoundException, InvocationTargetException, IllegalAccessException, DbException {
-        Transaction transaction = DbAssistant.getTransaction();
-
-        Account accountFromBase;
-        CustomerPartnerDao dao;
-        Accountable accountable;
-        try {
-            if (userFromBase.getRole() == Role.PARTNER) {
-                dao = DaoFactory.getPartnerDao();
-            } else if (userFromBase.getRole() == Role.CUSTOMER) {
-                dao = DaoFactory.getCustomerDao();
-            } else {
-                throw new NotFoundException();
-            }
-
-            accountable = (Accountable) dao.getByUserId(userFromBase.getId());
-            accountFromBase = accountable.getAccount();
-            NullAware.getInstance().copyProperties(accountFromBase, accountFromClient);
-            accountable.setAccount(accountFromBase);
-            dao.update(accountable);
-            Class cl = accountable.getClass();
-
-            transaction.commit();
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            DbAssistant.transactionRollback(transaction);
-        }
-    }
 }

@@ -242,14 +242,13 @@ public class CampaignService {
     public static Campaign setStatusRemovedWithChecking(long userId, long campaignId)
             throws NotFoundException, DbException {
         Transaction transaction = DbAssistant.getTransaction();
-        Campaign campaignFromBase;
+        Campaign campaign;
         try {
-            campaignFromBase = checkAndGetCampaign(campaignId, userId);
-
-            campaignFromBase.setStatus(Status.REMOVED);
-            DaoFactory.getCampaignDao().update(campaignFromBase);
+            campaign = checkAndGetCampaign(campaignId, userId);
+            campaign.setStatus(Status.REMOVED);
+            DaoFactory.getCampaignDao().update(campaign);
             transaction.commit();
-            return campaignFromBase;
+            return campaign;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);

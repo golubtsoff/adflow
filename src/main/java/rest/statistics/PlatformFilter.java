@@ -1,14 +1,10 @@
-package rest.picture;
+package rest.statistics;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import entity.users.Action;
-import entity.users.Status;
 import entity.users.partner.PlatformToken;
-import entity.users.user.Role;
-import entity.users.user.UserToken;
 import service.PlatformService;
-import service.UserService;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;

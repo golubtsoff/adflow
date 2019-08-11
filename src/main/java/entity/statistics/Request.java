@@ -16,6 +16,7 @@ public class Request {
     public static final String ID = "ID";
     public static final String SESSION_ID = "SESSION_ID";
     public static final String CAMPAIGN_ID = "CAMPAIGN_ID";
+    public static final String RID = "rid";
 
     @Id
     @Column(name = ID)

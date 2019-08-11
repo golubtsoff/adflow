@@ -1,4 +1,4 @@
-package rest.picture;
+package rest.statistics;
 
 import javax.ws.rs.NameBinding;
 import java.lang.annotation.Retention;

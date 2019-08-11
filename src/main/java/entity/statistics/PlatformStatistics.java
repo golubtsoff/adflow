@@ -13,11 +13,11 @@ import java.time.LocalDate;
 @Table(name = "PLATFORM_STATISTICS")
 public class PlatformStatistics extends AbstractStatistics {
 
-    public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";
+    public static final String PLATFORM_ID = "PLATFORM_ID";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = ADVERTISING_PLATFORM_ID)
+    @JoinColumn(name = PLATFORM_ID)
     private Platform platform;
 
     public PlatformStatistics(){

@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Session {
 
     public static final String ID = "ID";
-    public static final String ADVERTISING_PLATFORM_ID = "ADVERTISING_PLATFORM_ID";
+    public static final String PLATFORM_ID = "PLATFORM_ID";
     public static final String DISPLAYS_COUNTER = "DISPLAYS_COUNTER";
     public static final String CLICK_COUNTER = "CLICK_COUNTER";
     public static final String NAME = "NAME";
@@ -29,7 +29,7 @@ public class Session {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    @JoinColumn(name = ADVERTISING_PLATFORM_ID)
+    @JoinColumn(name = PLATFORM_ID)
     private Platform platform;
 
     @Column(name = DISPLAYS_COUNTER)
@@ -58,10 +58,8 @@ public class Session {
             int displaysCounter,
             int clickCounter,
             Viewer viewer,
-            LocalDateTime creationTime,
-            LocalDateTime closingTime) {
-        this(null, platform, displaysCounter,
-                clickCounter, viewer, creationTime, closingTime);
+            LocalDateTime creationTime) {
+        this(null, platform, displaysCounter, clickCounter, viewer, creationTime);
     }
 
     public Session(
@@ -70,15 +68,15 @@ public class Session {
             int displaysCounter,
             int clickCounter,
             Viewer viewer,
-            LocalDateTime creationTime,
-            LocalDateTime closingTime) {
+            LocalDateTime creationTime
+            ) {
         this.id = id;
         this.platform = platform;
         this.displaysCounter = displaysCounter;
         this.clickCounter = clickCounter;
         this.viewer = viewer;
         this.creationTime = creationTime;
-        this.closingTime = closingTime;
+        this.closingTime = creationTime;
     }
 
     public Long getId() {

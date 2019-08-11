@@ -28,7 +28,7 @@ public class RolesFilter implements ContainerRequestFilter {
     private ResourceInfo resourceInfo;
 
     @Context
-    HttpHeaders headers;
+    private HttpHeaders headers;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {

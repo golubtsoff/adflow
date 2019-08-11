@@ -89,7 +89,7 @@ public class User {
         this.login = login;
     }
 
-    public String getHash() {
+    public String getPasswordHash() {
         return hash;
     }
 

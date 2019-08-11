@@ -14,7 +14,6 @@ import exception.NotFoundException;
 import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
-import rest.personal.ProfileResourse;
 import util.Hash;
 import util.NullAware;
 
@@ -30,7 +29,7 @@ public abstract class UserService {
             List<User> users = DaoFactory.getUserDao().getByName(login);
             if (users.isEmpty()
                     || users.get(0).getStatus() != Status.WORKING
-                    || !users.get(0).getHash().equalsIgnoreCase(Hash.getHash(password))){
+                    || !users.get(0).getPasswordHash().equalsIgnoreCase(Hash.getHash(password))){
                 DbAssistant.transactionRollback(transaction);
                 return null;
             }

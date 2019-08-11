@@ -7,7 +7,6 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -53,7 +52,7 @@ public class UserToken {
         this.user = user;
         releasedDateTime = LocalDateTime.now();
         expiredDateTime = releasedDateTime.plusMinutes(ACTION_TIME_MINUTES);
-        token = issueToken(id, user.getRole(), getSecret(user.getHash(), releasedDateTime));
+        token = issueToken(id, user.getRole(), getSecret(user.getPasswordHash(), releasedDateTime));
     }
 
     @NotNull
@@ -93,7 +92,7 @@ public class UserToken {
     public UserToken updateToken() throws Exception {
         releasedDateTime = LocalDateTime.now();
         expiredDateTime = releasedDateTime.plusMinutes(ACTION_TIME_MINUTES);
-        token = issueToken(id, user.getRole(), getSecret(user.getHash(), releasedDateTime));
+        token = issueToken(id, user.getRole(), getSecret(user.getPasswordHash(), releasedDateTime));
         return this;
     }
 

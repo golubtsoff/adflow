@@ -3,13 +3,13 @@ package entity.users.partner;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import static entity.users.user.UserToken.TOKEN_ISSUER;
 
 @Entity
 @Table(name = "PLATFORM_TOKENS")
@@ -17,6 +17,7 @@ public class PlatformToken {
 
     public static final String TOKEN = "TOKEN";
     public static final String RELEASED_DATE_TIME = "RELEASED_DATE_TIME";
+    public static final String PID = "pid";
 
     @Id
     private Long id;
@@ -41,7 +42,7 @@ public class PlatformToken {
         assert (id != null);
         this.platform = platform;
         releasedDateTime = LocalDateTime.now();
-        token = issueToken(id, getSecret(platform.getPartner().getUser().getHash(), releasedDateTime));
+        token = issueToken(id, getSecret(platform.getPartner().getUser().getPasswordHash(), releasedDateTime));
     }
 
     @NotNull
@@ -55,8 +56,8 @@ public class PlatformToken {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             token = JWT.create()
-                    .withIssuer("app4pro.ru")
-                    .withClaim("pid", platformId)
+                    .withIssuer(TOKEN_ISSUER)
+                    .withClaim(PID, platformId)
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new Exception(exception);
@@ -75,7 +76,7 @@ public class PlatformToken {
     @NotNull
     public PlatformToken updateToken() throws Exception {
         releasedDateTime = LocalDateTime.now();
-        token = issueToken(id, getSecret(platform.getPartner().getUser().getHash(), releasedDateTime));
+        token = issueToken(id, getSecret(platform.getPartner().getUser().getPasswordHash(), releasedDateTime));
         return this;
     }
 

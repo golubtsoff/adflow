@@ -255,7 +255,7 @@ public class PlatformService {
         }
     }
 
-    public static PlatformToken getToken(Platform platform) throws DbException, ServiceException {
+    public static PlatformToken getOrCreateToken(Platform platform) throws DbException, ServiceException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             PlatformToken token = DaoFactory.getPlatformTokenDao().get(platform.getId());
@@ -264,6 +264,21 @@ public class PlatformService {
                 DaoFactory.getPlatformTokenDao().create(token);
             }
 
+            transaction.commit();
+            return token;
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        } catch (Exception e){
+            DbAssistant.transactionRollback(transaction);
+            throw new ServiceException(e);
+        }
+    }
+
+    public static PlatformToken getToken(long platformId) throws DbException, ServiceException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            PlatformToken token = DaoFactory.getPlatformTokenDao().get(platformId);
             transaction.commit();
             return token;
         } catch (HibernateException | NoResultException | NullPointerException e) {

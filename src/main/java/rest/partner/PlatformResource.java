@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import entity.users.Action;
 import entity.users.Status;
-import entity.users.customer.Campaign;
 import entity.users.PictureFormat;
 import entity.users.partner.Platform;
 import entity.users.partner.PlatformToken;
@@ -13,10 +12,7 @@ import entity.users.user.UserToken;
 import exception.ConflictException;
 import exception.NotFoundException;
 import rest.Roles;
-import rest.admin.strategy.CampaignExclusionStrategy;
-import rest.admin.strategy.PlatformExclusionStrategy;
 import rest.users.autentication.Secured;
-import service.CampaignService;
 import service.PlatformService;
 import util.JsonHelper;
 
@@ -212,7 +208,7 @@ public class PlatformResource {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            PlatformToken token = PlatformService.getToken(platform);
+            PlatformToken token = PlatformService.getOrCreateToken(platform);
             return Response.ok(token.getToken()).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();

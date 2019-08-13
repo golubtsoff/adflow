@@ -14,7 +14,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-@Platform
+@PlatformSecure
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class PlatformFilter implements ContainerRequestFilter {

@@ -1,6 +1,7 @@
 package rest.statistics;
 
 import com.google.gson.Gson;
+import entity.statistics.Request;
 import entity.statistics.Viewer;
 import entity.users.partner.PlatformToken;
 import exception.ConflictException;
@@ -9,13 +10,10 @@ import service.RequestService;
 import util.JsonHelper;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 
-@Path("/session")
-@Platform
+@Path("/request")
+@PlatformSecure
 public class RequestResource {
 
     @Context
@@ -34,17 +32,8 @@ public class RequestResource {
     }
 
     public class UpdateRequestDto{
-        private Long requestId;
         private boolean confirmShow;
         private boolean clickOn;
-
-        public Long getRequestId() {
-            return requestId;
-        }
-
-        public void setRequestId(Long requestId) {
-            this.requestId = requestId;
-        }
 
         public boolean isConfirmShow() {
             return confirmShow;
@@ -64,17 +53,10 @@ public class RequestResource {
     }
 
     public class InitialResponseDto{
-        private Long sessionId;
         private Long requestId;
         private String urlForLoadFile;
-
-        public Long getSessionId() {
-            return sessionId;
-        }
-
-        public void setSessionId(Long sessionId) {
-            this.sessionId = sessionId;
-        }
+        private String pathOnClick;
+        private int durationShow;
 
         public Long getRequestId() {
             return requestId;
@@ -91,6 +73,22 @@ public class RequestResource {
         public void setUrlForLoadFile(String urlForLoadFile) {
             this.urlForLoadFile = urlForLoadFile;
         }
+
+        public String getPathOnClick() {
+            return pathOnClick;
+        }
+
+        public void setPathOnClick(String pathOnClick) {
+            this.pathOnClick = pathOnClick;
+        }
+
+        public int getDurationShow() {
+            return durationShow;
+        }
+
+        public void setDurationShow(int durationShow) {
+            this.durationShow = durationShow;
+        }
     }
 
     @POST
@@ -98,37 +96,16 @@ public class RequestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(String content){
         try{
-            Gson gson = JsonHelper.getGson();
-            InitialRequestDto initialRequestDto = gson.fromJson(content, InitialRequestDto.class);
-
+            InitialRequestDto initialRequestDto = null;
             long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
-            InitialResponseDto initialResponseDto = RequestService.create(platformId, initialRequestDto);
+            InitialResponseDto initialResponseDto = RequestService.create(
+                    platformId,
+                    initialRequestDto,
+                    new InitialResponseDto()
+            );
             if (initialResponseDto == null)
                 throw new Exception();
-
-            return Response.ok(gson.toJson(initialResponseDto)).build();
-        } catch (NotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (ConflictException e) {
-            return Response.status(Response.Status.CONFLICT).build();
-        } catch (Exception e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @POST
-    @Path("{sid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(@PathParam("sid") long sessionId){
-        try{
-            Gson gson = JsonHelper.getGson();
-            long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
-            InitialResponseDto initialResponseDto = RequestService.create(platformId, sessionId);
-            if (initialResponseDto == null)
-                throw new Exception();
-
-            return Response.ok(gson.toJson(initialResponseDto)).build();
+            return Response.ok(JsonHelper.getGson().toJson(initialResponseDto)).build();
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {
@@ -139,7 +116,7 @@ public class RequestResource {
     }
 
     @PUT
-    @Path("request/{rid}")
+    @Path("{rid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("rid") long requestId, String content){

@@ -14,6 +14,7 @@ public abstract class DaoFactory {
             new CampaignDao(),
             new CampaignStatisticsDao(),
             new CustomerDao(),
+            new OptionsDao(),
             new PartnerDao(),
             new PictureFormatDao(),
             new PlatformTokenDao(),
@@ -62,6 +63,10 @@ public abstract class DaoFactory {
 
     public static CustomerDao getCustomerDao(){
         return getDao(CustomerDao.class);
+    }
+
+    public static OptionsDao getOptionsDao(){
+        return getDao(OptionsDao.class);
     }
 
     public static PartnerDao getPartnerDao(){

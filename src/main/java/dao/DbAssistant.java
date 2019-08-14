@@ -1,5 +1,6 @@
 package dao;
 
+import entity.statistics.Options;
 import entity.statistics.PlatformStatistics;
 import entity.statistics.CampaignStatistics;
 import entity.statistics.Request;
@@ -20,6 +21,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.hibernate.service.ServiceRegistry;
+import service.OptionsService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +41,7 @@ public abstract class DbAssistant {
         try {
             Configuration configuration = getConfiguration();
             sessionFactory = createSessionFactory(configuration);
+            initBase();
         } catch (ServiceException e) {
             e.printStackTrace();
         }
@@ -101,6 +104,7 @@ public abstract class DbAssistant {
                 .addAnnotatedClass(Campaign.class)
                 .addAnnotatedClass(CampaignStatistics.class)
                 .addAnnotatedClass(Customer.class)
+                .addAnnotatedClass(Options.class)
                 .addAnnotatedClass(Partner.class)
                 .addAnnotatedClass(PictureFormat.class)
                 .addAnnotatedClass(PlatformToken.class)
@@ -125,5 +129,13 @@ public abstract class DbAssistant {
     public static boolean isTesting(){
         return hibernate_hbm2ddl_auto.equalsIgnoreCase("create")
                 || hibernate_hbm2ddl_auto.equalsIgnoreCase("create-drop");
+    }
+
+    private static void initBase() throws ServiceException {
+        try{
+            OptionsService.initOptions();
+        } catch (Exception e){
+            throw new ServiceException("Initialization error Options table");
+        }
     }
 }

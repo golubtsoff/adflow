@@ -20,7 +20,7 @@ public class OptionsService {
         try {
             List<Options> optionsList = DaoFactory.getOptionsDao().getAll();
             if (optionsList.isEmpty()){
-                Options options = new Options(Options.DURATION_SHOW_DEFAULT);
+                Options options = new Options(Options.durationShowDefault);
                 DaoFactory.getOptionsDao().create(options);
             }
             transaction.commit();

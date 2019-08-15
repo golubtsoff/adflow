@@ -1,18 +1,33 @@
 package entity.statistics;
 
-import entity.users.partner.Partner;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 @Entity
 @Table(name = "OPTIONS")
 public class Options {
 
-    public static final int DURATION_SHOW_DEFAULT = 60;
+    public static int durationShowDefault;
+    private static final String PATH = "/adv_options.properties";
     public static final String ID = "ID";
     public static final String DURATION_SHOW = "DURATION_SHOW";
+    private static final String DURATION_SHOW_DEFAULT_NAME = "duration_show_default";
+    private static final String DURATION_SHOW_DEFAULT_VALUE = "60";
+
+    static{
+        try (InputStream is = Options.class.getResourceAsStream(PATH)) {
+            Properties props = new Properties();
+            props.load(is);
+            durationShowDefault = Integer.valueOf(props.getProperty(
+                    DURATION_SHOW_DEFAULT_NAME,
+                    DURATION_SHOW_DEFAULT_VALUE
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Id
     @Column(name = ID)

@@ -3,7 +3,12 @@ package rest.statistics;
 import com.google.gson.Gson;
 import entity.statistics.Request;
 import entity.statistics.Viewer;
+import entity.users.PictureFormat;
+import entity.users.customer.Campaign;
+import entity.users.customer.Picture;
+import entity.users.partner.Platform;
 import entity.users.partner.PlatformToken;
+import exception.BadRequestException;
 import exception.ConflictException;
 import exception.NotFoundException;
 import service.RequestService;
@@ -11,25 +16,16 @@ import util.JsonHelper;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.Set;
 
-@Path("/request")
+@Path("/session")
 @PlatformSecure
 public class RequestResource {
 
+    public static final String PATH_TO_FILE = "http://app4pro.ru/pictures/";
+
     @Context
     private HttpHeaders headers;
-
-    public class InitialRequestDto{
-        private Viewer viewer;
-
-        public Viewer getViewer() {
-            return viewer;
-        }
-
-        public void setViewer(Viewer viewer) {
-            this.viewer = viewer;
-        }
-    }
 
     public class UpdateRequestDto{
         private boolean confirmShow;
@@ -53,10 +49,27 @@ public class RequestResource {
     }
 
     public class InitialResponseDto{
+        private Long sessionId;
         private Long requestId;
         private String urlForLoadFile;
         private String pathOnClick;
         private int durationShow;
+
+        public InitialResponseDto(Request request) {
+            this.sessionId = request.getSession().getId();
+            this.requestId = request.getId();
+            this.urlForLoadFile = getUrlToPicture(request);
+            this.pathOnClick = request.getCampaign().getPathOnClick();
+            this.durationShow = request.getDurationShow();
+        }
+
+        public Long getSessionId() {
+            return sessionId;
+        }
+
+        public void setSessionId(Long sessionId) {
+            this.sessionId = sessionId;
+        }
 
         public Long getRequestId() {
             return requestId;
@@ -96,38 +109,73 @@ public class RequestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(String content){
         try{
-            InitialRequestDto initialRequestDto = null;
+            Gson gson = JsonHelper.getGson();
+            Viewer viewer = gson.fromJson(content, Viewer.class);
             long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
-            InitialResponseDto initialResponseDto = RequestService.create(
-                    platformId,
-                    initialRequestDto,
-                    new InitialResponseDto()
-            );
-            if (initialResponseDto == null)
+            Request request = RequestService.create(platformId, viewer);
+            if (request == null)
                 throw new Exception();
-            return Response.ok(JsonHelper.getGson().toJson(initialResponseDto)).build();
+
+            return Response.ok(JsonHelper.getGson().toJson(new InitialResponseDto(request))).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (ConflictException e) {
-            return Response.status(Response.Status.CONFLICT).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private static String getUrlToPicture(Request request){
+        Set<Picture> pictures = request.getCampaign().getPictures();
+        PictureFormat pictureFormat = request.getSession().getPlatform().getPictureFormat();
+        for (Picture picture : pictures){
+            if (picture.getPictureFormat().equals(pictureFormat)){
+                return PATH_TO_FILE + picture.getFileName();
+            }
+        }
+        return null;
+    }
+
+    @POST
+    @Path("{sid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(@PathParam("sid") long sessionId){
+        try{
+            long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
+            Request request = RequestService.create(platformId, sessionId);
+            if (request == null)
+                throw new Exception();
+
+            return Response.ok(JsonHelper.getGson().toJson(new InitialResponseDto(request))).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (NotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PUT
-    @Path("{rid}")
+    @Path("request/{rid}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("rid") long requestId, String content){
         try{
             Gson gson = JsonHelper.getGson();
             UpdateRequestDto updateRequestDto = gson.fromJson(content, UpdateRequestDto.class);
+            if (updateRequestDto == null){
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
 
             long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
             RequestService.update(platformId, requestId, updateRequestDto);
 
             return Response.noContent().build();
+        } catch (BadRequestException e){
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }

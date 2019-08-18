@@ -2,6 +2,7 @@ package dao.impl;
 
 import dao.AbstractDao;
 import dao.DaoFactory;
+import entity.users.Action;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 
@@ -16,5 +17,9 @@ public class CampaignDao extends AbstractDao<Campaign> {
 
     public List<Campaign> getAllByCustomerId(Long customerId) {
         return getAll(Campaign.CUSTOMER_ID, customerId.toString());
+    }
+
+    public List<Campaign> getAllByAction(Action action){
+        return getAll(Campaign.ACTION, action.toString());
     }
 }

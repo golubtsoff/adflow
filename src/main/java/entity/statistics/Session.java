@@ -1,5 +1,6 @@
 package entity.statistics;
 
+import entity.users.customer.Campaign;
 import entity.users.partner.Platform;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -15,6 +16,7 @@ public class Session {
 
     public static final String ID = "ID";
     public static final String PLATFORM_ID = "PLATFORM_ID";
+    public static final String CAMPAIGN_COUNTER = "CAMPAIGN_COUNTER";
     public static final String DISPLAYS_COUNTER = "DISPLAYS_COUNTER";
     public static final String CLICK_COUNTER = "CLICK_COUNTER";
     public static final String NAME = "NAME";
@@ -31,6 +33,9 @@ public class Session {
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = PLATFORM_ID)
     private Platform platform;
+
+    @Column(name = CAMPAIGN_COUNTER)
+    private int campaignCounter;
 
     @Column(name = DISPLAYS_COUNTER)
     private int displaysCounter;
@@ -53,30 +58,26 @@ public class Session {
     public Session() {
     }
 
-    public Session(
-            Platform platform,
-            int displaysCounter,
-            int clickCounter,
-            Viewer viewer,
-            LocalDateTime creationTime) {
-        this(null, platform, displaysCounter, clickCounter, viewer, creationTime);
+    public Session(Platform platform, Viewer viewer) {
+        this(null, platform, viewer);
     }
 
     public Session(
             Long id,
             Platform platform,
-            int displaysCounter,
-            int clickCounter,
-            Viewer viewer,
-            LocalDateTime creationTime
-            ) {
+            Viewer viewer
+    ) {
         this.id = id;
         this.platform = platform;
-        this.displaysCounter = displaysCounter;
-        this.clickCounter = clickCounter;
         this.viewer = viewer;
-        this.creationTime = creationTime;
+        this.creationTime = LocalDateTime.now();
         this.closingTime = creationTime;
+    }
+
+    public Request getRequestInstance(Campaign campaign, int durationShow){
+        setClosingTime(LocalDateTime.now());
+        setCampaignCounter(campaignCounter + 1);
+        return new Request(this, campaign, durationShow);
     }
 
     public Long getId() {
@@ -89,6 +90,14 @@ public class Session {
 
     public void setPlatform(Platform platform) {
         this.platform = platform;
+    }
+
+    public int getCampaignCounter() {
+        return campaignCounter;
+    }
+
+    public void setCampaignCounter(int campaignCounter) {
+        this.campaignCounter = campaignCounter;
     }
 
     public int getDisplaysCounter() {
@@ -136,6 +145,7 @@ public class Session {
         return "Session{" +
                 "id=" + id +
                 ", platform=" + platform +
+                ", campaignCounter=" + campaignCounter +
                 ", displaysCounter=" + displaysCounter +
                 ", clickCounter=" + clickCounter +
                 ", viewer=" + viewer +
@@ -147,20 +157,21 @@ public class Session {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Session)) return false;
         Session session = (Session) o;
-        return displaysCounter == session.displaysCounter &&
-                clickCounter == session.clickCounter &&
-                Objects.equals(id, session.id) &&
-                Objects.equals(platform, session.platform) &&
-                Objects.equals(viewer, session.viewer) &&
-                Objects.equals(creationTime, session.creationTime) &&
-                Objects.equals(closingTime, session.closingTime);
+        return getCampaignCounter() == session.getCampaignCounter() &&
+                getDisplaysCounter() == session.getDisplaysCounter() &&
+                getClickCounter() == session.getClickCounter() &&
+                Objects.equals(getId(), session.getId()) &&
+                Objects.equals(getPlatform(), session.getPlatform()) &&
+                Objects.equals(getViewer(), session.getViewer()) &&
+                Objects.equals(getCreationTime(), session.getCreationTime()) &&
+                Objects.equals(getClosingTime(), session.getClosingTime());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, platform, displaysCounter, clickCounter, viewer, creationTime, closingTime);
+        return Objects.hash(getId(), getPlatform(), getCampaignCounter(), getDisplaysCounter(), getClickCounter(), getViewer(), getCreationTime(), getClosingTime());
     }
 }

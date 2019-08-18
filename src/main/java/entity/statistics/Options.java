@@ -10,11 +10,12 @@ import java.util.Properties;
 public class Options {
 
     public static int durationShowDefault;
-    private static final String PATH = "/adv_options.properties";
     public static final String ID = "ID";
     public static final String DURATION_SHOW = "DURATION_SHOW";
+
+    private static final String PATH = "/adv_options.properties";
     private static final String DURATION_SHOW_DEFAULT_NAME = "duration_show_default";
-    private static final String DURATION_SHOW_DEFAULT_VALUE = "60";
+    private static final String DURATION_SHOW_DEFAULT_VALUE = "61";
 
     static{
         try (InputStream is = Options.class.getResourceAsStream(PATH)) {

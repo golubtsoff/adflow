@@ -20,7 +20,6 @@ public class Request {
     public static final String CAMPAIGN_ID = "CAMPAIGN_ID";
     public static final String CREATION_TIME = "CREATION_TIME";
     public static final String UPDATED_TIME = "UPDATED_TIME";
-    public static final String CONFIRM_SHOW = "CONFIRM_SHOW";
     public static final String CLICK_ON = "CLICK_ON";
     public static final String CAMPAIGN_CPM_RATE = "CAMPAIGN_CPM_RATE";
     public static final String PLATFORM_CPM_RATE = "PLATFORM_CPM_RATE";
@@ -43,14 +42,8 @@ public class Request {
     @Column(name = CREATION_TIME)
     private LocalDateTime creationTime;
 
-    @Column(name = UPDATED_TIME)
-    private LocalDateTime updatedTime;
-
     @Column(name = DURATION_SHOW)
     private int durationShow;
-
-    @Column(name = CONFIRM_SHOW)
-    private boolean confirmShow;
 
     @Column(name = CLICK_ON)
     private boolean clickOn;
@@ -69,6 +62,7 @@ public class Request {
             int durationShow
     ) {
         this.session = session;
+        session.setDisplaysCounter(session.getDisplaysCounter() + 1);
         this.platformCpmRate = session.getPlatform().getCpmRate();
         this.campaign = campaign;
         this.campaignCpmRate = campaign.getCpmRate();
@@ -76,16 +70,11 @@ public class Request {
         this.durationShow = durationShow;
     }
 
-    public void updateRequest(boolean confirmShow, boolean clickOn){
-        if (confirmShow){
-            this.confirmShow = true;
-            session.setDisplaysCounter(session.getDisplaysCounter() + 1);
-        }
+    public void updateRequest(boolean clickOn){
         if (clickOn){
             this.clickOn = true;
             session.setClickCounter(session.getClickCounter() + 1);
         }
-        this.updatedTime = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -116,28 +105,12 @@ public class Request {
         this.creationTime = creationTime;
     }
 
-    public LocalDateTime getUpdatedTime() {
-        return updatedTime;
-    }
-
-    public void setUpdatedTime(LocalDateTime updatedTime) {
-        this.updatedTime = updatedTime;
-    }
-
     public int getDurationShow() {
         return durationShow;
     }
 
     public void setDurationShow(int durationShow) {
         this.durationShow = durationShow;
-    }
-
-    public boolean isConfirmShow() {
-        return confirmShow;
-    }
-
-    public void setConfirmShow(boolean confirmShow) {
-        this.confirmShow = confirmShow;
     }
 
     public boolean isClickOn() {
@@ -171,9 +144,7 @@ public class Request {
                 ", session=" + session +
                 ", campaign=" + campaign +
                 ", creationTime=" + creationTime +
-                ", updatedTime=" + updatedTime +
                 ", durationShow=" + durationShow +
-                ", confirmShow=" + confirmShow +
                 ", clickOn=" + clickOn +
                 ", campaignCpmRate=" + campaignCpmRate +
                 ", platformCpmRate=" + platformCpmRate +
@@ -186,13 +157,11 @@ public class Request {
         if (!(o instanceof Request)) return false;
         Request request = (Request) o;
         return getDurationShow() == request.getDurationShow() &&
-                isConfirmShow() == request.isConfirmShow() &&
                 isClickOn() == request.isClickOn() &&
                 Objects.equals(getId(), request.getId()) &&
                 Objects.equals(getSession(), request.getSession()) &&
                 Objects.equals(getCampaign(), request.getCampaign()) &&
                 Objects.equals(getCreationTime(), request.getCreationTime()) &&
-                Objects.equals(getUpdatedTime(), request.getUpdatedTime()) &&
                 Objects.equals(getCampaignCpmRate(), request.getCampaignCpmRate()) &&
                 Objects.equals(getPlatformCpmRate(), request.getPlatformCpmRate());
     }
@@ -205,9 +174,7 @@ public class Request {
                 getSession(),
                 getCampaign(),
                 getCreationTime(),
-                getUpdatedTime(),
                 getDurationShow(),
-                isConfirmShow(),
                 isClickOn(),
                 getCampaignCpmRate(),
                 getPlatformCpmRate()

@@ -28,16 +28,7 @@ public class RequestResource {
     private HttpHeaders headers;
 
     public class UpdateRequestDto{
-        private boolean confirmShow;
         private boolean clickOn;
-
-        public boolean isConfirmShow() {
-            return confirmShow;
-        }
-
-        public void setConfirmShow(boolean confirmShow) {
-            this.confirmShow = confirmShow;
-        }
 
         public boolean isClickOn() {
             return clickOn;

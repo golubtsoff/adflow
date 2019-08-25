@@ -19,8 +19,8 @@ public class Session {
     public static final String CAMPAIGN_COUNTER = "CAMPAIGN_COUNTER";
     public static final String DISPLAYS_COUNTER = "DISPLAYS_COUNTER";
     public static final String CLICK_COUNTER = "CLICK_COUNTER";
-    public static final String NAME = "NAME";
-    public static final String IP = "IP";
+    public static final String NAME = "name";
+    public static final String IP = "ip";
     public static final String CREATION_TIME = "CREATION_TIME";
     public static final String CLOSING_TIME = "CLOSING_TIME";
 

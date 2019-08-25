@@ -1,8 +1,9 @@
 package main;
 
-import dao.CustomerPartnerDao;
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.statistics.Request;
+import entity.statistics.Viewer;
 import entity.users.*;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
@@ -10,27 +11,27 @@ import entity.users.customer.Picture;
 import entity.users.partner.Partner;
 import entity.users.partner.Platform;
 import entity.users.partner.PlatformToken;
-import entity.users.user.Person;
 import entity.users.user.Role;
 import entity.users.user.User;
-import exception.ConflictException;
-import exception.DbException;
-import exception.NotFoundException;
-import exception.ServiceException;
+import exception.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
-import service.CampaignService;
-import service.PictureFormatService;
-import service.UserService;
-import util.NullAware;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+import rest.statistics.RequestResource;
+import service.*;
 
 import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
+
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 public class Main {
 
@@ -38,50 +39,86 @@ public class Main {
             throws Exception {
         initData();
         DbAssistant.close();
+//        testScheduler();
+    }
+
+    public static void testScheduler() throws SchedulerException {
+
+        // Извлекаем планировщик из schedule factory
+        Scheduler scheduler =  StdSchedulerFactory.getDefaultScheduler();
+
+        // define the job and tie it to our HelloJob class
+        JobDetail job = JobBuilder.newJob(SimpleQuartzJob.class)
+                .withIdentity("job1", "group1")
+                .build();
+
+        // Trigger the job to run now, and then repeat every 40 seconds
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("trigger1", "group1")
+                .startNow()
+                .withSchedule(simpleSchedule()
+                        .withIntervalInSeconds(40)
+                        .repeatForever())
+                .build();
+
+        // Tell quartz to schedule the job using our trigger
+        scheduler.scheduleJob(job, trigger);
+
+        // and start it off
+        scheduler.start();
+//        scheduler.shutdown();
     }
 
     public static void initData() throws Exception {
-        User userCustomer_1 = UserService.signUpExceptAdministrator("customer_1", "123", "customer");
-        User userPartner_1 = UserService.signUpExceptAdministrator("partner_1", "123", "partner");
-        User userAdmin_1 = UserService.signUp("admin_1", "123", Role.ADMIN);
+        List<User> customers = createUsers(5, Role.CUSTOMER);
+        List<User> partners = createUsers(6, Role.PARTNER);
+        List<User> admins = createUsers(2, Role.ADMIN);
+        List<PictureFormat> formats = createPictureFormats(3);
+        List<Campaign> campaigns = createCampaigns(customers, 5, formats);
+        List<Platform> platforms = createPlatforms(partners, 5, formats);
 
-        assert userCustomer_1 != null;
-        userCustomer_1.setStatus(Status.WORKING);
-        UserService.update(userCustomer_1);
-        assert userPartner_1 != null;
-        userPartner_1.setStatus(Status.WORKING);
-        UserService.update(userPartner_1);
-        assert userAdmin_1 != null;
-        userAdmin_1.setStatus(Status.WORKING);
-        UserService.update(userAdmin_1);
+        List<Viewer> viewers = createViewers(100);
+        List<Request> requests = createRequests(platforms, viewers, 100, 20);
+    }
 
-        PictureFormat pictureFormat = new PictureFormat(800, 600);
-        createPictureFormat(pictureFormat);
+    private static List<User> createUsers(int quantity, Role role) throws DbException, ServiceException {
+        List<User> users = new ArrayList<>();
+        User user;
+        for (int i = 0; i < quantity; i++){
+            user = UserService.signUp(
+                role.toString().toLowerCase() + "_" + String.valueOf(i),
+                "123",
+                role);
+            assert user != null;
+            user.setStatus(Status.WORKING);
+            UserService.update(user);
+            users.add(user);
+        }
+        return users;
+    }
 
-        Picture picture = new Picture("filename.jpg", pictureFormat);
-
-        Campaign campaign = new Campaign(
-                null,
-                "Campaign_1",
-                "Title of Campaign_1",
-                "http://somesite.come",
-                BigDecimal.valueOf(100),
-                BigDecimal.valueOf(57),
-                Action.RUN,
-                Status.WORKING
-        );
-        createCampaign(userCustomer_1, pictureFormat, picture, campaign);
-
-        Platform platform = new Platform(
-                null,
-                "Platform_1",
-                "Title of Platform_1",
-                BigDecimal.valueOf(100),
-                pictureFormat,
-                Action.RUN,
-                Status.WORKING
-        );
-        createPlatform(userPartner_1, platform);
+    private static List<Platform> createPlatforms(List<User> users, int maxQuantity, List<PictureFormat> formats)
+            throws Exception {
+        List<Platform> platforms = new ArrayList<>();
+        Random rnd = new Random();
+        for (User user : users){
+            int quantity = rnd.nextInt(maxQuantity) + 1;
+            for (int i = 0; i < quantity; i++){
+                PictureFormat pictureFormat = formats.get(rnd.nextInt(formats.size()));
+                Platform platform = new Platform(
+                        null,
+                        "Platform_" + i,
+                        "Title of Platform_" + i,
+                        BigDecimal.valueOf(100 + rnd.nextInt(50)),
+                        pictureFormat,
+                        Action.RUN,
+                        Status.WORKING
+                );
+                createPlatform(user, platform);
+                platforms.add(platform);
+            }
+        }
+        return platforms;
     }
 
     private static Platform createPlatform(User userPartner, Platform platform) throws Exception {
@@ -102,10 +139,34 @@ public class Main {
         }
     }
 
+    private static List<Campaign> createCampaigns(List<User> users, int maxQuantity, List<PictureFormat> formats)
+            throws DbException {
+        List<Campaign> campaigns = new ArrayList<>();
+        Random rnd = new Random();
+        for (User user : users){
+            int quantity = rnd.nextInt(maxQuantity) + 1;
+            for (int i = 0; i < quantity; i++){
+                List<Picture> pictures = createPictures(user, i, formats);
+                Campaign campaign = new Campaign(
+                        null,
+                        "Campaign_" + i,
+                        "Title of Campaign_" + i,
+                        "http://somesite.com",
+                        BigDecimal.valueOf(100 + i),
+                        BigDecimal.valueOf(57 + i),
+                        Action.RUN,
+                        Status.WORKING
+                );
+                createCampaign(user, pictures, campaign);
+                campaigns.add(campaign);
+            }
+        }
+        return campaigns;
+    }
+
     private static Campaign createCampaign(
             User userCustomer,
-            PictureFormat pictureFormat,
-            Picture picture,
+            List<Picture> pictures,
             Campaign campaign
     ) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
@@ -113,7 +174,9 @@ public class Main {
             Customer customer = DaoFactory.getCustomerDao().getByUserId(userCustomer.getId());
             campaign.setCustomer(customer);
 
-            campaign.addPicture(picture);
+            for (Picture picture : pictures){
+                campaign.addPicture(picture);
+            }
             DaoFactory.getCampaignDao().create(campaign);
 
             transaction.commit();
@@ -124,6 +187,22 @@ public class Main {
         }
     }
 
+    private static List<Picture> createPictures(User user, int numCampaignByUser, List<PictureFormat> formats){
+        List<Picture> pictures = new ArrayList<>();
+        Random rnd = new Random();
+        int quantity = rnd.nextInt(formats.size()) + 1;
+        for (int i = 0; i < quantity; i++){
+            Picture picture = new Picture(
+                    "picture_"
+                            + user.getId()
+                            + "_"
+                            + numCampaignByUser
+                            + "_"
+                            + i, formats.get(i));
+            pictures.add(picture);
+        }
+        return pictures;
+    }
 
     private static PictureFormat createPictureFormat(PictureFormat pictureFormat) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
@@ -137,17 +216,74 @@ public class Main {
         }
     }
 
-    private static Customer getCustomer(long userId) throws DbException {
-        Transaction transaction = DbAssistant.getTransaction();
-        try {
-            Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
-            Set<Campaign> campaigns = customer.getCampaigns();
-            transaction.commit();
-            return customer;
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
+    private static List<PictureFormat> createPictureFormats(int quantity) throws DbException {
+        List<PictureFormat> formats = new ArrayList<>();
+        int width = 200;
+        int height = 50;
+        for (int i = 0; i < quantity; i++){
+            PictureFormat pictureFormat = new PictureFormat(width,height);
+            createPictureFormat(pictureFormat);
+            formats.add(pictureFormat);
+            width += 5;
+            height += 5;
         }
+        return formats;
+    }
+
+    private static List<Viewer> createViewers(int quantity){
+        List<Viewer> viewers = new ArrayList<>();
+        Random rnd = new Random();
+        for (int i = 0; i < quantity; i++){
+            Viewer viewer = new Viewer("Name_" + rnd.nextInt(100000), createIp());
+            viewers.add(viewer);
+        }
+        return viewers;
+    }
+
+    private static String createIp(){
+        Random rnd = new Random();
+        return "" + String.valueOf(rnd.nextInt(256 - 10) + 10) + "."
+                + rnd.nextInt(256) + "."
+                + rnd.nextInt(256) + "."
+                + rnd.nextInt(256);
+    }
+
+    private static List<Request> createRequests(
+            List<Platform> platforms,
+            List<Viewer> viewers,
+            int quantitySession,
+            int maxQuantityRequestBySession
+    )
+            throws BadRequestException, NotFoundException, DbException {
+        List<Request> requests = new ArrayList<>();
+        Random rnd = new Random();
+        RequestResource requestResource = new RequestResource();
+        for (int i = 0; i < quantitySession; i++){
+            Platform platform = platforms.get(rnd.nextInt(platforms.size()));
+            Viewer viewer = viewers.get(rnd.nextInt(viewers.size()));
+            Request request = RequestService.create(platform.getId(), viewer);
+            RequestService.update(platform.getId(), request.getId(), getUpdateRequestDto(requestResource));
+            requests.add(request);
+
+            int quantityRequest = rnd.nextInt(maxQuantityRequestBySession-1);
+            for (int j = 0; j < quantityRequest; j++){
+                Request request1 = RequestService.create(platform.getId(), request.getSession().getId());
+                if (j < quantityRequest - 1){
+                    RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
+                } else if (rnd.nextBoolean()){
+                    RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
+                }
+                requests.add(request1);
+            }
+        }
+        return requests;
+    }
+
+    private static RequestResource.UpdateRequestDto getUpdateRequestDto(RequestResource requestResource){
+        RequestResource.UpdateRequestDto updateRequestDto = requestResource.new UpdateRequestDto();
+        Random rnd = new Random();
+        updateRequestDto.setClickOn(rnd.nextBoolean());
+        return updateRequestDto;
     }
 
 }

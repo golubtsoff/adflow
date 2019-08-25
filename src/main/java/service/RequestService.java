@@ -2,6 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.statistics.Options;
 import entity.statistics.Request;
 import entity.statistics.Session;
 import entity.statistics.Viewer;
@@ -9,6 +10,7 @@ import entity.users.Action;
 import entity.users.customer.Campaign;
 import entity.users.partner.Platform;
 import exception.BadRequestException;
+import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
 import org.hibernate.HibernateException;
@@ -17,6 +19,7 @@ import rest.statistics.RequestResource;
 
 import javax.persistence.NoResultException;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -28,11 +31,13 @@ public class RequestService {
         try {
             Platform platform = DaoFactory.getPlatformDao().get(platformId);
             if (platform == null){
+                DbAssistant.transactionRollback(transaction);
                 throw new BadRequestException();
             }
 
             Campaign campaign = getNextCampaignNoSession(platform);
             if (campaign == null){
+                DbAssistant.transactionRollback(transaction);
                 throw new NotFoundException();
             }
 
@@ -77,10 +82,12 @@ public class RequestService {
             Platform platform = DaoFactory.getPlatformDao().get(platformId);
             Session session = DaoFactory.getSessionDao().get(sessionId);
             if (platform == null || session == null || !session.getPlatform().equals(platform)){
+                DbAssistant.transactionRollback(transaction);
                 throw new BadRequestException();
             }
             Campaign campaign = getNextCampaignWithSession(platform, session);
             if (campaign == null){
+                DbAssistant.transactionRollback(transaction);
                 throw new NotFoundException();
             }
 
@@ -96,19 +103,27 @@ public class RequestService {
         }
     }
 
+//    TODO: add decreasing balance of the customer
     public static void update(
             long platformId,
             long requestId,
             @NotNull RequestResource.UpdateRequestDto updateRequestDto
-    ) throws BadRequestException, DbException {
+    ) throws BadRequestException, DbException, ConflictException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             Request request = DaoFactory.getRequestDao().get(requestId);
             if (request == null || request.getSession().getPlatform().getId() != platformId){
+                DbAssistant.transactionRollback(transaction);
                 throw new BadRequestException();
             }
 
-            request.updateRequest(updateRequestDto.isConfirmShow(), updateRequestDto.isClickOn());
+            int durationShow = DaoFactory.getOptionsDao().getAll().get(0).getDurationShow();
+            if (LocalDateTime.now().minusSeconds(durationShow).isAfter(request.getCreationTime())){
+                DbAssistant.transactionRollback(transaction);
+                throw new ConflictException();
+            }
+
+            request.updateRequest(updateRequestDto.isClickOn());
             DaoFactory.getRequestDao().update(request);
 //            TODO: check if the session is saved without calling the update function
             DaoFactory.getSessionDao().update(request.getSession());

@@ -15,16 +15,16 @@ import java.util.Objects;
 @Table(name = "PLATFORMS")
 public class Platform {
 
-    public static final String ID = "ID";
-    public static final String PARTNER_ID = "PARTNER_ID";
-    public static final String TITLE = "TITLE";
-    public static final String DESCRIPTION = "DESCRIPTION";
-    public static final String CPM_RATE = "CPM_RATE";
-    public static final String PICTURE_FORMAT_ID = "PICTURE_FORMAT_ID";
-    public static final String CREATION_DATE = "CREATION_DATE";
-    public static final String REMOVED_DATE = "REMOVED_DATE";
-    public static final String ACTION = "ACTION";
-    public static final String STATUS = "STATUS";
+    public static final String ID = "id";
+    public static final String PARTNER_ID = "partner_id";
+    public static final String TITLE = "title";
+    public static final String DESCRIPTION = "description";
+    public static final String CPM_RATE = "cpm_rate";
+    public static final String PICTURE_FORMAT_ID = "picture_format_id";
+    public static final String CREATION_DATE = "creation_date";
+    public static final String REMOVED_DATE = "removed_date";
+    public static final String ACTION = "action";
+    public static final String STATUS = "status";
 
     @Id
     @Column(name = ID)

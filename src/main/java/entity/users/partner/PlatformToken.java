@@ -15,8 +15,8 @@ import static entity.users.user.UserToken.TOKEN_ISSUER;
 @Table(name = "PLATFORM_TOKENS")
 public class PlatformToken {
 
-    public static final String TOKEN = "TOKEN";
-    public static final String RELEASED_DATE_TIME = "RELEASED_DATE_TIME";
+    public static final String TOKEN = "token";
+    public static final String RELEASED_DATE_TIME = "released_date_time";
     public static final String PID = "pid";
 
     @Id

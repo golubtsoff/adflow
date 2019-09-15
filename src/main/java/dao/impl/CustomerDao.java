@@ -12,6 +12,6 @@ public class CustomerDao extends AbstractDao<Customer> implements CustomerPartne
     }
 
     public Customer getByUserId(Long userId) {
-        return get("USER_ID", userId.toString());
+        return get("USER_ID", userId);
     }
 }

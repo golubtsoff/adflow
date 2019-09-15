@@ -37,9 +37,21 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-        initData();
+//        initData();
+
+//        List<Campaign> campaigns = CriteriaTest.getCampaigns();
+        updateStatusUser();
         DbAssistant.close();
 //        testScheduler();
+    }
+
+    public static void updateStatusUser() throws DbException {
+        List<User> users = UserService.getByStatus(Status.WORKING);
+        if (!users.isEmpty()){
+            User user = UserService.getByStatus(Status.WORKING).get(0);
+            user.setStatus(Status.REMOVED);
+            UserService.update(user);
+        }
     }
 
     public static void testScheduler() throws SchedulerException {
@@ -74,7 +86,7 @@ public class Main {
         List<User> partners = createUsers(6, Role.PARTNER);
         List<User> admins = createUsers(2, Role.ADMIN);
         List<PictureFormat> formats = createPictureFormats(3);
-        List<Campaign> campaigns = createCampaigns(customers, 5, formats);
+        List<Campaign> campaigns = createCampaigns(customers, 10, formats);
         List<Platform> platforms = createPlatforms(partners, 5, formats);
 
         List<Viewer> viewers = createViewers(100);
@@ -145,6 +157,7 @@ public class Main {
         Random rnd = new Random();
         for (User user : users){
             int quantity = rnd.nextInt(maxQuantity) + 1;
+            Action[] actions = Action.values();
             for (int i = 0; i < quantity; i++){
                 List<Picture> pictures = createPictures(user, i, formats);
                 Campaign campaign = new Campaign(
@@ -154,7 +167,7 @@ public class Main {
                         "http://somesite.com",
                         BigDecimal.valueOf(100 + i),
                         BigDecimal.valueOf(57 + i),
-                        Action.RUN,
+                        actions[rnd.nextInt(actions.length)],
                         Status.WORKING
                 );
                 createCampaign(user, pictures, campaign);
@@ -254,7 +267,7 @@ public class Main {
             int quantitySession,
             int maxQuantityRequestBySession
     )
-            throws BadRequestException, NotFoundException, DbException {
+            throws BadRequestException, NotFoundException, DbException, ConflictException {
         List<Request> requests = new ArrayList<>();
         Random rnd = new Random();
         RequestResource requestResource = new RequestResource();

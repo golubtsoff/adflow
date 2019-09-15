@@ -13,6 +13,6 @@ public class AdministratorDao extends AbstractDao<Administrator> {
     }
 
     public Administrator getByUserId(Long userId) {
-        return get("USER_ID", userId.toString());
+        return get("USER_ID", userId);
     }
 }

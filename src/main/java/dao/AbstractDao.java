@@ -1,5 +1,6 @@
 package dao;
 
+import org.h2.message.DbException;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -28,7 +29,7 @@ public abstract class AbstractDao<T> implements Dao<T> {
     }
 
     @Override
-    public T get(String fieldName, String value){
+    public <U> T get(String fieldName, U value){
         return DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .createQuery("from " + parameterizedClass.getSimpleName()
@@ -47,7 +48,7 @@ public abstract class AbstractDao<T> implements Dao<T> {
     }
 
     @Override
-    public List<T> getAll(String fieldName, String value) {
+    public <U> List<T> getAll(String fieldName, U value) {
         return DbAssistant.getSessionFactory()
                 .getCurrentSession()
                 .createQuery("from " + parameterizedClass.getSimpleName()
@@ -65,8 +66,12 @@ public abstract class AbstractDao<T> implements Dao<T> {
 
     @Override
     public void update(T t) {
-        DbAssistant.getSessionFactory().getCurrentSession()
-                .update(t);
+        DbAssistant.getSessionFactory().getCurrentSession().update(t);
+    }
+
+    @Override
+    public void merge(T t){
+        DbAssistant.getSessionFactory().getCurrentSession().merge(t);
     }
 
     @Override

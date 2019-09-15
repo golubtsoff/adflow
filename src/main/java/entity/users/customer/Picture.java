@@ -10,8 +10,8 @@ import java.util.Objects;
 @Embeddable
 public class Picture {
 
-    public static final String PICTURE_FORMAT_ID = "PICTURE_FORMAT_ID";
-    public static final String FILENAME = "FILENAME";
+    public static final String PICTURE_FORMAT_ID = "picture_format_id";
+    public static final String FILENAME = "filename";
 
     @OneToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)

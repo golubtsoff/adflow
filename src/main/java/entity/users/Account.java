@@ -7,8 +7,8 @@ import java.util.Objects;
 @Embeddable
 public class Account {
 
-    public static final String BALANCE = "BALANCE";
-    public static final String PAYMENT_DETAILS = "PAYMENT_DETAILS";
+    public static final String BALANCE = "balance";
+    public static final String PAYMENT_DETAILS = "payment_details";
 
     @Column(name = BALANCE)
     private BigDecimal balance;

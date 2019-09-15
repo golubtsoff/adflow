@@ -11,6 +11,6 @@ public class PartnerDao extends AbstractDao<Partner> implements CustomerPartnerD
     }
 
     public Partner getByUserId(Long userId) {
-        return get("USER_ID", userId.toString());
+        return get("USER_ID", userId);
     }
 }

@@ -117,8 +117,7 @@ public class RequestService {
                 throw new BadRequestException();
             }
 
-            int durationShow = DaoFactory.getOptionsDao().getAll().get(0).getDurationShow();
-            if (LocalDateTime.now().minusSeconds(durationShow).isAfter(request.getCreationTime())){
+            if (LocalDateTime.now().minusSeconds(request.getDurationShow()).isAfter(request.getCreationTime())){
                 DbAssistant.transactionRollback(transaction);
                 throw new ConflictException();
             }

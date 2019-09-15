@@ -5,15 +5,15 @@ import java.util.Objects;
 
 @Entity
 @Table(
-        name = "PICTURE_FORMATS",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"WIDTH", "HEIGHT"})}
+        name = "picture_formats",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"width", "height"})}
 )
 public class PictureFormat {
 
-    public static final String ID = "ID";
-    public static final String WIDTH = "WIDTH";
-    public static final String HEIGHT = "HEIGHT";
-    public static final String CAN_BE_USED = "CAN_BE_USED";
+    public static final String ID = "id";
+    public static final String WIDTH = "width";
+    public static final String HEIGHT = "height";
+    public static final String CAN_BE_USED = "can_be_used";
 
     @Id
     @Column(name = ID)

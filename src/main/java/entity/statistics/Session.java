@@ -34,9 +34,6 @@ public class Session {
     @JoinColumn(name = PLATFORM_ID)
     private Platform platform;
 
-    @Column(name = CAMPAIGN_COUNTER)
-    private int campaignCounter;
-
     @Column(name = DISPLAYS_COUNTER)
     private int displaysCounter;
 
@@ -76,7 +73,7 @@ public class Session {
 
     public Request getRequestInstance(Campaign campaign, int durationShow){
         setClosingTime(LocalDateTime.now());
-        setCampaignCounter(campaignCounter + 1);
+        setDisplaysCounter(++displaysCounter);
         return new Request(this, campaign, durationShow);
     }
 
@@ -90,14 +87,6 @@ public class Session {
 
     public void setPlatform(Platform platform) {
         this.platform = platform;
-    }
-
-    public int getCampaignCounter() {
-        return campaignCounter;
-    }
-
-    public void setCampaignCounter(int campaignCounter) {
-        this.campaignCounter = campaignCounter;
     }
 
     public int getDisplaysCounter() {
@@ -145,7 +134,6 @@ public class Session {
         return "Session{" +
                 "id=" + id +
                 ", platform=" + platform +
-                ", campaignCounter=" + campaignCounter +
                 ", displaysCounter=" + displaysCounter +
                 ", clickCounter=" + clickCounter +
                 ", viewer=" + viewer +
@@ -159,8 +147,7 @@ public class Session {
         if (this == o) return true;
         if (!(o instanceof Session)) return false;
         Session session = (Session) o;
-        return getCampaignCounter() == session.getCampaignCounter() &&
-                getDisplaysCounter() == session.getDisplaysCounter() &&
+        return getDisplaysCounter() == session.getDisplaysCounter() &&
                 getClickCounter() == session.getClickCounter() &&
                 Objects.equals(getId(), session.getId()) &&
                 Objects.equals(getPlatform(), session.getPlatform()) &&
@@ -172,6 +159,13 @@ public class Session {
     @Override
     public int hashCode() {
 
-        return Objects.hash(getId(), getPlatform(), getCampaignCounter(), getDisplaysCounter(), getClickCounter(), getViewer(), getCreationTime(), getClosingTime());
+        return Objects.hash(
+                getId(),
+                getPlatform(),
+                getDisplaysCounter(),
+                getClickCounter(),
+                getViewer(),
+                getCreationTime(),
+                getClosingTime());
     }
 }

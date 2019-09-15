@@ -16,10 +16,10 @@ public class CampaignDao extends AbstractDao<Campaign> {
     }
 
     public List<Campaign> getAllByCustomerId(Long customerId) {
-        return getAll(Campaign.CUSTOMER_ID, customerId.toString());
+        return getAll(Campaign.CUSTOMER_ID, customerId);
     }
 
     public List<Campaign> getAllByAction(Action action){
-        return getAll(Campaign.ACTION, action.toString());
+        return getAll(Campaign.ACTION, action);
     }
 }

@@ -4,8 +4,10 @@ import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Administrator;
 import entity.users.Status;
+import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.partner.Partner;
+import entity.users.partner.Platform;
 import entity.users.user.Role;
 import entity.users.user.User;
 import entity.users.user.UserToken;
@@ -20,6 +22,7 @@ import util.NullAware;
 import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Set;
 
 public abstract class UserService {
 
@@ -176,14 +179,14 @@ public abstract class UserService {
     }
 
     public static List<User> getByStatus(Status status) throws DbException {
-        return getByCustomField(User.STATUS, status.toString());
+        return getByCustomField(User.STATUS, status);
     }
 
     public static List<User> getByRole(Role role) throws DbException {
-        return getByCustomField(User.ROLE, role.toString());
+        return getByCustomField(User.ROLE, role);
     }
 
-    private static List<User> getByCustomField(String fieldName, String value) throws DbException {
+    private static <U> List<User> getByCustomField(String fieldName, U value) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             List<User> users = DaoFactory.getUserDao().getAll(fieldName, value);
@@ -198,12 +201,33 @@ public abstract class UserService {
     public static User update(User user) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            DaoFactory.getUserDao().update(user);
+            updateStatus(user);
+            DaoFactory.getUserDao().merge(user);
             transaction.commit();
             return user;
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        }
+    }
+
+    private static void updateStatus(User user){
+        if (user.getStatus() == Status.REMOVED){
+            if (user.getRole() == Role.CUSTOMER){
+                Customer customer = DaoFactory.getCustomerDao().getByUserId(user.getId());
+                Set<Campaign> campaigns = customer.getCampaigns();
+                for (Campaign campaign : campaigns) {
+                    campaign.setStatus(Status.REMOVED);
+                }
+                DaoFactory.getCustomerDao().update(customer);
+            } else if (user.getRole() == Role.PARTNER){
+                Partner partner = DaoFactory.getPartnerDao().getByUserId(user.getId());
+                Set<Platform> platforms = partner.getPlatforms();
+                for (Platform platform : platforms) {
+                    platform.setStatus(Status.REMOVED);
+                }
+                DaoFactory.getPartnerDao().update(partner);
+            }
         }
     }
 
@@ -218,6 +242,7 @@ public abstract class UserService {
                 throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
             }
             NullAware.getInstance().copyProperties(userFromBase, userFromClient);
+            updateStatus(userFromBase);
             DaoFactory.getUserDao().update(userFromBase);
 
             transaction.commit();

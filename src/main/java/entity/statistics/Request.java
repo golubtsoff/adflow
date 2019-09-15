@@ -62,7 +62,6 @@ public class Request {
             int durationShow
     ) {
         this.session = session;
-        session.setDisplaysCounter(session.getDisplaysCounter() + 1);
         this.platformCpmRate = session.getPlatform().getCpmRate();
         this.campaign = campaign;
         this.campaignCpmRate = campaign.getCpmRate();

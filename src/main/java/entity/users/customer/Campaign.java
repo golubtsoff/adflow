@@ -17,18 +17,18 @@ import java.util.Set;
 @Table(name = "campaigns")
 public class Campaign {
 
-    public static final String ID = "ID";
-    public static final String CUSTOMER_ID = "CUSTOMER_ID";
-    public static final String TITLE = "TITLE";
-    public static final String DESCRIPTION = "DESCRIPTION";
-    public static final String URL = "URL";
-    public static final String PICTURES = "PICTURES";
-    public static final String DAILY_BUDGET = "DAILY_BUDGET";
-    public static final String CPM_RATE = "CPM_RATE";
-    public static final String CREATION_DATE = "CREATION_DATE";
-    public static final String REMOVED_DATE = "REMOVED_DATE";
-    public static final String ACTION = "ACTION";
-    public static final String STATUS = "STATUS";
+    public static final String ID = "id";
+    public static final String CUSTOMER_ID = "customer_id";
+    public static final String TITLE = "title";
+    public static final String DESCRIPTION = "description";
+    public static final String URL = "url";
+    public static final String PICTURES = "pictures";
+    public static final String DAILY_BUDGET = "daily_budget";
+    public static final String CPM_RATE = "cpm_rate";
+    public static final String CREATION_DATE = "creation_date";
+    public static final String REMOVED_DATE = "removed_date";
+    public static final String ACTION = "action";
+    public static final String STATUS = "status";
 
     @Id
     @Column(name = ID)
@@ -211,6 +211,10 @@ public class Campaign {
         if (status == Status.REMOVED){
             this.setRemovedDate(LocalDateTime.now());
             this.setAction(Action.STOP);
+        } else if (status == Status.CHECKING || status == Status.LOCKED){
+            if (this.getAction() == Action.RUN){
+                this.setAction(Action.PAUSE);
+            }
         }
     }
 

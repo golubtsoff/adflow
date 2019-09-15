@@ -17,9 +17,9 @@ public class UserToken {
     private static final long ACTION_TIME_MINUTES = 30;
     private static final long EXTENDED_TIME_MINUTES = 15;
 
-    public static final String TOKEN = "TOKEN";
-    public static final String RELEASE_DATE_TIME = "RELEASE_DATE_TIME";
-    public static final String EXPIRED_DATE_TIME = "EXPIRED_DATE_TIME";
+    public static final String TOKEN = "token";
+    public static final String RELEASE_DATE_TIME = "release_date_time";
+    public static final String EXPIRED_DATE_TIME = "expired_date_time";
 
     public static final String TOKEN_ISSUER = "app4pro.ru";
     public static final String UID = "uid";

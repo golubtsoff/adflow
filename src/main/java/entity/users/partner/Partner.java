@@ -17,8 +17,8 @@ import java.util.Set;
 @Table(name = "partners")
 public class Partner implements ConcreteRole, Accountable {
 
-    public static final String ID = "ID";
-    public static final String USER_ID = "USER_ID";
+    public static final String ID = "id";
+    public static final String USER_ID = "user_id";
 
     @Id
     @Column(name = ID)

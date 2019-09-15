@@ -37,7 +37,7 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-//        initData();
+        initData();
 
 //        List<Campaign> campaigns = CriteriaTest.getCampaigns();
         updateStatusUser();

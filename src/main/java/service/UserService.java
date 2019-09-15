@@ -2,6 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.users.Action;
 import entity.users.Administrator;
 import entity.users.Status;
 import entity.users.customer.Campaign;
@@ -225,6 +226,27 @@ public abstract class UserService {
                 Set<Platform> platforms = partner.getPlatforms();
                 for (Platform platform : platforms) {
                     platform.setStatus(Status.REMOVED);
+                }
+                DaoFactory.getPartnerDao().update(partner);
+            }
+        } else if (user.getStatus() == Status.LOCKED
+                || user.getStatus() == Status.CHECKING){
+            if (user.getRole() == Role.CUSTOMER){
+                Customer customer = DaoFactory.getCustomerDao().getByUserId(user.getId());
+                Set<Campaign> campaigns = customer.getCampaigns();
+                for (Campaign campaign : campaigns) {
+                    if (campaign.getAction() == Action.RUN){
+                        campaign.setAction(Action.PAUSE);
+                    }
+                }
+                DaoFactory.getCustomerDao().update(customer);
+            } else if (user.getRole() == Role.PARTNER){
+                Partner partner = DaoFactory.getPartnerDao().getByUserId(user.getId());
+                Set<Platform> platforms = partner.getPlatforms();
+                for (Platform platform : platforms) {
+                    if (platform.getAction() == Action.RUN){
+                        platform.setAction(Action.PAUSE);
+                    }
                 }
                 DaoFactory.getPartnerDao().update(partner);
             }

@@ -1,5 +1,6 @@
 package entity.users.partner;
 
+import entity.users.AbstractCampaignPlatform;
 import entity.users.PictureFormat;
 import entity.users.Action;
 import entity.users.Status;
@@ -13,56 +14,20 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "PLATFORMS")
-public class Platform {
+public class Platform extends AbstractCampaignPlatform {
 
-    public static final String ID = "id";
     public static final String PARTNER_ID = "partner_id";
-    public static final String TITLE = "title";
-    public static final String DESCRIPTION = "description";
-    public static final String CPM_RATE = "cpm_rate";
     public static final String PICTURE_FORMAT_ID = "picture_format_id";
-    public static final String CREATION_DATE = "creation_date";
-    public static final String REMOVED_DATE = "removed_date";
-    public static final String ACTION = "action";
-    public static final String STATUS = "status";
-
-    @Id
-    @Column(name = ID)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = PARTNER_ID)
     private Partner partner;
 
-    @Column(name = TITLE)
-    private String title;
-
-    @Column(name = DESCRIPTION)
-    private String description;
-
-    @Column(name = CPM_RATE)
-    private BigDecimal cpmRate;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = PICTURE_FORMAT_ID)
     private PictureFormat pictureFormat;
-
-    @Column(name = CREATION_DATE)
-    private LocalDateTime creationDate;
-
-    @Column(name = REMOVED_DATE)
-    private LocalDateTime removedDate;
-
-    @Column(name = ACTION)
-    @Enumerated(EnumType.STRING)
-    private Action action;
-
-    @Column(name = STATUS)
-    @Enumerated(EnumType.STRING)
-    private Status status;
 
     public Platform() {
     }
@@ -121,34 +86,6 @@ public class Platform {
         this.action = action;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getCpmRate() {
-        return cpmRate;
-    }
-
-    public void setCpmRate(BigDecimal cpmRate) {
-        this.cpmRate = cpmRate;
-    }
-
     public Partner getPartner() {
         return partner;
     }
@@ -163,42 +100,6 @@ public class Platform {
 
     public void setPictureFormat(PictureFormat pictureFormat) {
         this.pictureFormat = pictureFormat;
-    }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-        if (status == Status.REMOVED){
-            this.setRemovedDate(LocalDateTime.now());
-            this.setAction(Action.STOP);
-        }
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public LocalDateTime getRemovedDate() {
-        return removedDate;
-    }
-
-    public void setRemovedDate(LocalDateTime removedDate) {
-        this.removedDate = removedDate;
     }
 
     @Override

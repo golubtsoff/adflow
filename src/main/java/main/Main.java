@@ -22,9 +22,10 @@ import rest.statistics.RequestResource;
 import service.*;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Tuple;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -37,12 +38,20 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-        initData();
+//        initData();
+//        updateStatusUser();
+//        List<Campaign> campaigns = QueryTest.getCampaigns();
+        checkRequestService();
 
-//        List<Campaign> campaigns = CriteriaTest.getCampaigns();
-        updateStatusUser();
         DbAssistant.close();
 //        testScheduler();
+    }
+
+    public static void checkRequestService() throws BadRequestException, NotFoundException, DbException {
+        Request request = RequestService.create(1, new Viewer("Вася", createIp()));
+        for (int i = 0; i < 10; ++i){
+            request = RequestService.create(1, request.getSession().getId());
+        }
     }
 
     public static void updateStatusUser() throws DbException {
@@ -121,7 +130,7 @@ public class Main {
                         null,
                         "Platform_" + i,
                         "Title of Platform_" + i,
-                        BigDecimal.valueOf(100 + rnd.nextInt(50)),
+                        BigDecimal.valueOf(800 + rnd.nextInt(400)),
                         pictureFormat,
                         Action.RUN,
                         Status.WORKING
@@ -165,8 +174,8 @@ public class Main {
                         "Campaign_" + i,
                         "Title of Campaign_" + i,
                         "http://somesite.com",
-                        BigDecimal.valueOf(100 + i),
-                        BigDecimal.valueOf(57 + i),
+                        BigDecimal.valueOf(100 + rnd.nextInt(50)),
+                        BigDecimal.valueOf(1000 + rnd.nextInt(1000)),
                         actions[rnd.nextInt(actions.length)],
                         Status.WORKING
                 );
@@ -278,10 +287,10 @@ public class Main {
             RequestService.update(platform.getId(), request.getId(), getUpdateRequestDto(requestResource));
             requests.add(request);
 
-            int quantityRequest = rnd.nextInt(maxQuantityRequestBySession-1);
-            for (int j = 0; j < quantityRequest; j++){
+            int quantityRequestBySession = rnd.nextInt(maxQuantityRequestBySession-1);
+            for (int j = 0; j < quantityRequestBySession; j++){
                 Request request1 = RequestService.create(platform.getId(), request.getSession().getId());
-                if (j < quantityRequest - 1){
+                if (j < quantityRequestBySession - 1){
                     RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
                 } else if (rnd.nextBoolean()){
                     RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));

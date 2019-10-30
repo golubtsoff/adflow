@@ -8,6 +8,7 @@ import entity.statistics.Session;
 import entity.statistics.Viewer;
 import entity.users.Action;
 import entity.users.customer.Campaign;
+import entity.users.customer.Customer;
 import entity.users.partner.Platform;
 import exception.BadRequestException;
 import exception.ConflictException;
@@ -41,7 +42,7 @@ public class RequestService {
             Platform platform = DaoFactory.getPlatformDao().get(platformId);
             if (platform == null){
                 DbAssistant.transactionRollback(transaction);
-                throw new BadRequestException();
+                throw new BadRequestException("Platform with id = " + platformId + " not existed");
             }
 
             Campaign campaign = getNextCampaignNoSession(platform);
@@ -54,6 +55,7 @@ public class RequestService {
             DaoFactory.getSessionDao().create(session);
 
             Request request = session.getRequestInstance(campaign, getDurationShow());
+
             DaoFactory.getSessionDao().update(session);
             DaoFactory.getRequestDao().create(request);
 
@@ -67,32 +69,53 @@ public class RequestService {
 
     // TODO: delete getRandomCampaign()
     private static Campaign getNextCampaignNoSession(Platform platform){
-//        return getRandomCampaign();
         return getCampaignForDisplay(platform, NO_SESSION);
     }
 
     private static Campaign getCampaignForDisplay(Platform platform, long sessionId){
         org.hibernate.Session session = DbAssistant.getSessionFactory().getCurrentSession();
         List<Tuple> result;
-        BigDecimal k_crt = BigDecimal.valueOf(0.0);
+        Integer balanceIsOver = 0;
+        Integer dailyBudgetIsOver = 0;
+        Integer rbbu = 0;
         do {
             result = getDataForCampaignApproval(session, platform, sessionId);
             if (!result.isEmpty()){
                 Tuple tuple = result.get(0);
-                k_crt = tuple.get("k_crt", BigDecimal.class);
-                if (k_crt.compareTo(BigDecimal.valueOf(0.0)) < 0){
+                balanceIsOver = tuple.get("balance_is_over", Integer.class);
+                dailyBudgetIsOver = tuple.get("db_is_over", Integer.class);
+//                rbbu = tuple.get("rbbu", BigInteger.class).intValue();
+                rbbu = tuple.get("rbbu", Integer.class);
+                if (dailyBudgetIsOver == 1 || balanceIsOver == 1){
                     long campaignId = tuple.get("id", BigInteger.class).longValue();
                     Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
                     campaign.setAction(Action.PAUSE);
                 }
             }
-        } while (!result.isEmpty() && k_crt.compareTo(BigDecimal.valueOf(0.0)) < 0);
-        if (result.isEmpty()){
-            return null;
-        } else {
+        } while (!result.isEmpty() && (dailyBudgetIsOver == 1 || balanceIsOver == 1));
+        if (!result.isEmpty()){
             long campaignId = result.get(0).get("id", BigInteger.class).longValue();
-            return DaoFactory.getCampaignDao().get(campaignId);
+            Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
+            if (rbbu == 0){
+                changeBalanceOfCustomer(campaign);
+            }
+            return campaign;
+        } else {
+            return null;
         }
+    }
+
+    private static void changeBalanceOfCustomer(Campaign campaign){
+        Customer customer = campaign.getCustomer();
+        BigDecimal newBalance = customer.getAccount().getBalance()
+                .subtract(
+                        campaign.getCpmRate()
+                                .divide(
+                                        BigDecimal.valueOf(1000),
+                                        4,
+                                        BigDecimal.ROUND_HALF_UP)
+                );
+        campaign.getCustomer().getAccount().setBalance(newBalance);
     }
 
     private static List<Tuple> getDataForCampaignApproval(
@@ -100,40 +123,47 @@ public class RequestService {
             Platform platform,
             long sessionId){
         LocalDateTime now = LocalDateTime.now();
-        // TODO: fix setting from and to
             LocalDateTime from = now.with(LocalTime.MIN);
             LocalDateTime to = now.with(LocalTime.MAX);
-//        LocalDateTime from = LocalDateTime.of(2019, Month.SEPTEMBER, 20, 0, 0, 0);
-//        LocalDateTime to = LocalDateTime.of(2019, Month.SEPTEMBER, 20, 23, 59, 59, 999999999);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
         String sql =
                 "SELECT\n" +
                 "  c.ID                                                                                   id,\n" +
                 "  c.DAILY_BUDGET                                                                         db,\n" +
                 "  c.CPM_RATE                                                                             campaign_cpm,\n" +
-                "  COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0)                                                  crt,\n" +
+                "  COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / 1000                                           crt,\n" +
                 "  c.ACTION                                                                               action,\n" +
                 "  c.STATUS                                                                               status,\n" +
-                "  (count(r2.ID) > 0)                                                                     rbbu,\n" +
-                "  2 - (count(r2.ID) > 0) - COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / c.DAILY_BUDGET / 1000 k,\n" +
-                "  1 - (COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) + c.CPM_RATE) / c.DAILY_BUDGET / 1000       k_crt,\n" +
+                "  (select count(r2.id) > 0 from requests r2 where\n" +
+                        "    c.ID = r2.CAMPAIGN_ID\n" +
+                        "    AND r2.SESSION_ID = " + sessionId + " \n" +
+                        "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' \n" +
+                        "    AND '" + to.format(formatter) + "') rbbu,\n" +
+                "  2 - (select count(r2.id) > 0 from requests r2 where\n" +
+                        "    c.ID = r2.CAMPAIGN_ID\n" +
+                        "    AND r2.SESSION_ID = " + sessionId + " \n" +
+                        "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' \n" +
+                        "    AND '" + to.format(formatter) + "') \n" +
+                        "- COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / c.DAILY_BUDGET / 1000 k,\n" +
+                "  c.DAILY_BUDGET < ((COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) + c.CPM_RATE) / 1000)         db_is_over,\n" +
+                "  cu.BALANCE < (c.CPM_RATE / 1000)                                                       balance_is_over,\n" +
                 "  p.PICTURE_FORMAT_ID                                                                    pid,\n" +
                 "  p.FILENAME                                                                             fname,\n" +
-                "  pl.CPM_RATE                                                                            platform_cpm\n" +
+                "  pl.CPM_RATE                                                                            platform_cpm,\n" +
+                "  cu.BALANCE                                                                             balance\n" +
                 "FROM CAMPAIGNS c\n" +
-                "LEFT JOIN REQUESTS r\n" +
+                "LEFT JOIN (select *, row_number() over (partition by r3.SESSION_ID, r3.CAMPAIGN_ID ORDER BY id) rn from requests r3) r\n" +
                 "  ON c.ID = r.CAMPAIGN_ID\n" +
                 "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) + "' AND '" + to.format(formatter) + "'\n" +
-                "LEFT JOIN REQUESTS r2\n" +
-                "  ON c.ID = r2.CAMPAIGN_ID\n" +
-                "    AND r2.SESSION_ID = " + sessionId + " \n" +
-                "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' AND '" + to.format(formatter) + "'\n" +
+                "    AND r.rn = 1\n" +
                 "LEFT JOIN PICTURES p\n" +
                 "  ON c.ID = p.CAMPAIGN_ID\n" +
                 "LEFT JOIN PLATFORMS pl\n" +
                 "  ON pl.ID = " + platform.getId() + " \n" +
+                "LEFT JOIN CUSTOMERS cu\n" +
+                "  ON cu.ID = c.CUSTOMER_ID\n" +
                 "WHERE c.ACTION = 'RUN'\n" +
-                "     AND p.PICTURE_FORMAT_ID = " + platform.getPictureFormat().getId() + " \n" +
+                "     AND p.PICTURE_FORMAT_ID = pl.PICTURE_FORMAT_ID \n" +
                 "     AND c.CPM_RATE >= pl.CPM_RATE\n" +
                 "GROUP BY c.ID\n" +
                 "ORDER BY k DESC\n" +
@@ -154,7 +184,6 @@ public class RequestService {
 
     // TODO: delete getRandomCampaign()
     private static Campaign getNextCampaignWithSession(Platform platform, Session session){
-//        return getRandomCampaign();
         return getCampaignForDisplay(platform, session.getId());
     }
 

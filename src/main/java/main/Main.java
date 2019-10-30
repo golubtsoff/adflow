@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -41,16 +42,64 @@ public class Main {
 //        initData();
 //        updateStatusUser();
 //        List<Campaign> campaigns = QueryTest.getCampaigns();
-        checkRequestService();
+//        checkRequestService();
+        checkRequestServiceConcurrent();
 
-        DbAssistant.close();
+//        DbAssistant.close();
 //        testScheduler();
     }
 
-    public static void checkRequestService() throws BadRequestException, NotFoundException, DbException {
-        Request request = RequestService.create(1, new Viewer("Вася", createIp()));
+    public static void checkRequestServiceConcurrent() throws BadRequestException, DbException {
+        AtomicInteger countTask = new AtomicInteger();
+        int countThread = 1;
+        Runnable task = () -> {
+            int taskNumber = countTask.incrementAndGet();
+            int countNotFoundException = 0;
+            int countBadRequestException = 0;
+            int countDbException = 0;
+            int countException = 0;
+            for (int i = 0; i < 30; ++i){
+                try{
+                    checkRequestService();
+                } catch (NotFoundException e){
+                    System.out.println("Task " + taskNumber + ": NotFoundException " + i);
+                    ++countNotFoundException;
+                } catch (BadRequestException e){
+                    System.out.println("Task " + taskNumber + ": BadRequestException " + i);
+                    ++countBadRequestException;
+                    e.printStackTrace();
+                } catch (DbException e){
+                    System.out.println("Task " + taskNumber + ": DbException " + i);
+                    ++countDbException;
+                    e.printStackTrace();
+                } catch (Exception e){
+                    System.out.println("Task " + taskNumber + ": Exception " + i);
+                    ++countException;
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("task "+ taskNumber + " finished:\n"
+                + "NotFoundException: " + countNotFoundException + "\n"
+                + "BadRequestException: " + countBadRequestException + "\n"
+                + "DbException: " + countDbException + "\n"
+                + "Exception: " + countException + "\n"
+            );
+        };
+
+        for (int i = 0; i < countThread; i++){
+            Thread thread = new Thread(task);
+            thread.start();
+        }
+    }
+
+    public static void checkRequestService()
+            throws BadRequestException, NotFoundException, DbException, InterruptedException {
+        List<Platform> platforms = PlatformService.getAll();
+        Random random = new Random();
+        int platformId = random.nextInt(platforms.size()) + 1;
+        Request request = RequestService.create(platformId, new Viewer(generateName(), createIp()));
         for (int i = 0; i < 10; ++i){
-            request = RequestService.create(1, request.getSession().getId());
+            request = RequestService.create(platformId, request.getSession().getId());
         }
     }
 
@@ -92,6 +141,7 @@ public class Main {
 
     public static void initData() throws Exception {
         List<User> customers = createUsers(5, Role.CUSTOMER);
+        updateAccountOfCustomers(customers);
         List<User> partners = createUsers(6, Role.PARTNER);
         List<User> admins = createUsers(2, Role.ADMIN);
         List<PictureFormat> formats = createPictureFormats(3);
@@ -100,6 +150,16 @@ public class Main {
 
         List<Viewer> viewers = createViewers(100);
         List<Request> requests = createRequests(platforms, viewers, 100, 20);
+    }
+
+    private static void updateAccountOfCustomers(List<User> customers)
+            throws NotFoundException, DbException, ServiceException {
+        Random rnd = new Random();
+        for(User user : customers){
+            Account account = AccountService.get(user.getId());
+            account.setBalance(BigDecimal.valueOf(500 + rnd.nextInt(1000)));
+            AccountService.update(user.getId(), account);
+        }
     }
 
     private static List<User> createUsers(int quantity, Role role) throws DbException, ServiceException {
@@ -256,10 +316,24 @@ public class Main {
         List<Viewer> viewers = new ArrayList<>();
         Random rnd = new Random();
         for (int i = 0; i < quantity; i++){
-            Viewer viewer = new Viewer("Name_" + rnd.nextInt(100000), createIp());
+//            Viewer viewer = new Viewer("Name_" + rnd.nextInt(100000), createIp());
+            Viewer viewer = new Viewer(generateName(), createIp());
             viewers.add(viewer);
         }
         return viewers;
+    }
+
+    public static String generateName()
+    {
+        String characters = "абвгдеёжзийклмнопрстуфхцчшщьыъэюя";
+        Random random = new Random();
+        int length = 5 + random.nextInt(5);
+        char[] text = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            text[i] = characters.charAt(random.nextInt(characters.length()));
+        }
+        return new String(text);
     }
 
     private static String createIp(){
@@ -281,21 +355,25 @@ public class Main {
         Random rnd = new Random();
         RequestResource requestResource = new RequestResource();
         for (int i = 0; i < quantitySession; i++){
-            Platform platform = platforms.get(rnd.nextInt(platforms.size()));
-            Viewer viewer = viewers.get(rnd.nextInt(viewers.size()));
-            Request request = RequestService.create(platform.getId(), viewer);
-            RequestService.update(platform.getId(), request.getId(), getUpdateRequestDto(requestResource));
-            requests.add(request);
+            try{
+                Platform platform = platforms.get(rnd.nextInt(platforms.size()));
+                Viewer viewer = viewers.get(rnd.nextInt(viewers.size()));
+                Request request = RequestService.create(platform.getId(), viewer);
+                RequestService.update(platform.getId(), request.getId(), getUpdateRequestDto(requestResource));
+                requests.add(request);
 
-            int quantityRequestBySession = rnd.nextInt(maxQuantityRequestBySession-1);
-            for (int j = 0; j < quantityRequestBySession; j++){
-                Request request1 = RequestService.create(platform.getId(), request.getSession().getId());
-                if (j < quantityRequestBySession - 1){
-                    RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
-                } else if (rnd.nextBoolean()){
-                    RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
+                int quantityRequestBySession = rnd.nextInt(maxQuantityRequestBySession-1);
+                for (int j = 0; j < quantityRequestBySession; j++){
+                    Request request1 = RequestService.create(platform.getId(), request.getSession().getId());
+                    if (j < quantityRequestBySession - 1){
+                        RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
+                    } else if (rnd.nextBoolean()){
+                        RequestService.update(platform.getId(), request1.getId(), getUpdateRequestDto(requestResource));
+                    }
+                    requests.add(request1);
                 }
-                requests.add(request1);
+            } catch (NotFoundException e){
+                System.out.println("NotFoundException");
             }
         }
         return requests;

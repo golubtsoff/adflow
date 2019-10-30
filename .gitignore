@@ -2,3 +2,6 @@
 *.iml
 *.db
 *.jar
+*.class
+\out
+\target

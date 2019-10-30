@@ -10,7 +10,7 @@ public class Account {
     public static final String BALANCE = "balance";
     public static final String PAYMENT_DETAILS = "payment_details";
 
-    @Column(name = BALANCE)
+    @Column(name = BALANCE, precision = 19, scale = 4)
     private BigDecimal balance;
 
     @Column(name = PAYMENT_DETAILS)

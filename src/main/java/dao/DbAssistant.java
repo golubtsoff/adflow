@@ -26,6 +26,7 @@ import service.OptionsService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
 
 public abstract class DbAssistant {
 //    validate: validate the schema, makes no changes to the database.
@@ -39,6 +40,7 @@ public abstract class DbAssistant {
 
     static {
         try {
+//            java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
             Configuration configuration = getConfiguration();
             sessionFactory = createSessionFactory(configuration);
             initBase();

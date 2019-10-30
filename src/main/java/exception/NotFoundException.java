@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class NotFoundException extends Exception {
-    private static final Logger logger = Logger.getLogger(DbException.class.getName());
+    private static final Logger logger = Logger.getLogger(NotFoundException.class.getName());
 
     public NotFoundException(String message, Exception e) {
         super(message, e);

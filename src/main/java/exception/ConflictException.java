@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConflictException extends Exception {
-    private static final Logger logger = Logger.getLogger(DbException.class.getName());
+    private static final Logger logger = Logger.getLogger(ConflictException.class.getName());
 
     public ConflictException(String message, Exception e) {
         super(message, e);

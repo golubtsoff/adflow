@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 public class BadRequestException extends Exception {
 
-    private static final Logger logger = Logger.getLogger(DbException.class.getName());
+    private static final Logger logger = Logger.getLogger(BadRequestException.class.getName());
 
     public BadRequestException(String message, Exception e) {
         super(message, e);

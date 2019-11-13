@@ -2,7 +2,6 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.statistics.Options;
 import entity.statistics.Request;
 import entity.statistics.Session;
 import entity.statistics.Viewer;
@@ -26,10 +25,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 
 public class RequestService {
 
@@ -58,6 +55,7 @@ public class RequestService {
 
             DaoFactory.getSessionDao().update(session);
             DaoFactory.getRequestDao().create(request);
+            changeBalanceOfCustomer(campaign);
 
             transaction.commit();
             return request;
@@ -67,7 +65,6 @@ public class RequestService {
         }
     }
 
-    // TODO: delete getRandomCampaign()
     private static Campaign getNextCampaignNoSession(Platform platform){
         return getCampaignForDisplay(platform, NO_SESSION);
     }
@@ -84,25 +81,23 @@ public class RequestService {
                 Tuple tuple = result.get(0);
                 balanceIsOver = tuple.get("balance_is_over", Integer.class);
                 dailyBudgetIsOver = tuple.get("db_is_over", Integer.class);
-//                rbbu = tuple.get("rbbu", BigInteger.class).intValue();
                 rbbu = tuple.get("rbbu", Integer.class);
                 if (dailyBudgetIsOver == 1 || balanceIsOver == 1){
-                    long campaignId = tuple.get("id", BigInteger.class).longValue();
-                    Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
-                    campaign.setAction(Action.PAUSE);
+                    setCampaignOnPause(tuple.get("id", BigInteger.class).longValue());
                 }
             }
         } while (!result.isEmpty() && (dailyBudgetIsOver == 1 || balanceIsOver == 1));
-        if (!result.isEmpty()){
+
+        if (!result.isEmpty() && rbbu == 0){
             long campaignId = result.get(0).get("id", BigInteger.class).longValue();
-            Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
-            if (rbbu == 0){
-                changeBalanceOfCustomer(campaign);
-            }
-            return campaign;
-        } else {
-            return null;
+            return DaoFactory.getCampaignDao().get(campaignId);
         }
+        return null;
+    }
+
+    private static void setCampaignOnPause(long campaignId){
+        Campaign campaign = DaoFactory.getCampaignDao().get(campaignId);
+        campaign.setAction(Action.PAUSE);
     }
 
     private static void changeBalanceOfCustomer(Campaign campaign){
@@ -128,12 +123,12 @@ public class RequestService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
         String sql =
                 "SELECT\n" +
-                "  c.ID                                                                                   id,\n" +
-                "  c.DAILY_BUDGET                                                                         db,\n" +
-                "  c.CPM_RATE                                                                             campaign_cpm,\n" +
-                "  COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / 1000                                           crt,\n" +
-                "  c.ACTION                                                                               action,\n" +
-                "  c.STATUS                                                                               status,\n" +
+                "  c.ID                                                                           id,\n" +
+                "  c.DAILY_BUDGET                                                                 db,\n" +
+                "  c.CPM_RATE                                                                     campaign_cpm,\n" +
+                "  COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / 1000                                   crt,\n" +
+                "  c.ACTION                                                                       action,\n" +
+                "  c.STATUS                                                                       status,\n" +
                 "  (select count(r2.id) > 0 from requests r2 where\n" +
                         "    c.ID = r2.CAMPAIGN_ID\n" +
                         "    AND r2.SESSION_ID = " + sessionId + " \n" +
@@ -145,16 +140,18 @@ public class RequestService {
                         "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' \n" +
                         "    AND '" + to.format(formatter) + "') \n" +
                         "- COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / c.DAILY_BUDGET / 1000 k,\n" +
-                "  c.DAILY_BUDGET < ((COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) + c.CPM_RATE) / 1000)         db_is_over,\n" +
-                "  cu.BALANCE < (c.CPM_RATE / 1000)                                                       balance_is_over,\n" +
-                "  p.PICTURE_FORMAT_ID                                                                    pid,\n" +
-                "  p.FILENAME                                                                             fname,\n" +
-                "  pl.CPM_RATE                                                                            platform_cpm,\n" +
-                "  cu.BALANCE                                                                             balance\n" +
+                "  c.DAILY_BUDGET < ((COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) + c.CPM_RATE) / 1000) db_is_over,\n" +
+                "  cu.BALANCE < (c.CPM_RATE / 1000)                                               balance_is_over,\n" +
+                "  p.PICTURE_FORMAT_ID                                                            pid,\n" +
+                "  p.FILENAME                                                                     fname,\n" +
+                "  pl.CPM_RATE                                                                    platform_cpm,\n" +
+                "  cu.BALANCE                                                                     balance\n" +
                 "FROM CAMPAIGNS c\n" +
-                "LEFT JOIN (select *, row_number() over (partition by r3.SESSION_ID, r3.CAMPAIGN_ID ORDER BY id) rn from requests r3) r\n" +
+                "LEFT JOIN (select *, row_number() over (partition by r3.SESSION_ID, r3.CAMPAIGN_ID ORDER BY id) rn " +
+                        "from requests r3) r\n" +
                 "  ON c.ID = r.CAMPAIGN_ID\n" +
-                "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) + "' AND '" + to.format(formatter) + "'\n" +
+                "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) +
+                        "' AND '" + to.format(formatter) + "'\n" +
                 "    AND r.rn = 1\n" +
                 "LEFT JOIN PICTURES p\n" +
                 "  ON c.ID = p.CAMPAIGN_ID\n" +
@@ -172,17 +169,6 @@ public class RequestService {
         return query.getResultList();
     }
 
-    private static Campaign getRandomCampaign(){
-        List<Campaign> campaigns = DaoFactory.getCampaignDao().getAllByAction(Action.RUN);
-        Random random = new Random();
-        int number = random.nextInt(campaigns.size());
-        if (number > 0 && number % 4 == 0){
-            --number;
-        }
-        return campaigns.get(number);
-    }
-
-    // TODO: delete getRandomCampaign()
     private static Campaign getNextCampaignWithSession(Platform platform, Session session){
         return getCampaignForDisplay(platform, session.getId());
     }
@@ -197,7 +183,7 @@ public class RequestService {
         try {
             Platform platform = DaoFactory.getPlatformDao().get(platformId);
             Session session = DaoFactory.getSessionDao().get(sessionId);
-            if (platform == null || session == null || !session.getPlatform().equals(platform)){
+            if (session == null || !session.getPlatform().equals(platform)){
                 DbAssistant.transactionRollback(transaction);
                 throw new BadRequestException();
             }
@@ -210,6 +196,7 @@ public class RequestService {
             Request request = session.getRequestInstance(campaign, getDurationShow());
             DaoFactory.getSessionDao().update(session);
             DaoFactory.getRequestDao().create(request);
+            changeBalanceOfCustomer(campaign);
 
             transaction.commit();
             return request;
@@ -219,7 +206,6 @@ public class RequestService {
         }
     }
 
-//    TODO: add decreasing balance of the customer
     public static void update(
             long platformId,
             long requestId,

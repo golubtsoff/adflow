@@ -1,8 +1,6 @@
 package dao;
 
 import entity.statistics.Options;
-import entity.statistics.PlatformStatistics;
-import entity.statistics.CampaignStatistics;
 import entity.statistics.Request;
 import entity.users.Administrator;
 import entity.users.customer.Campaign;
@@ -26,7 +24,6 @@ import service.OptionsService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
 
 public abstract class DbAssistant {
 //    validate: validate the schema, makes no changes to the database.
@@ -102,9 +99,7 @@ public abstract class DbAssistant {
         configuration
                 .addAnnotatedClass(Administrator.class)
                 .addAnnotatedClass(Platform.class)
-                .addAnnotatedClass(PlatformStatistics.class)
                 .addAnnotatedClass(Campaign.class)
-                .addAnnotatedClass(CampaignStatistics.class)
                 .addAnnotatedClass(Customer.class)
                 .addAnnotatedClass(Options.class)
                 .addAnnotatedClass(Partner.class)

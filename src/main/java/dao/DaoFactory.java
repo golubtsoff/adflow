@@ -9,14 +9,12 @@ public abstract class DaoFactory {
 
     private static final List<Dao> daoList = Arrays.asList(
             new AdministratorDao(),
-            new PlatformDao(),
-            new PlatformStatisticsDao(),
             new CampaignDao(),
-            new CampaignStatisticsDao(),
             new CustomerDao(),
             new OptionsDao(),
             new PartnerDao(),
             new PictureFormatDao(),
+            new PlatformDao(),
             new PlatformTokenDao(),
             new RequestDao(),
             new SessionDao(),
@@ -49,16 +47,8 @@ public abstract class DaoFactory {
         return getDao(PlatformDao.class);
     }
 
-    public static PlatformStatisticsDao getPlatformStatisticsDao(){
-        return getDao(PlatformStatisticsDao.class);
-    }
-
     public static CampaignDao getCampaignDao(){
         return getDao(CampaignDao.class);
-    }
-
-    public static CampaignStatisticsDao getCampaignStatisticsDao(){
-        return getDao(CampaignStatisticsDao.class);
     }
 
     public static CustomerDao getCustomerDao(){

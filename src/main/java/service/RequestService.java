@@ -70,13 +70,12 @@ public class RequestService {
     }
 
     private static Campaign getCampaignForDisplay(Platform platform, long sessionId){
-        org.hibernate.Session session = DbAssistant.getSessionFactory().getCurrentSession();
         List<Tuple> result;
         Integer balanceIsOver = 0;
         Integer dailyBudgetIsOver = 0;
         Integer rbbu = 0;
         do {
-            result = getDataForCampaignApproval(session, platform, sessionId);
+            result = DaoFactory.getRequestDao().getDataForCampaignApproval(platform, sessionId);
             if (!result.isEmpty()){
                 Tuple tuple = result.get(0);
                 balanceIsOver = tuple.get("balance_is_over", Integer.class);
@@ -111,62 +110,6 @@ public class RequestService {
                                         BigDecimal.ROUND_HALF_UP)
                 );
         campaign.getCustomer().getAccount().setBalance(newBalance);
-    }
-
-    private static List<Tuple> getDataForCampaignApproval(
-            org.hibernate.Session session,
-            Platform platform,
-            long sessionId){
-        LocalDateTime now = LocalDateTime.now();
-            LocalDateTime from = now.with(LocalTime.MIN);
-            LocalDateTime to = now.with(LocalTime.MAX);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS");
-        String sql =
-                "SELECT\n" +
-                "  c.ID                                                                           id,\n" +
-                "  c.DAILY_BUDGET                                                                 db,\n" +
-                "  c.CPM_RATE                                                                     campaign_cpm,\n" +
-                "  COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / 1000                                   crt,\n" +
-                "  c.ACTION                                                                       action,\n" +
-                "  c.STATUS                                                                       status,\n" +
-                "  (select count(r2.id) > 0 from requests r2 where\n" +
-                        "    c.ID = r2.CAMPAIGN_ID\n" +
-                        "    AND r2.SESSION_ID = " + sessionId + " \n" +
-                        "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' \n" +
-                        "    AND '" + to.format(formatter) + "') rbbu,\n" +
-                "  2 - (select count(r2.id) > 0 from requests r2 where\n" +
-                        "    c.ID = r2.CAMPAIGN_ID\n" +
-                        "    AND r2.SESSION_ID = " + sessionId + " \n" +
-                        "    AND r2.CREATION_TIME BETWEEN '" + from.format(formatter) + "' \n" +
-                        "    AND '" + to.format(formatter) + "') \n" +
-                        "- COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) / c.DAILY_BUDGET / 1000 k,\n" +
-                "  c.DAILY_BUDGET < ((COALESCE(SUM(r.CAMPAIGN_CPM_RATE), 0) + c.CPM_RATE) / 1000) db_is_over,\n" +
-                "  cu.BALANCE < (c.CPM_RATE / 1000)                                               balance_is_over,\n" +
-                "  p.PICTURE_FORMAT_ID                                                            pid,\n" +
-                "  p.FILENAME                                                                     fname,\n" +
-                "  pl.CPM_RATE                                                                    platform_cpm,\n" +
-                "  cu.BALANCE                                                                     balance\n" +
-                "FROM CAMPAIGNS c\n" +
-                "LEFT JOIN (select *, row_number() over (partition by r3.SESSION_ID, r3.CAMPAIGN_ID ORDER BY id) rn " +
-                        "from requests r3) r\n" +
-                "  ON c.ID = r.CAMPAIGN_ID\n" +
-                "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) +
-                        "' AND '" + to.format(formatter) + "'\n" +
-                "    AND r.rn = 1\n" +
-                "LEFT JOIN PICTURES p\n" +
-                "  ON c.ID = p.CAMPAIGN_ID\n" +
-                "LEFT JOIN PLATFORMS pl\n" +
-                "  ON pl.ID = " + platform.getId() + " \n" +
-                "LEFT JOIN CUSTOMERS cu\n" +
-                "  ON cu.ID = c.CUSTOMER_ID\n" +
-                "WHERE c.ACTION = 'RUN'\n" +
-                "     AND p.PICTURE_FORMAT_ID = pl.PICTURE_FORMAT_ID \n" +
-                "     AND c.CPM_RATE >= pl.CPM_RATE\n" +
-                "GROUP BY c.ID\n" +
-                "ORDER BY k DESC\n" +
-                "LIMIT 1";
-        TypedQuery<Tuple> query = session.createNativeQuery(sql, Tuple.class);
-        return query.getResultList();
     }
 
     private static Campaign getNextCampaignWithSession(Platform platform, Session session){

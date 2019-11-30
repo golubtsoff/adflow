@@ -51,7 +51,7 @@ public abstract class DbAssistant {
 
     public static Transaction getTransaction(){
         Session session = DbAssistant.getSessionFactory().getCurrentSession();
-        Transaction transaction = DbAssistant.getSessionFactory().getCurrentSession().getTransaction();
+        Transaction transaction = session.getTransaction();
         if (!transaction.isActive()) {
             transaction = session.beginTransaction();
         }

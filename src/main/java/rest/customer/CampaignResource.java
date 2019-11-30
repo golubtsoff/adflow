@@ -8,12 +8,16 @@ import entity.users.customer.Campaign;
 import entity.users.customer.Picture;
 import entity.users.user.Role;
 import entity.users.user.UserToken;
+import exception.BadRequestException;
 import exception.ConflictException;
 import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
+import rest.statistics.dto.DetailStatisticsDto;
+import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.autentication.Secured;
 import service.CampaignService;
+import service.StatisticsService;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -110,9 +114,9 @@ public class CampaignResource {
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaign = CampaignService.create(userId, campaignDto);
-            if (campaign == null || campaign.getStatus() == Status.REMOVED)
+            if (campaign.getStatus() == Status.REMOVED)
                 return Response.status(Response.Status.NOT_FOUND).build();
 
             Gson dOut = new GsonBuilder()
@@ -135,7 +139,7 @@ public class CampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response readAll(){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             List<Campaign> campaigns = CampaignService.getAllByUserId(userId);
 
             List<Campaign> notRemovedCampaigns = new ArrayList<>();
@@ -161,7 +165,7 @@ public class CampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response read(@PathParam("cid") long campaignId){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
             if (campaign.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -228,4 +232,40 @@ public class CampaignResource {
         }
     }
 
+    @GET
+    @Path("statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(@QueryParam("from") String from, @QueryParam("to") String to){
+        try{
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
+            ShortStatisticsDto shortStatisticsDto
+                    = StatisticsService.getShortCampaignStatistics(userId, from, to);
+            return Response.ok(JsonHelper.getGson().toJson(shortStatisticsDto)).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("{cid}/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(
+            @PathParam("cid") long campaignId,
+            @QueryParam("from") String from,
+            @QueryParam("to") String to,
+            @QueryParam("group") String group){
+
+        try{
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
+            DetailStatisticsDto detailStatisticsDto
+                    = StatisticsService.getDetailCampaignStatistics(userId, campaignId, from, to, group);
+            return Response.ok(JsonHelper.getGson().toJson(detailStatisticsDto)).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

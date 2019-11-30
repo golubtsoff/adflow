@@ -8,12 +8,17 @@ import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
 import entity.users.user.Role;
 import entity.users.user.User;
+import entity.users.user.UserToken;
+import exception.BadRequestException;
 import exception.DbException;
 import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
+import rest.statistics.dto.DetailStatisticsDto;
+import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.autentication.Secured;
 import service.CampaignService;
+import service.StatisticsService;
 import service.UserService;
 import util.JsonHelper;
 
@@ -122,6 +127,45 @@ public class CampaignResource {
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("{uid}/campaigns/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(
+            @PathParam("uid") long userId,
+            @QueryParam("from") String from,
+            @QueryParam("to") String to){
+        try{
+            ShortStatisticsDto shortStatisticsDto
+                    = StatisticsService.getShortCampaignStatistics(userId, from, to);
+            return Response.ok(JsonHelper.getGson().toJson(shortStatisticsDto)).build();
+        } catch (exception.BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("{uid}/campaigns/{cid}/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(
+            @PathParam("uid") long userId,
+            @PathParam("cid") long campaignId,
+            @QueryParam("from") String from,
+            @QueryParam("to") String to,
+            @QueryParam("group") String group){
+
+        try{
+            DetailStatisticsDto detailStatisticsDto
+                    = StatisticsService.getDetailCampaignStatistics(userId, campaignId, from, to, group);
+            return Response.ok(JsonHelper.getGson().toJson(detailStatisticsDto)).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }

@@ -9,11 +9,15 @@ import entity.users.partner.Platform;
 import entity.users.partner.PlatformToken;
 import entity.users.user.Role;
 import entity.users.user.UserToken;
+import exception.BadRequestException;
 import exception.ConflictException;
 import exception.NotFoundException;
 import rest.Roles;
+import rest.statistics.dto.DetailStatisticsDto;
+import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.autentication.Secured;
 import service.PlatformService;
+import service.StatisticsService;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -236,6 +240,43 @@ public class PlatformResource {
             return Response.ok(token.getToken()).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(@QueryParam("from") String from, @QueryParam("to") String to){
+        try{
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
+            ShortStatisticsDto shortStatisticsDto
+                    = StatisticsService.getShortPlatformStatistics(userId, from, to);
+            return Response.ok(JsonHelper.getGson().toJson(shortStatisticsDto)).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GET
+    @Path("{pid}/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatistics(
+            @PathParam("pid") long platformId,
+            @QueryParam("from") String from,
+            @QueryParam("to") String to,
+            @QueryParam("group") String group){
+
+        try{
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
+            DetailStatisticsDto detailStatisticsDto
+                    = StatisticsService.getDetailPlatformStatistics(userId, platformId, from, to, group);
+            return Response.ok(JsonHelper.getGson().toJson(detailStatisticsDto)).build();
+        } catch (BadRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }

@@ -11,7 +11,6 @@ import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
 import exception.ServiceException;
-import org.apache.commons.io.FileUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
@@ -22,12 +21,10 @@ import javax.imageio.ImageIO;
 import javax.persistence.NoResultException;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -184,18 +181,7 @@ public class CampaignService {
         return campaign;
     }
 
-    public static void update(Campaign campaign) throws DbException {
-        Transaction transaction = DbAssistant.getTransaction();
-        try {
-            DaoFactory.getCampaignDao().update(campaign);
-            transaction.commit();
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
-        }
-    }
-
-    public static Campaign updateExcludeNullByAdmin(long userId, long campaignId, @NotNull Object campaignDto)
+    public static Campaign updateByAdmin(long userId, long campaignId, @NotNull Object campaignDto)
             throws DbException, NotFoundException, ServiceException, ConflictException{
         Transaction transaction = DbAssistant.getTransaction();
         Campaign campaign = null;
@@ -218,7 +204,7 @@ public class CampaignService {
         }
     }
 
-    public static Campaign updateExcludeNullByCustomer(
+    public static Campaign updateByCustomer(
             long userId, long campaignId, @NotNull Object campaignDto, Map<PictureFormat, BufferedImage> images)
             throws DbException, NotFoundException, ServiceException, ConflictException, IOException {
         Transaction transaction = DbAssistant.getTransaction();
@@ -260,32 +246,22 @@ public class CampaignService {
     }
 
     private static void updateImages(Campaign campaign, Map<PictureFormat, BufferedImage> images) throws IOException {
-        deleteAllImagesOfCampaign(campaign);
+        deletePicturesOfCampaign(campaign);
         if (images == null || images.size() == 0) return;
         campaign.setPictures(saveImages(campaign.getCustomer().getId(), campaign.getId(), images));
     }
 
-    private static void deleteAllImagesOfCampaign(Campaign campaign) throws IOException {
+    private static void deletePicturesOfCampaign(Campaign campaign) throws IOException {
         if (campaign.getPictures() == null) return;
         Links.deleteFolder(campaign.getCustomer().getId(), campaign.getId());
         campaign.setPictures(null);
     }
 
-    public static void delete(long id) throws DbException {
+    public static void delete(long userId, long campaignId) throws DbException, NotFoundException, IOException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            DaoFactory.getCampaignDao().delete(id);
-            transaction.commit();
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
-        }
-    }
-
-    public static void deleteWithChecking(long userId, long campaignId) throws DbException, NotFoundException {
-        Transaction transaction = DbAssistant.getTransaction();
-        try {
-            checkAndGetCampaign(campaignId, userId);
+            Campaign campaign = checkAndGetCampaign(campaignId, userId);
+            deletePicturesOfCampaign(campaign);
             DaoFactory.getCampaignDao().delete(campaignId);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {

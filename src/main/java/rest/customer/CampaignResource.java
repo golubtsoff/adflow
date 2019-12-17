@@ -237,7 +237,7 @@ public class CampaignResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            Campaign campaignFromBase = CampaignService.updateExcludeNullByCustomer(
+            Campaign campaignFromBase = CampaignService.updateByCustomer(
                     userId, campaignId, campaignDto, getImages(parts));
 
             setFullPictureLinks(campaignFromBase);

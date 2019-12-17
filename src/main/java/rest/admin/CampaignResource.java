@@ -100,7 +100,7 @@ public class CampaignResource {
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            Campaign campaignFromBase = CampaignService.updateExcludeNullByAdmin(userId, campaignId, campaignDto);
+            Campaign campaignFromBase = CampaignService.updateByAdmin(userId, campaignId, campaignDto);
             return Response.ok(gson.toJson(campaignFromBase)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -117,7 +117,7 @@ public class CampaignResource {
             @PathParam("cid") long campaignId
     ){
         try{
-            CampaignService.deleteWithChecking(userId, campaignId);
+            CampaignService.delete(userId, campaignId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();

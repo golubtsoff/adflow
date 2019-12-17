@@ -3,6 +3,7 @@ package rest.customer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import entity.users.Action;
+import entity.users.PictureFormat;
 import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.customer.Picture;
@@ -11,6 +12,8 @@ import entity.users.user.UserToken;
 import exception.BadRequestException;
 import exception.ConflictException;
 import exception.NotFoundException;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
@@ -19,13 +22,17 @@ import rest.users.autentication.Secured;
 import service.CampaignService;
 import service.StatisticsService;
 import util.JsonHelper;
+import util.Links;
 
+import javax.imageio.ImageIO;
 import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -106,8 +113,9 @@ public class CampaignResource {
     // TODO: copy picture's images in directory on server's side from client
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(String content){
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response create(@FormDataParam("campaign") String content,
+                           @FormDataParam("files") List<FormDataBodyPart> parts){
         try{
             Gson gson = JsonHelper.getGson();
             CampaignDto campaignDto = gson.fromJson(content, CampaignDto.class);
@@ -115,10 +123,11 @@ public class CampaignResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
-            Campaign campaign = CampaignService.create(userId, campaignDto);
+            Campaign campaign = CampaignService.create(userId, campaignDto, getImages(parts));
             if (campaign.getStatus() == Status.REMOVED)
                 return Response.status(Response.Status.NOT_FOUND).build();
 
+            setFullPictureLinks(campaign);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
@@ -129,9 +138,37 @@ public class CampaignResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {
             return Response.status(Response.Status.CONFLICT).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private void setFullPictureLinks(Campaign campaign) {
+        if (campaign.getPictures() == null) return;
+        for (Picture picture : campaign.getPictures()){
+            String linkToImage = Links.getHost()
+                    + "/" + campaign.getCustomer().getId()
+                    + "/" + campaign.getId()
+                    + "/" + picture.getFileName();
+            picture.setFileName(linkToImage);
+        }
+    }
+
+    private Map<PictureFormat, BufferedImage> getImages(List<FormDataBodyPart> parts)
+            throws IOException, ConflictException {
+        Map<PictureFormat, BufferedImage> images = new HashMap<>();
+        BufferedImage image;
+        for (FormDataBodyPart part : parts){
+            try (InputStream is = part.getValueAs(InputStream.class)){
+                image = ImageIO.read(is);
+                PictureFormat format = new PictureFormat(image.getWidth(), image.getHeight());
+                images.put(format, image);
+            }
+        }
+        if (parts.size() != images.size()) throw new ConflictException();
+        return images;
     }
 
     // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
@@ -170,7 +207,7 @@ public class CampaignResource {
             if (campaign.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
+            setFullPictureLinks(campaign);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
@@ -186,10 +223,12 @@ public class CampaignResource {
 
     @PUT
     @Path("{cid}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(
             @PathParam("cid") long campaignId,
-            String content
+            @FormDataParam("campaign") String content,
+            @FormDataParam("files") List<FormDataBodyPart> parts
     ){
         try{
             Gson gson = JsonHelper.getGson();
@@ -198,8 +237,10 @@ public class CampaignResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
             long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
-            Campaign campaignFromBase = CampaignService.updateExcludeNullWithChecking(userId, campaignId, campaignDto);
+            Campaign campaignFromBase = CampaignService.updateExcludeNullByCustomer(
+                    userId, campaignId, campaignDto, getImages(parts));
 
+            setFullPictureLinks(campaignFromBase);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())

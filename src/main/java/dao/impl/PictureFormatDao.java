@@ -42,7 +42,7 @@ public class PictureFormatDao extends AbstractDao<PictureFormat> {
     private List<PictureFormat> getFormatsByCondition(boolean canBeUsed){
         return DbAssistant.getSessionFactory()
                 .getCurrentSession()
-                .createQuery("from " + PictureFormat.class
+                .createQuery("from " + PictureFormat.class.getSimpleName()
                         + " where " + CAN_BE_USED + " = :value_can_be_used", PictureFormat.class)
                 .setParameter("value_can_be_used", canBeUsed)
                 .list();

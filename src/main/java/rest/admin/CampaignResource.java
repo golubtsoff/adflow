@@ -2,15 +2,10 @@ package rest.admin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import entity.users.Status;
 import entity.users.customer.Campaign;
-import entity.users.customer.Customer;
 import entity.users.user.Role;
-import entity.users.user.User;
-import entity.users.user.UserToken;
 import exception.BadRequestException;
-import exception.DbException;
 import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
@@ -19,7 +14,6 @@ import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.autentication.Secured;
 import service.CampaignService;
 import service.StatisticsService;
-import service.UserService;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -106,7 +100,7 @@ public class CampaignResource {
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            Campaign campaignFromBase = CampaignService.updateExcludeNullWithChecking(userId, campaignId, campaignDto);
+            Campaign campaignFromBase = CampaignService.updateExcludeNullByAdmin(userId, campaignId, campaignDto);
             return Response.ok(gson.toJson(campaignFromBase)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();

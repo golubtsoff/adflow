@@ -12,6 +12,7 @@ public class Picture {
 
     public static final String PICTURE_FORMAT_ID = "picture_format_id";
     public static final String FILENAME = "filename";
+    public static final String FORMAT_NAME_FILE_EXTENSION = "png";
 
     @OneToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.NO_ACTION)

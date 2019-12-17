@@ -16,6 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@Path("/")
 @Secured
 public class AccountResource {
 
@@ -23,7 +24,7 @@ public class AccountResource {
     HttpHeaders headers;
 
     @GET
-    @Path("/client/account")
+    @Path("client/account")
     @Roles({Role.CUSTOMER, Role.PARTNER})
     @Produces(MediaType.APPLICATION_JSON)
     public Response read(){

@@ -1,9 +1,14 @@
 package rest;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
 @ApplicationPath("/")
-public class ApplicationConfig extends Application {
-
+public class ApplicationConfig extends ResourceConfig {
+    public ApplicationConfig(){
+        register(MultiPartFeature.class);
+        packages("rest");
+    }
 }

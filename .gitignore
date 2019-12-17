@@ -3,5 +3,7 @@
 *.db
 *.jar
 *.class
-\out
-\target
+/out
+/target
+/test_pictures
+/*.png

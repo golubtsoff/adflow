@@ -43,9 +43,10 @@ public class Main {
 //        updateStatusUser();
 //        List<Campaign> campaigns = QueryTest.getCampaigns();
 //        checkRequestService();
-        checkRequestServiceConcurrent();
+//        checkRequestServiceConcurrent();
 
-//        DbAssistant.close();
+//        QueryTest.testPictureFormatDao();
+        DbAssistant.close();
 //        testScheduler();
     }
 

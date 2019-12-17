@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
+// TODO: check permissions by roles and authentication
 @Path("/users")
 public class UserResource {
 

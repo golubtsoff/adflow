@@ -1,8 +1,10 @@
 package main;
 
+import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.statistics.Request;
 import entity.users.Action;
+import entity.users.PictureFormat;
 import entity.users.customer.Campaign;
 import entity.users.partner.Platform;
 import exception.DbException;
@@ -22,6 +24,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class QueryTest {
+
+    public static void testPictureFormatDao(){
+        Transaction transaction = DbAssistant.getTransaction();
+        List<PictureFormat> formats;
+        try {
+            formats = DaoFactory.getPictureFormatDao().getCanBeUsedFormats();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public static void printCrtByCompaign() throws DbException {
         List<Tuple> tuples = QueryTest.getListCostRequestTodayByCompany();

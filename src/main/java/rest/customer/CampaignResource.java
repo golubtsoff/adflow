@@ -124,16 +124,7 @@ public class CampaignResource {
 
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaign = CampaignService.create(userId, campaignDto, getImages(parts));
-            if (campaign.getStatus() == Status.REMOVED)
-                return Response.status(Response.Status.NOT_FOUND).build();
-
-            setFullPictureLinks(campaign);
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
-                    .create();
-
-            return Response.ok(dOut.toJson(campaign)).build();
+            return getResponse(campaign);
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {
@@ -204,21 +195,25 @@ public class CampaignResource {
         try{
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
-            if (campaign.getStatus() == Status.REMOVED){
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            setFullPictureLinks(campaign);
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
-                    .create();
-
-            return Response.ok(dOut.toJson(campaign)).build();
+            return getResponse(campaign);
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private Response getResponse(Campaign campaign) {
+        if (campaign.getStatus() == Status.REMOVED){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        setFullPictureLinks(campaign);
+        Gson dOut = new GsonBuilder()
+                .setPrettyPrinting()
+                .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
+                .create();
+
+        return Response.ok(dOut.toJson(campaign)).build();
     }
 
     @PUT
@@ -236,7 +231,7 @@ public class CampaignResource {
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaignFromBase = CampaignService.updateByCustomer(
                     userId, campaignId, campaignDto, getImages(parts));
 
@@ -263,7 +258,7 @@ public class CampaignResource {
             @PathParam("cid") long campaignId
     ){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             CampaignService.setStatusRemovedWithChecking(userId, campaignId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){

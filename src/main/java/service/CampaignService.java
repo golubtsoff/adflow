@@ -30,7 +30,6 @@ import java.util.*;
 
 public class CampaignService {
 
-    //TODO: check images != null
     public static Campaign create(long userId, @NotNull Object campaignDto, Map<PictureFormat, BufferedImage> images)
             throws NotFoundException, DbException, ServiceException, ConflictException, IOException {
         Transaction transaction = DbAssistant.getTransaction();
@@ -47,13 +46,13 @@ public class CampaignService {
                 rest.customer.CampaignResource.CampaignDto campaignDtoCast
                         = (rest.customer.CampaignResource.CampaignDto) campaignDto;
                 checkExistedTitle(customer.getCampaigns(), campaignDtoCast.getTitle());
-                checkPictureFormats(images.keySet());
             }
 
             campaign = new Campaign(customer);
             NullAware.getInstance().copyProperties(campaign, campaignDto);
             DaoFactory.getCampaignDao().create(campaign);
             campaign.setPictures(saveImages(customer.getId(), campaign.getId(), images));
+
             transaction.commit();
             return campaign;
         } catch (HibernateException | NoResultException | NullPointerException e) {
@@ -72,8 +71,10 @@ public class CampaignService {
     private static Set<Picture> saveImages(
         long customerId,
         long campaignId,
-        Map<PictureFormat, BufferedImage> images) throws IOException {
+        Map<PictureFormat, BufferedImage> images) throws IOException, ConflictException {
 
+        if (images == null) return null;
+        checkPictureFormats(images.keySet());
         String link = Links.createFoldersIfNotExist(customerId, campaignId);
         Set<Picture> pictures = new HashSet<>();
         for (Map.Entry<PictureFormat, BufferedImage> entry : images.entrySet()){
@@ -227,6 +228,7 @@ public class CampaignService {
             NullAware.getInstance().copyProperties(campaign, campaignDto);
             DaoFactory.getCampaignDao().update(campaign);
             updateImages(campaign, images);
+
             transaction.commit();
             return campaign;
         }catch (NotFoundException e){
@@ -239,13 +241,14 @@ public class CampaignService {
             DbAssistant.transactionRollback(transaction);
             throw new ServiceException("Error copy objects: "
                     + campaignDto.toString() + " to " + campaign.toString(), e);
-        } catch (IOException e){
+        } catch (IOException | ConflictException e){
             DbAssistant.transactionRollback(transaction);
             throw e;
         }
     }
 
-    private static void updateImages(Campaign campaign, Map<PictureFormat, BufferedImage> images) throws IOException {
+    private static void updateImages(Campaign campaign, Map<PictureFormat, BufferedImage> images)
+            throws IOException, ConflictException {
         deletePicturesOfCampaign(campaign);
         if (images == null || images.size() == 0) return;
         campaign.setPictures(saveImages(campaign.getCustomer().getId(), campaign.getId(), images));

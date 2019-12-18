@@ -137,23 +137,7 @@ public class CampaignService {
         }
     }
 
-    public static Campaign get(long id) throws DbException, NotFoundException {
-        Transaction transaction = DbAssistant.getTransaction();
-        try {
-            Campaign campaign = DaoFactory.getCampaignDao().get(id);
-            if (campaign == null) {
-                DbAssistant.transactionRollback(transaction);
-                throw new NotFoundException("Campaign with id=" + String.valueOf(id) + " not found");
-            }
-            transaction.commit();
-            return campaign;
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
-        }
-    }
-
-    public static Campaign getWithChecking(long userId, long campaignId) throws DbException, NotFoundException {
+    public static Campaign get(long userId, long campaignId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             Campaign campaign = checkAndGetCampaign(campaignId, userId);

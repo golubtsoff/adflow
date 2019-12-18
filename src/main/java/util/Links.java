@@ -52,6 +52,13 @@ public class Links {
         return pathToUploadsImages;
     }
 
+    public static String getUrlToImage(long customerId, long campaignId, String filename){
+        return Links.getHost()
+                + "/" + customerId
+                + "/" + campaignId
+                + "/" + filename;
+    }
+
     public static String createFoldersIfNotExist(long customerId, long campaignId) throws IOException {
         long[] idArray = {customerId, campaignId};
         String path = pathToUploadsImages;
@@ -74,4 +81,12 @@ public class Links {
         FileUtils.forceDelete(dir);
     }
 
+    public static void deleteFolder(Long customerId) throws IOException {
+        Path path = Paths.get(
+                Links.getPathToUploadsImages(),
+                String.valueOf(customerId))
+                .normalize();
+        File dir = new File(path.toString());
+        FileUtils.forceDelete(dir);
+    }
 }

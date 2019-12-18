@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-// TODO: check permissions by roles and authentication
 @Path("/users")
 public class UserResource {
 
@@ -53,66 +52,6 @@ public class UserResource {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
             return Response.status(Response.Status.FORBIDDEN).build();
-        }
-    }
-
-    @GET
-    @Path("{uid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response read(@PathParam("uid") long id){
-        try {
-            User user = UserService.get(id);
-            if (user == null) return Response.status(Response.Status.NOT_FOUND).build();
-
-            Gson dOut = JsonHelper.getGson();
-            return Response.ok(dOut.toJson(user)).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GET
-    @Path("/")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response readAll(){
-        try{
-            Gson dOut = JsonHelper.getGson();
-            return Response.ok(dOut.toJson(UserService.getAll())).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PUT
-    @Path("{uid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("uid") long id, String content){
-        try{
-            Gson gson = JsonHelper.getGson();
-            User user = gson.fromJson(content, User.class);
-            UserService.update(user);
-            return Response.ok(gson.toJson(user)).build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (OptimisticLockException e){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (Exception e){
-            return Response.notModified().build();
-        }
-    }
-
-    @DELETE
-    @Path("{uid}")
-    public Response delete(@PathParam("uid") long id){
-        try{
-            UserService.delete(id);
-            return Response.noContent().build();
-        } catch (DbException e){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (IllegalArgumentException e){
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (Exception e){
-            return Response.notModified().build();
         }
     }
 

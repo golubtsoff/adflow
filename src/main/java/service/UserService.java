@@ -18,9 +18,11 @@ import exception.ServiceException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import util.Hash;
+import util.Links;
 import util.NullAware;
 
 import javax.persistence.NoResultException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
@@ -279,14 +281,19 @@ public abstract class UserService {
         }
     }
 
-    public static void delete(long id) throws DbException {
+    public static void delete(long id) throws DbException, IOException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
+            Customer customer = DaoFactory.getCustomerDao().getByUserId(id);
+            Links.deleteFolder(customer.getId());
             DaoFactory.getUserDao().delete(id);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
             throw new DbException(e);
+        } catch (IOException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw e;
         }
     }
 

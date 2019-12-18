@@ -74,7 +74,7 @@ public class ProfileResourse {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(){
         try {
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             User user = UserService.get(userId);
             return Response.ok(JsonHelper.getJsonStringExcludeFields(
                     user,
@@ -92,7 +92,7 @@ public class ProfileResourse {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUser(String content){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Gson gson = JsonHelper.getGson();
             UserDto userDto = gson.fromJson(content, UserDto.class);
             if (userDto == null)
@@ -118,7 +118,7 @@ public class ProfileResourse {
     @DELETE
     public Response deleteUser(){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             UserDto userToUpdate = new UserDto();
             userToUpdate.setStatus(Status.REMOVED);
             UserService.updateExcludeNull(userId, userToUpdate);
@@ -139,7 +139,7 @@ public class ProfileResourse {
             String password = jsonObject.get("password").getAsString();
             String hash = Hash.getHash(password);
 
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             UserDto userDto = new UserDto();
             userDto.setHash(hash);
             UserService.updateExcludeNull(userId, userDto);

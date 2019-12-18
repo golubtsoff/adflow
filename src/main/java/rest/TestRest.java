@@ -5,16 +5,13 @@ import entity.users.user.Role;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import rest.customer.CampaignResource;
 import rest.users.autentication.Secured;
 import util.JsonHelper;
 
-
 import javax.imageio.ImageIO;
 import javax.ws.rs.*;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.awt.image.BufferedImage;
@@ -23,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+//TODO: remove class
 @Path("/")
 @Secured
 @Roles(Role.CUSTOMER)
@@ -83,13 +81,14 @@ public class TestRest {
     public Response saveListFiles(
             @FormDataParam("campaign") String content,
             @FormDataParam("files") List<FormDataBodyPart> parts
-    ) throws IOException {
+    ) {
 
         Gson gson = JsonHelper.getGson();
         CampaignResource.CampaignDto campaignDto = gson.fromJson(content, CampaignResource.CampaignDto.class);
 
         int i = 0;
-        String pathForUpload = Paths.get(".").toAbsolutePath().getParent().getParent().toString() + "/webapps/uploads/";
+        String pathForUpload = Paths.get(".").toAbsolutePath().getParent().getParent()
+                .toString() + "/webapps/uploads/";
         BufferedImage bufferedImage;
         for (FormDataBodyPart part : parts) {
             FormDataContentDisposition disp = part
@@ -103,8 +102,6 @@ public class TestRest {
                 int fileHeight = bufferedImage.getHeight();
                 System.out.println(fileWidth + ":" + fileHeight);
                 ImageIO.write(bufferedImage, "png", os);
-
-//                os.write(IOUtils.toByteArray(is));
                 os.flush();
             } catch (Exception e){
                 e.printStackTrace();

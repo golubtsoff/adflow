@@ -4,15 +4,13 @@ import com.google.gson.Gson;
 import entity.statistics.Request;
 import entity.statistics.Viewer;
 import entity.users.PictureFormat;
-import entity.users.customer.Campaign;
 import entity.users.customer.Picture;
-import entity.users.partner.Platform;
 import entity.users.partner.PlatformToken;
 import exception.BadRequestException;
-import exception.ConflictException;
 import exception.NotFoundException;
 import service.RequestService;
 import util.JsonHelper;
+import util.Links;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -102,10 +100,8 @@ public class RequestResource {
         try{
             Gson gson = JsonHelper.getGson();
             Viewer viewer = gson.fromJson(content, Viewer.class);
-            long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
+            long platformId = Long.parseLong(headers.getHeaderString(PlatformToken.PID));
             Request request = RequestService.create(platformId, viewer);
-            if (request == null)
-                throw new Exception();
 
             return Response.ok(JsonHelper.getGson().toJson(new InitialResponseDto(request))).build();
         } catch (BadRequestException e) {
@@ -122,7 +118,10 @@ public class RequestResource {
         PictureFormat pictureFormat = request.getSession().getPlatform().getPictureFormat();
         for (Picture picture : pictures){
             if (picture.getPictureFormat().equals(pictureFormat)){
-                return PATH_TO_FILE + picture.getFileName();
+                return Links.getUrlToImage(
+                        request.getCampaign().getCustomer().getId(),
+                        request.getCampaign().getId(),
+                        picture.getFileName());
             }
         }
         return null;
@@ -134,7 +133,7 @@ public class RequestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(@PathParam("sid") long sessionId){
         try{
-            long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
+            long platformId = Long.parseLong(headers.getHeaderString(PlatformToken.PID));
             Request request = RequestService.create(platformId, sessionId);
             if (request == null)
                 throw new Exception();
@@ -161,7 +160,7 @@ public class RequestResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            long platformId = Long.valueOf(headers.getHeaderString(PlatformToken.PID));
+            long platformId = Long.parseLong(headers.getHeaderString(PlatformToken.PID));
             RequestService.update(platformId, requestId, updateRequestDto);
 
             return Response.noContent().build();

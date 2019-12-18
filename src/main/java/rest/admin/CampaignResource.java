@@ -74,7 +74,7 @@ public class CampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response read(@PathParam("uid") long userId, @PathParam("cid") long campaignId){
         try{
-            Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
+            Campaign campaign = CampaignService.get(userId, campaignId);
             return Response.ok(JsonHelper.getJsonStringExcludeFields(
                     campaign,
                     Arrays.asList("customer")

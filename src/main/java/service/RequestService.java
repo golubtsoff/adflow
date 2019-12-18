@@ -13,6 +13,7 @@ import exception.BadRequestException;
 import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import rest.statistics.RequestResource;
@@ -56,6 +57,10 @@ public class RequestService {
             DaoFactory.getSessionDao().update(session);
             DaoFactory.getRequestDao().create(request);
             changeBalanceOfCustomer(campaign);
+
+            Hibernate.initialize(request.getCampaign());
+            Hibernate.initialize(request.getCampaign().getCustomer());
+            Hibernate.initialize(request.getCampaign().getPictures());
 
             transaction.commit();
             return request;

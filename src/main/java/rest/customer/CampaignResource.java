@@ -136,13 +136,13 @@ public class CampaignResource {
         }
     }
 
-    private void setFullPictureLinks(Campaign campaign) {
+    private void setFullPictureUrls(Campaign campaign) {
         if (campaign.getPictures() == null) return;
         for (Picture picture : campaign.getPictures()){
-            String linkToImage = Links.getHost()
-                    + "/" + campaign.getCustomer().getId()
-                    + "/" + campaign.getId()
-                    + "/" + picture.getFileName();
+            String linkToImage = Links.getUrlToImage(
+                    campaign.getCustomer().getId(),
+                    campaign.getId(),
+                    picture.getFileName());
             picture.setFileName(linkToImage);
         }
     }
@@ -194,7 +194,7 @@ public class CampaignResource {
     public Response read(@PathParam("cid") long campaignId){
         try{
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
-            Campaign campaign = CampaignService.getWithChecking(userId, campaignId);
+            Campaign campaign = CampaignService.get(userId, campaignId);
             return getResponse(campaign);
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -207,7 +207,7 @@ public class CampaignResource {
         if (campaign.getStatus() == Status.REMOVED){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        setFullPictureLinks(campaign);
+        setFullPictureUrls(campaign);
         Gson dOut = new GsonBuilder()
                 .setPrettyPrinting()
                 .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
@@ -235,7 +235,7 @@ public class CampaignResource {
             Campaign campaignFromBase = CampaignService.updateByCustomer(
                     userId, campaignId, campaignDto, getImages(parts));
 
-            setFullPictureLinks(campaignFromBase);
+            setFullPictureUrls(campaignFromBase);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
                     .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())

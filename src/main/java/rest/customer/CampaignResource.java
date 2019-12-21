@@ -110,7 +110,6 @@ public class CampaignResource {
         }
     }
 
-    // TODO: copy picture's images in directory on server's side from client
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)

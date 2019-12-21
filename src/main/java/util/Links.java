@@ -33,8 +33,6 @@ public class Links {
                     PATH_TO_UPLOADS_IMAGES_NAME,
                     PATH_TO_UPLOADS_IMAGES_DEFAULT_VALUE
             )).toAbsolutePath().normalize().toString();
-            // TODO: remove sout method
-            System.out.println(pathToUploadsImages);
             if (!Files.exists(Paths.get(pathToUploadsImages))){
                 Files.createDirectory(Paths.get(pathToUploadsImages));
             }

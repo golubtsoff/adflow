@@ -20,8 +20,6 @@ import java.util.Set;
 @PlatformSecure
 public class RequestResource {
 
-    public static final String PATH_TO_FILE = "http://app4pro.ru/pictures/";
-
     @Context
     private HttpHeaders headers;
 

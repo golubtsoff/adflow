@@ -68,7 +68,6 @@ public class UserResource {
         }
     }
 
-    // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)

@@ -161,7 +161,6 @@ public class CampaignResource {
         return images;
     }
 
-    // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response readAll(){

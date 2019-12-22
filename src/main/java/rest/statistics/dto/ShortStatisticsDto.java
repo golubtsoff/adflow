@@ -6,7 +6,9 @@ import java.util.List;
 public class ShortStatisticsDto extends StatisticsDto {
     private List<GroupByElementsStatistics> groupByElementsStatisticsList;
 
-    public ShortStatisticsDto() {}
+    public ShortStatisticsDto() {
+        super();
+    }
 
     public ShortStatisticsDto(LocalDate from, LocalDate to,
             TotalStatistics totalStatistics,

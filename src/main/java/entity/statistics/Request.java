@@ -3,6 +3,7 @@ package entity.statistics;
 import entity.users.customer.Campaign;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import service.RequestService;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,17 +13,18 @@ import java.util.Objects;
 import static entity.statistics.Options.DURATION_SHOW;
 
 @Entity
-@Table(name = "REQUESTS")
+@Table(name = "requests")
 public class Request {
 
-    public static final String ID = "ID";
-    public static final String SESSION_ID = "SESSION_ID";
-    public static final String CAMPAIGN_ID = "CAMPAIGN_ID";
-    public static final String CREATION_TIME = "CREATION_TIME";
-    public static final String UPDATED_TIME = "UPDATED_TIME";
-    public static final String CLICK_ON = "CLICK_ON";
-    public static final String CAMPAIGN_CPM_RATE = "CAMPAIGN_CPM_RATE";
-    public static final String PLATFORM_CPM_RATE = "PLATFORM_CPM_RATE";
+    public static final String ID = "id";
+    public static final String SESSION_ID = "session_id";
+    public static final String CAMPAIGN_ID = "campaign_id";
+    public static final String CREATION_TIME = "creation_time";
+    public static final String CLICK_ON = "click_on";
+    public static final String CAMPAIGN_CPM_RATE = "campaign_cpm_rate";
+    public static final String PLATFORM_CPM_RATE = "platform_cpm_rate";
+    private static final String ACTUAL_SHOW_TIME = "actual_show_time";
+    private static final int NOT_SHOWN = 0;
 
     @Id
     @Column(name = ID)
@@ -41,6 +43,9 @@ public class Request {
 
     @Column(name = CREATION_TIME)
     private LocalDateTime creationTime;
+
+    @Column(name = ACTUAL_SHOW_TIME)
+    private int actualShowTime;
 
     @Column(name = DURATION_SHOW)
     private int durationShow;
@@ -67,12 +72,21 @@ public class Request {
         this.campaignCpmRate = campaign.getCpmRate();
         this.creationTime = session.getClosingTime();
         this.durationShow = durationShow;
+        this.actualShowTime = NOT_SHOWN;
     }
 
-    public void updateRequest(boolean clickOn){
+    public void updateRequest(boolean clickOn, Integer actualShowTime){
         if (clickOn){
             this.clickOn = true;
             session.setClickCounter(session.getClickCounter() + 1);
+        }
+        if (actualShowTime != null){
+            if (actualShowTime <= this.getDurationShow()
+                && actualShowTime > NOT_SHOWN){
+                this.actualShowTime = actualShowTime;
+            } else if (actualShowTime > this.durationShow){
+                this.actualShowTime = this.durationShow;
+            }
         }
     }
 
@@ -112,6 +126,14 @@ public class Request {
         this.durationShow = durationShow;
     }
 
+    public int getActualShowTime() {
+        return actualShowTime;
+    }
+
+    public void setActualShowTime(int actualShowTime) {
+        this.actualShowTime = actualShowTime;
+    }
+
     public boolean isClickOn() {
         return clickOn;
     }
@@ -143,6 +165,7 @@ public class Request {
                 ", session=" + session +
                 ", campaign=" + campaign +
                 ", creationTime=" + creationTime +
+                ", actualShowTime=" + actualShowTime +
                 ", durationShow=" + durationShow +
                 ", clickOn=" + clickOn +
                 ", campaignCpmRate=" + campaignCpmRate +
@@ -153,30 +176,13 @@ public class Request {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Request)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Request request = (Request) o;
-        return getDurationShow() == request.getDurationShow() &&
-                isClickOn() == request.isClickOn() &&
-                Objects.equals(getId(), request.getId()) &&
-                Objects.equals(getSession(), request.getSession()) &&
-                Objects.equals(getCampaign(), request.getCampaign()) &&
-                Objects.equals(getCreationTime(), request.getCreationTime()) &&
-                Objects.equals(getCampaignCpmRate(), request.getCampaignCpmRate()) &&
-                Objects.equals(getPlatformCpmRate(), request.getPlatformCpmRate());
+        return Objects.equals(id, request.id);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(
-                getId(),
-                getSession(),
-                getCampaign(),
-                getCreationTime(),
-                getDurationShow(),
-                isClickOn(),
-                getCampaignCpmRate(),
-                getPlatformCpmRate()
-        );
+        return Objects.hash(id);
     }
 }

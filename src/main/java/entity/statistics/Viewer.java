@@ -6,8 +6,8 @@ import java.util.Objects;
 @Embeddable
 public class Viewer {
 
-    public static final String NAME = "NAME";
-    public static final String IP = "IP";
+    public static final String NAME = "name";
+    public static final String IP = "ip";
 
     @Column(name = NAME)
     private String name;

@@ -50,7 +50,6 @@ public class CampaignResource {
         }
     }
 
-    // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
     @GET
     @Path("{uid}/campaigns")
     @Produces(MediaType.APPLICATION_JSON)

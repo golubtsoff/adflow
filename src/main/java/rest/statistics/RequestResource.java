@@ -25,6 +25,7 @@ public class RequestResource {
 
     public class UpdateRequestDto{
         private boolean clickOn;
+        private Integer actualShowTime;
 
         public boolean isClickOn() {
             return clickOn;
@@ -32,6 +33,14 @@ public class RequestResource {
 
         public void setClickOn(boolean clickOn) {
             this.clickOn = clickOn;
+        }
+
+        public Integer getActualShowTime() {
+            return actualShowTime;
+        }
+
+        public void setActualShowTime(Integer actualShowTime) {
+            this.actualShowTime = actualShowTime;
         }
     }
 

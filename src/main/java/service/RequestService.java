@@ -172,7 +172,7 @@ public class RequestService {
                 throw new ConflictException();
             }
 
-            request.updateRequest(updateRequestDto.isClickOn());
+            request.updateRequest(updateRequestDto.isClickOn(), updateRequestDto.getActualShowTime());
             DaoFactory.getRequestDao().update(request);
             DaoFactory.getSessionDao().update(request.getSession());
 

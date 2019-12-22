@@ -3,22 +3,19 @@ package rest.statistics.dto;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class GroupByElementsStatistics {
+public class GroupByElementsStatistics extends GroupStatistics {
     private long elementId;
     private String title;
-    private int displaysCount;
-    private int clickCount;
-    private BigDecimal cost;
 
-    public GroupByElementsStatistics(){}
+    public GroupByElementsStatistics(){
+        super();
+    }
 
     public GroupByElementsStatistics(long elementId, String title,
-             int displaysCount, int clickCount, BigDecimal cost) {
+             int displaysCount, int clickCount, BigDecimal cost, int actualShowTime) {
+        super(displaysCount, clickCount, cost, actualShowTime);
         this.elementId = elementId;
         this.title = title;
-        this.displaysCount = displaysCount;
-        this.clickCount = clickCount;
-        this.cost = cost;
     }
 
     public long getElementId() {
@@ -37,38 +34,15 @@ public class GroupByElementsStatistics {
         this.title = title;
     }
 
-    public int getDisplaysCount() {
-        return displaysCount;
-    }
-
-    public void setDisplaysCount(int displaysCount) {
-        this.displaysCount = displaysCount;
-    }
-
-    public int getClickCount() {
-        return clickCount;
-    }
-
-    public void setClickCount(int clickCount) {
-        this.clickCount = clickCount;
-    }
-
-    public BigDecimal getCost() {
-        return cost;
-    }
-
-    public void setCost(BigDecimal cost) {
-        this.cost = cost;
-    }
-
     @Override
     public String toString() {
-        return "ShortStatisticsDto{" +
-                "id=" + elementId +
+        return "GroupByElementsStatistics{" +
+                "elementId=" + elementId +
                 ", title='" + title + '\'' +
                 ", displaysCount=" + displaysCount +
                 ", clickCount=" + clickCount +
                 ", cost=" + cost +
+                ", actualShowTime=" + actualShowTime +
                 '}';
     }
 

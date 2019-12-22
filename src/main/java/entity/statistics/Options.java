@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Entity
-@Table(name = "OPTIONS")
+@Table(name = "options")
 public class Options {
 
     public static int durationShowDefault;
@@ -21,7 +21,7 @@ public class Options {
         try (InputStream is = Options.class.getResourceAsStream(PATH)) {
             Properties props = new Properties();
             props.load(is);
-            durationShowDefault = Integer.valueOf(props.getProperty(
+            durationShowDefault = Integer.parseInt(props.getProperty(
                     DURATION_SHOW_DEFAULT_NAME,
                     DURATION_SHOW_DEFAULT_VALUE
             ));

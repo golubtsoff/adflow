@@ -51,7 +51,6 @@ public class PlatformResource {
         }
     }
 
-    // TODO: предусмотреть ограничение по максимальной длине списка. Например, 100 пользователей.
     @GET
     @Path("{uid}/platforms")
     @Produces(MediaType.APPLICATION_JSON)

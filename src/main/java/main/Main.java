@@ -19,6 +19,7 @@ import org.hibernate.Transaction;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import rest.statistics.RequestResource;
+import rest.statistics.dto.ShortStatisticsDto;
 import service.*;
 
 import javax.persistence.NoResultException;
@@ -39,8 +40,8 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-//        initData();
-//        updateStatusUser();
+        initData();
+        updateStatusUser();
 //        List<Campaign> campaigns = QueryTest.getCampaigns();
 //        checkRequestService();
 //        checkRequestServiceConcurrent();
@@ -384,6 +385,7 @@ public class Main {
         RequestResource.UpdateRequestDto updateRequestDto = requestResource.new UpdateRequestDto();
         Random rnd = new Random();
         updateRequestDto.setClickOn(rnd.nextBoolean());
+        updateRequestDto.setActualShowTime(rnd.nextInt(100));
         return updateRequestDto;
     }
 

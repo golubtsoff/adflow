@@ -23,7 +23,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 
-// TODO: сделать сброс и смену пароля пользователя
 @Path("/profile")
 @Secured
 public class ProfileResourse {

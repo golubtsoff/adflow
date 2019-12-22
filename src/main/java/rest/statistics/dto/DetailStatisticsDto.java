@@ -6,7 +6,9 @@ import java.util.List;
 public class DetailStatisticsDto extends StatisticsDto {
     private List<GroupByPeriodsStatistics> groupByPeriodsStatisticsList;
 
-    public DetailStatisticsDto(){}
+    public DetailStatisticsDto(){
+        super();
+    }
 
     public DetailStatisticsDto(LocalDate from, LocalDate to,
            TotalStatistics totalStatistics,

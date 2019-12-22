@@ -204,7 +204,6 @@ public class PlatformService {
         }
     }
 
-//    TODO: check platform's token deletion when removing the platform
     public static void delete(long id) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {

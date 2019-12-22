@@ -260,7 +260,7 @@ public class CampaignService {
         }
     }
 
-    public static Campaign setStatusRemovedWithChecking(long userId, long campaignId)
+    public static Campaign setStatusRemoved(long userId, long campaignId)
             throws NotFoundException, DbException {
         Transaction transaction = DbAssistant.getTransaction();
         Campaign campaign;

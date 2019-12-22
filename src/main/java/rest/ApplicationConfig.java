@@ -11,4 +11,5 @@ public class ApplicationConfig extends ResourceConfig {
         register(MultiPartFeature.class);
         packages("rest");
     }
+
 }

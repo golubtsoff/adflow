@@ -40,15 +40,15 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-        initData();
-        updateStatusUser();
+//        initData();
+//        updateStatusUser();
 //        List<Campaign> campaigns = QueryTest.getCampaigns();
 //        checkRequestService();
 //        checkRequestServiceConcurrent();
 
 //        QueryTest.testPictureFormatDao();
-        DbAssistant.close();
-//        testScheduler();
+//        DbAssistant.close();
+        testScheduler();
     }
 
     public static void checkRequestServiceConcurrent() throws BadRequestException, DbException {
@@ -129,7 +129,7 @@ public class Main {
                 .withIdentity("trigger1", "group1")
                 .startNow()
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(40)
+                        .withIntervalInSeconds(3)
                         .repeatForever())
                 .build();
 

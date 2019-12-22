@@ -257,7 +257,7 @@ public class CampaignResource {
     ){
         try{
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
-            CampaignService.setStatusRemovedWithChecking(userId, campaignId);
+            CampaignService.setStatusRemoved(userId, campaignId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();

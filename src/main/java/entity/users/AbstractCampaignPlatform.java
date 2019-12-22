@@ -109,6 +109,8 @@ public abstract class AbstractCampaignPlatform {
             if (this.getAction() == Action.RUN){
                 this.setAction(Action.PAUSE);
             }
+        } else if (status == Status.WORKING){
+            //  TODO: finish this branch
         }
     }
 }

@@ -85,7 +85,7 @@ public class RequestDao extends AbstractDao<Request> {
             "       count(r.CAMPAIGN_ID) displaysCount,\n" +
             "       count(r.CLICK_ON) clickCount,\n" +
             "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
-            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
             "from requests r, campaigns ca, customers cu, users u\n" +
             "where r.CAMPAIGN_ID = ca.id\n" +
             "  and u.user_id = " + userId + " \n" +
@@ -107,7 +107,7 @@ public class RequestDao extends AbstractDao<Request> {
             "   count(r.CAMPAIGN_ID) displaysCount,\n" +
             "   count(r.CLICK_ON) clickCount,\n" +
             "   coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
-            "   coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+            "   coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
             "from requests r, campaigns ca, customers cu, users u\n" +
             "where r.CAMPAIGN_ID = ca.id\n" +
             "  and u.user_id = " + userId + " \n" +
@@ -128,7 +128,7 @@ public class RequestDao extends AbstractDao<Request> {
             "select count(r.CAMPAIGN_ID) displaysCount,\n" +
             "       count(r.CLICK_ON) clickCount,\n" +
             "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
-            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime,\n" +
+            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime,\n" +
             middlePartSql + "\n" +
             "from requests r, campaigns ca, customers cu, users u\n" +
             "where u.user_id = " + userId + " \n" +
@@ -172,7 +172,7 @@ public class RequestDao extends AbstractDao<Request> {
         String sql = "select count(r.CAMPAIGN_ID) displays,\n" +
                 "       count(r.CLICK_ON) clics,\n" +
                 "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
-                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, campaigns ca, customers cu, users u\n" +
                 "where r.CAMPAIGN_ID = " + campaignId + " \n" +
                 "  and r.CAMPAIGN_ID = ca.id\n" +
@@ -193,7 +193,7 @@ public class RequestDao extends AbstractDao<Request> {
                 "       count(r.CAMPAIGN_ID) displays,\n" +
                 "       count(r.CLICK_ON) clics,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
-                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
                 "where u.user_id = " + userId + " \n" +
                 "  and pa.user_id = u.user_id\n" +
@@ -215,7 +215,7 @@ public class RequestDao extends AbstractDao<Request> {
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
                 "       count(r.CLICK_ON) clicsCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
-                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
                 "where u.user_id = " + userId + " \n" +
                 "  and pa.user_id = u.user_id\n" +
@@ -237,7 +237,7 @@ public class RequestDao extends AbstractDao<Request> {
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
                 "       count(r.CLICK_ON) clicsCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
-                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime,\n" +
+                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime,\n" +
                 middlePartSql + "\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
                 "where u.user_id = " + userId + " \n" +
@@ -261,7 +261,7 @@ public class RequestDao extends AbstractDao<Request> {
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
                 "       count(r.CLICK_ON) clicsCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
-                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) showTime\n" +
+                "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
                 "where u.user_id = " + userId + " \n" +
                 "  and pa.user_id = u.user_id\n" +

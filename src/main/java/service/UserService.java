@@ -2,6 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.users.AbstractCampaignPlatform;
 import entity.users.Action;
 import entity.users.Administrator;
 import entity.users.Status;
@@ -204,7 +205,7 @@ public abstract class UserService {
     public static User update(User user) throws DbException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            updateStatus(user);
+            updateAction(user);
             DaoFactory.getUserDao().merge(user);
             transaction.commit();
             return user;
@@ -214,43 +215,32 @@ public abstract class UserService {
         }
     }
 
-    private static void updateStatus(User user){
-        if (user.getStatus() == Status.REMOVED){
-            if (user.getRole() == Role.CUSTOMER){
-                Customer customer = DaoFactory.getCustomerDao().getByUserId(user.getId());
-                Set<Campaign> campaigns = customer.getCampaigns();
-                for (Campaign campaign : campaigns) {
-                    campaign.setStatus(Status.REMOVED);
-                }
-                DaoFactory.getCustomerDao().update(customer);
-            } else if (user.getRole() == Role.PARTNER){
-                Partner partner = DaoFactory.getPartnerDao().getByUserId(user.getId());
-                Set<Platform> platforms = partner.getPlatforms();
-                for (Platform platform : platforms) {
-                    platform.setStatus(Status.REMOVED);
-                }
-                DaoFactory.getPartnerDao().update(partner);
+    private static void updateAction(User user){
+        if (user.getRole() == Role.CUSTOMER){
+            Customer customer = DaoFactory.getCustomerDao().getByUserId(user.getId());
+            Set<Campaign> campaigns = customer.getCampaigns();
+            for (Campaign campaign : campaigns) {
+                setAction(user.getStatus(), campaign);
             }
-        } else if (user.getStatus() == Status.LOCKED
-                || user.getStatus() == Status.CHECKING){
-            if (user.getRole() == Role.CUSTOMER){
-                Customer customer = DaoFactory.getCustomerDao().getByUserId(user.getId());
-                Set<Campaign> campaigns = customer.getCampaigns();
-                for (Campaign campaign : campaigns) {
-                    if (campaign.getAction() == Action.RUN){
-                        campaign.setAction(Action.PAUSE);
-                    }
-                }
-                DaoFactory.getCustomerDao().update(customer);
-            } else if (user.getRole() == Role.PARTNER){
-                Partner partner = DaoFactory.getPartnerDao().getByUserId(user.getId());
-                Set<Platform> platforms = partner.getPlatforms();
-                for (Platform platform : platforms) {
-                    if (platform.getAction() == Action.RUN){
-                        platform.setAction(Action.PAUSE);
-                    }
-                }
-                DaoFactory.getPartnerDao().update(partner);
+            DaoFactory.getCustomerDao().update(customer);
+
+        } else if (user.getRole() == Role.PARTNER){
+            Partner partner = DaoFactory.getPartnerDao().getByUserId(user.getId());
+            Set<Platform> platforms = partner.getPlatforms();
+            for (Platform platform : platforms) {
+                setAction(user.getStatus(), platform);
+            }
+            DaoFactory.getPartnerDao().update(partner);
+        }
+    }
+
+    private static void setAction(Status userStatus, AbstractCampaignPlatform element){
+        if (userStatus == Status.REMOVED){
+            element.setAction(Action.STOP);
+        } else if (userStatus == Status.LOCKED
+                || userStatus == Status.CHECKING){
+            if (element.getAction() == Action.RUN){
+                element.setAction(Action.PAUSE);
             }
         }
     }
@@ -263,10 +253,10 @@ public abstract class UserService {
             userFromBase = get(userId);
             if (userFromBase == null){
                 DbAssistant.transactionRollback(transaction);
-                throw new NotFoundException("User with id=" + String.valueOf(userId) + " not found");
+                throw new NotFoundException("User with id=" + userId + " not found");
             }
             NullAware.getInstance().copyProperties(userFromBase, userFromClient);
-            updateStatus(userFromBase);
+            updateAction(userFromBase);
             DaoFactory.getUserDao().update(userFromBase);
 
             transaction.commit();

@@ -278,4 +278,14 @@ public class CampaignService {
             throw new NotFoundException(e);
         }
     }
+
+    public static void updateCampaignActionPauseToRun(){
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            DaoFactory.getCampaignDao().updateCampaignActionPauseToRun();
+            transaction.commit();
+        } catch (Exception e){
+            DbAssistant.transactionRollback(transaction);
+        }
+    }
 }

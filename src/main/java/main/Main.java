@@ -47,8 +47,9 @@ public class Main {
 //        checkRequestServiceConcurrent();
 
 //        QueryTest.testPictureFormatDao();
-//        DbAssistant.close();
-        testScheduler();
+        CampaignService.updateCampaignActionPauseToRun();
+        DbAssistant.close();
+//        testScheduler();
     }
 
     public static void checkRequestServiceConcurrent() throws BadRequestException, DbException {

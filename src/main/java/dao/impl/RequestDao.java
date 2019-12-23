@@ -57,8 +57,8 @@ public class RequestDao extends AbstractDao<Request> {
                 "LEFT JOIN (select *, row_number() over (partition by r3.SESSION_ID, r3.CAMPAIGN_ID ORDER BY id) rn " +
                 "from requests r3) r\n" +
                 "  ON c.ID = r.CAMPAIGN_ID\n" +
-                "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) +
-                "' AND '" + to.format(formatter) + "'\n" +
+                "    AND r.CREATION_TIME BETWEEN '" + from.format(formatter) + "'\n" +
+                "    AND '" + to.format(formatter) + "'\n" +
                 "    AND r.rn = 1\n" +
                 "LEFT JOIN PICTURES p\n" +
                 "  ON c.ID = p.CAMPAIGN_ID\n" +

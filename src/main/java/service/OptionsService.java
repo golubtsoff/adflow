@@ -3,17 +3,14 @@ package service;
 import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.statistics.Options;
-import entity.statistics.Request;
-import entity.statistics.Session;
 import exception.DbException;
-import exception.NotFoundException;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 
 import javax.persistence.NoResultException;
 import java.util.List;
 
-public class OptionsService {
+public abstract class OptionsService {
 
     public static void initOptions() throws DbException {
         Transaction transaction = DbAssistant.getTransaction();

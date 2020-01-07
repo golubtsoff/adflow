@@ -144,27 +144,13 @@ public class Session {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Session)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Session session = (Session) o;
-        return getDisplaysCounter() == session.getDisplaysCounter() &&
-                getClickCounter() == session.getClickCounter() &&
-                Objects.equals(getId(), session.getId()) &&
-                Objects.equals(getPlatform(), session.getPlatform()) &&
-                Objects.equals(getViewer(), session.getViewer()) &&
-                Objects.equals(getCreationTime(), session.getCreationTime()) &&
-                Objects.equals(getClosingTime(), session.getClosingTime());
+        return Objects.equals(id, session.id);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(
-                getId(),
-                getPlatform(),
-                getDisplaysCounter(),
-                getClickCounter(),
-                getViewer(),
-                getCreationTime(),
-                getClosingTime());
+        return Objects.hash(id);
     }
 }

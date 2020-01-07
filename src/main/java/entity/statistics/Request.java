@@ -3,7 +3,6 @@ package entity.statistics;
 import entity.users.customer.Campaign;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import service.RequestService;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

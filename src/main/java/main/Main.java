@@ -47,8 +47,8 @@ public class Main {
 //        checkRequestServiceConcurrent();
 
 //        QueryTest.testPictureFormatDao();
-        CampaignService.updateCampaignActionPauseToRun();
-        DbAssistant.close();
+//        CampaignService.updateCampaignActionPauseToRun();
+//        DbAssistant.close();
 //        testScheduler();
     }
 

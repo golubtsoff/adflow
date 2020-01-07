@@ -1,16 +1,13 @@
 package dao.impl;
 
 import dao.AbstractDao;
-import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Action;
 import entity.users.customer.Campaign;
-import entity.users.customer.Customer;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CampaignDao extends AbstractDao<Campaign> {

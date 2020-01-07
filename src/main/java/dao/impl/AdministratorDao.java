@@ -2,9 +2,6 @@ package dao.impl;
 
 import dao.AbstractDao;
 import entity.users.Administrator;
-import entity.users.customer.Campaign;
-
-import java.util.List;
 
 public class AdministratorDao extends AbstractDao<Administrator> {
 

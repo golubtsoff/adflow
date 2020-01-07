@@ -1,6 +1,6 @@
 package service;
 
-import dao.CustomerPartnerDao;
+import dao.ClientDao;
 import dao.DaoFactory;
 import dao.DbAssistant;
 import entity.users.Account;
@@ -18,7 +18,7 @@ import javax.persistence.NoResultException;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
 
-public class AccountService {
+public abstract class AccountService {
 
     @NotNull
     public static Account get(long userId) throws DbException, NotFoundException {
@@ -58,7 +58,7 @@ public class AccountService {
             User user = DaoFactory.getUserDao().get(userId);
             checkUserNotNull(userId,  user, transaction);
 
-            CustomerPartnerDao dao;
+            ClientDao dao;
             if (user.getRole() == Role.PARTNER){
                 dao = DaoFactory.getPartnerDao();
             } else if (user.getRole() == Role.CUSTOMER){
@@ -86,7 +86,7 @@ public class AccountService {
             User userFromBase = DaoFactory.getUserDao().get(userId);
             checkUserNotNull(userId,  userFromBase, transaction);
 
-            CustomerPartnerDao dao;
+            ClientDao dao;
             Accountable accountable;
             if (userFromBase.getRole() == Role.PARTNER){
                 dao = DaoFactory.getPartnerDao();

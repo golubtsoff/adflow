@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StatisticsService {
+public abstract class StatisticsService {
 
     public static ShortStatisticsDto getShortCampaignStatistics(Long userId, String from, String to)
             throws BadRequestException, DbException {

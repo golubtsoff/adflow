@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class CampaignService {
+public abstract class CampaignService {
 
     public static Campaign create(long userId, @NotNull Object campaignDto, Map<PictureFormat, BufferedImage> images)
             throws NotFoundException, DbException, ServiceException, ConflictException, IOException {
@@ -167,7 +167,7 @@ public class CampaignService {
     }
 
     public static Campaign updateByAdmin(long userId, long campaignId, @NotNull Object campaignDto)
-            throws DbException, NotFoundException, ServiceException, ConflictException{
+            throws DbException, NotFoundException, ServiceException{
         Transaction transaction = DbAssistant.getTransaction();
         Campaign campaign = null;
         try {

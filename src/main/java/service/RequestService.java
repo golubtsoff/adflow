@@ -20,16 +20,13 @@ import rest.statistics.RequestResource;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class RequestService {
+public abstract class RequestService {
 
     private static final long NO_SESSION = -1L;
 

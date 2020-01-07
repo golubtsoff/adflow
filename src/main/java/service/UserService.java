@@ -2,7 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
-import entity.users.AbstractCampaignPlatform;
+import entity.users.AdvertisingEntity;
 import entity.users.Action;
 import entity.users.Administrator;
 import entity.users.Status;
@@ -234,7 +234,7 @@ public abstract class UserService {
         }
     }
 
-    private static void setAction(Status userStatus, AbstractCampaignPlatform element){
+    private static void setAction(Status userStatus, AdvertisingEntity element){
         if (userStatus == Status.REMOVED){
             element.setAction(Action.STOP);
         } else if (userStatus == Status.LOCKED

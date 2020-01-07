@@ -1,11 +1,9 @@
 package dao.impl;
 
 import dao.AbstractDao;
-import dao.DbAssistant;
 import entity.users.Status;
 import entity.users.user.Role;
 import entity.users.user.User;
-import org.hibernate.LockMode;
 
 import java.util.List;
 

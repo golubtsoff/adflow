@@ -7,7 +7,6 @@ import exception.ConflictException;
 import exception.DbException;
 import exception.NotFoundException;
 import exception.ServiceException;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import rest.admin.PictureFormatResource;
@@ -22,7 +21,7 @@ import java.util.List;
 import static dao.impl.PictureFormatDao.CAN_NOT_BE_USED;
 import static dao.impl.PictureFormatDao.IS_CAN_BE_USED;
 
-public class PictureFormatService {
+public abstract class PictureFormatService {
 
     public static PictureFormat create(@NotNull Object pictureFormatDto)
             throws DbException, ServiceException {

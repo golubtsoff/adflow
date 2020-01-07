@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
-public class PlatformService {
+public abstract class PlatformService {
 
     public static Platform create(long userId, @NotNull Object platformDto)
             throws Exception {

@@ -1,9 +1,6 @@
 package entity.users.user;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import entity.users.Status;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;

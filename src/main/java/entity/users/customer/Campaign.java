@@ -1,6 +1,6 @@
 package entity.users.customer;
 
-import entity.users.AbstractCampaignPlatform;
+import entity.users.AdvertisingEntity;
 import entity.users.Action;
 import entity.users.Status;
 import org.hibernate.annotations.OnDelete;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "campaigns")
-public class Campaign extends AbstractCampaignPlatform {
+public class Campaign extends AdvertisingEntity {
 
     public static final String CUSTOMER_ID = "customer_id";
     public static final String URL = "url";
@@ -153,20 +153,11 @@ public class Campaign extends AbstractCampaignPlatform {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Campaign campaign = (Campaign) o;
-        return Objects.equals(id, campaign.id) &&
-                Objects.equals(customer, campaign.customer) &&
-                Objects.equals(title, campaign.title) &&
-                Objects.equals(description, campaign.description) &&
-                Objects.equals(pathOnClick, campaign.pathOnClick) &&
-                Objects.equals(dailyBudget, campaign.dailyBudget) &&
-                Objects.equals(cpmRate, campaign.cpmRate) &&
-                Objects.equals(creationDate, campaign.creationDate) &&
-                action == campaign.action &&
-                status == campaign.status;
+        return Objects.equals(id, campaign.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, customer, title, description, pathOnClick, dailyBudget, cpmRate, creationDate, action, status);
+        return Objects.hash(id);
     }
 }

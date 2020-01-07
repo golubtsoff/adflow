@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-public abstract class AbstractCampaignPlatform {
+public abstract class AdvertisingEntity {
 
     public static final String ID = "id";
     public static final String TITLE = "title";
@@ -109,8 +109,6 @@ public abstract class AbstractCampaignPlatform {
             if (this.getAction() == Action.RUN){
                 this.setAction(Action.PAUSE);
             }
-        } else if (status == Status.WORKING){
-            //  TODO: finish this branch
         }
     }
 }

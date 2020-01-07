@@ -1,6 +1,6 @@
 package entity.users.partner;
 
-import entity.users.AbstractCampaignPlatform;
+import entity.users.AdvertisingEntity;
 import entity.users.PictureFormat;
 import entity.users.Action;
 import entity.users.Status;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "PLATFORMS")
-public class Platform extends AbstractCampaignPlatform {
+public class Platform extends AdvertisingEntity {
 
     public static final String PARTNER_ID = "partner_id";
     public static final String PICTURE_FORMAT_ID = "picture_format_id";
@@ -123,30 +123,11 @@ public class Platform extends AbstractCampaignPlatform {
         if (this == o) return true;
         if (!(o instanceof Platform)) return false;
         Platform platform = (Platform) o;
-        return Objects.equals(getId(), platform.getId()) &&
-                Objects.equals(getPartner(), platform.getPartner()) &&
-                Objects.equals(getTitle(), platform.getTitle()) &&
-                Objects.equals(getDescription(), platform.getDescription()) &&
-                Objects.equals(getCpmRate(), platform.getCpmRate()) &&
-                Objects.equals(getPictureFormat(), platform.getPictureFormat()) &&
-                Objects.equals(getCreationDate(), platform.getCreationDate()) &&
-                Objects.equals(getRemovedDate(), platform.getRemovedDate()) &&
-                getAction() == platform.getAction() &&
-                getStatus() == platform.getStatus();
+        return Objects.equals(getId(), platform.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                getId(),
-                getPartner(),
-                getTitle(),
-                getDescription(),
-                getCpmRate(),
-                getPictureFormat(),
-                getCreationDate(),
-                getRemovedDate(),
-                getAction(),
-                getStatus());
+        return Objects.hash(getId());
     }
 }

@@ -9,7 +9,7 @@ import exception.DbException;
 import exception.NotFoundException;
 import rest.Roles;
 import rest.admin.strategy.UserExclusionStrategy;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.UserService;
 import util.JsonHelper;
 

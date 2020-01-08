@@ -15,7 +15,7 @@ import exception.NotFoundException;
 import rest.Roles;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.PlatformService;
 import service.StatisticsService;
 import util.JsonHelper;

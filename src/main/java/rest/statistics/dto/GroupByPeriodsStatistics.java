@@ -1,7 +1,6 @@
 package rest.statistics.dto;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 public class GroupByPeriodsStatistics extends GroupStatistics {
     private String period;

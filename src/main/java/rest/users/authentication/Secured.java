@@ -1,4 +1,4 @@
-package rest.users.autentication;
+package rest.users.authentication;
 
 import javax.ws.rs.NameBinding;
 import java.lang.annotation.Retention;

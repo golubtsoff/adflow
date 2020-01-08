@@ -1,14 +1,12 @@
 package rest.users;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import entity.users.user.User;
 import exception.DbException;
 import service.UserService;
 import util.JsonHelper;
 
-import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;

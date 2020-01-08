@@ -1,30 +1,19 @@
 package rest.admin;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import dao.DaoFactory;
-import dao.DbAssistant;
 import entity.users.PictureFormat;
 import entity.users.user.Role;
 import exception.ConflictException;
-import exception.DbException;
 import exception.NotFoundException;
-import exception.ServiceException;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
 import rest.Roles;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.PictureFormatService;
 import util.JsonHelper;
-import util.NullAware;
 
-import javax.persistence.NoResultException;
 import javax.persistence.OptimisticLockException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 @Path("/admin/pictureformat")

@@ -5,7 +5,7 @@ import entity.users.Account;
 import entity.users.user.Role;
 import entity.users.user.UserToken;
 import exception.NotFoundException;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.AccountService;
 import util.JsonHelper;
 

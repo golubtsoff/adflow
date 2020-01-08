@@ -7,7 +7,7 @@ import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import rest.customer.CampaignResource;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import util.JsonHelper;
 
 import javax.imageio.ImageIO;

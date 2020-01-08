@@ -10,7 +10,7 @@ import entity.users.user.User;
 import entity.users.user.UserToken;
 import exception.DbException;
 import exception.NotFoundException;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.UserService;
 import util.Hash;
 import util.JsonHelper;

@@ -1,4 +1,4 @@
-package rest.users.autentication;
+package rest.users.authentication;
 
 import entity.users.user.UserToken;
 import exception.DbException;

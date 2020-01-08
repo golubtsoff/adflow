@@ -11,7 +11,7 @@ import rest.Roles;
 import rest.admin.strategy.CampaignExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
-import rest.users.autentication.Secured;
+import rest.users.authentication.Secured;
 import service.CampaignService;
 import service.StatisticsService;
 import util.JsonHelper;

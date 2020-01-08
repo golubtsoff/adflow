@@ -1,7 +1,6 @@
 package rest.statistics.dto;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 public abstract class StatisticsDto {
     protected LocalDate from;

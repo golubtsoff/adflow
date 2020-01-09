@@ -14,11 +14,7 @@ import javax.ws.rs.core.Response;
 public class WelcomeResource {
     private static String GREETINGS = "Welcome to AdFlow!";
 
-    @Context
-    HttpHeaders headers;
-
     @GET
-    @Path("/welcome")
     @Produces(MediaType.APPLICATION_JSON)
     public Response welcome(){
         try{

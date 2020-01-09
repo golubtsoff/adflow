@@ -48,8 +48,26 @@ public class Main {
 
 //        QueryTest.testPictureFormatDao();
 //        CampaignService.updateCampaignActionPauseToRun();
-//        DbAssistant.close();
+        testGetCustomer();
+        DbAssistant.close();
 //        testScheduler();
+    }
+
+    public static void testGetCustomer() throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+//            Customer customer = DaoFactory.getCustomerDao().getByUserId(19L);
+            Customer customer = getCustomer(19L);
+            transaction.commit();
+            System.out.println(customer);
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
+    }
+
+    private static Customer getCustomer(long user_id){
+        return DaoFactory.getCustomerDao().getByUserId(19L);
     }
 
     public static void checkRequestServiceConcurrent() throws BadRequestException, DbException {

@@ -250,7 +250,7 @@ public abstract class UserService {
         Transaction transaction = DbAssistant.getTransaction();
         User userFromBase = null;
         try {
-            userFromBase = get(userId);
+            userFromBase = DaoFactory.getUserDao().get(userId);
             if (userFromBase == null){
                 DbAssistant.transactionRollback(transaction);
                 throw new NotFoundException("User with id=" + userId + " not found");

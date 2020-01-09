@@ -11,6 +11,6 @@ public class CustomerDao extends AbstractDao<Customer> implements ClientDao<Cust
     }
 
     public Customer getByUserId(Long userId) {
-        return get("USER_ID", userId);
+        return get("user_id", userId);
     }
 }

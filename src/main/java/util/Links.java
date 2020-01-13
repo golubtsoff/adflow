@@ -58,8 +58,11 @@ public class Links {
     }
 
     public static String createFoldersIfNotExist(long customerId, long campaignId) throws IOException {
+        return createFoldersIfNotExist(customerId, campaignId, pathToUploadsImages);
+    }
+
+    public static String createFoldersIfNotExist(long customerId, long campaignId, String path) throws IOException {
         long[] idArray = {customerId, campaignId};
-        String path = pathToUploadsImages;
         for (long id : idArray){
             path = Paths.get(path, String.valueOf(id)).toString();
             if (Files.notExists(Paths.get(path))){

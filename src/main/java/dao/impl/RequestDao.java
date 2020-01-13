@@ -11,10 +11,14 @@ import rest.statistics.dto.TotalStatistics;
 
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RequestDao extends AbstractDao<Request> {
@@ -80,24 +84,41 @@ public class RequestDao extends AbstractDao<Request> {
     public List<GroupByElementsStatistics> getGroupByCampaignsStatistics(long userId, LocalDate from, LocalDate to){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String sql =
-            "select r.CAMPAIGN_ID elementId,\n" +
+            "select r.CAMPAIGN_ID elementId,\n " +
             "       ca.title title,\n" +
-            "       count(r.CAMPAIGN_ID) displaysCount,\n" +
-            "       count(r.CLICK_ON) clickCount,\n" +
-            "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
-            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
-            "from requests r, campaigns ca, customers cu, users u\n" +
-            "where r.CAMPAIGN_ID = ca.id\n" +
-            "  and u.user_id = " + userId + " \n" +
-            "  and cu.user_id = u.user_id\n" +
-            "  and ca.customer_id = cu.id\n" +
-            "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-            "  and " + to.format(formatter) + " \n" +
-            "group by elementId\n" +
+            "       count(r.CAMPAIGN_ID) displaysCount,\n " +
+            "       count(r.CLICK_ON) clickCount,\n " +
+            "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n " +
+            "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n " +
+            "from requests r, campaigns ca, customers cu, users u\n " +
+            "where r.CAMPAIGN_ID = ca.id\n " +
+            "  and u.user_id = " + userId + " \n " +
+            "  and cu.user_id = u.user_id\n " +
+            "  and ca.customer_id = cu.id\n " +
+            "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n " +
+            "  and '" + to.format(formatter) + "' \n " +
+            "group by elementId\n " +
             "order by elementId";
-        TypedQuery<GroupByElementsStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, GroupByElementsStatistics.class);
-        return query.getResultList();
+
+        return getGroupByElementsStatistics(sql);
+    }
+
+    private List<GroupByElementsStatistics> getGroupByElementsStatistics(String sql){
+        TypedQuery<Tuple> query = DbAssistant.getSessionFactory().getCurrentSession()
+                .createNativeQuery(sql, Tuple.class);
+        List<Tuple> tuples = query.getResultList();
+        List<GroupByElementsStatistics> result = new ArrayList<>();
+        for (Tuple tuple : tuples){
+            result.add(new GroupByElementsStatistics(
+                    tuple.get("elementId", BigInteger.class).longValue(),
+                    tuple.get("title", String.class),
+                    tuple.get("displaysCount", BigInteger.class).intValue(),
+                    tuple.get("clickCount", BigInteger.class).intValue(),
+                    tuple.get("cost", BigDecimal.class),
+                    tuple.get("actualShowTime", BigDecimal.class).intValue()
+            ));
+        }
+        return result;
     }
 
     public TotalStatistics getTotalAllCampaignsStatistics(long userId, LocalDate from, LocalDate to){
@@ -113,11 +134,22 @@ public class RequestDao extends AbstractDao<Request> {
             "  and u.user_id = " + userId + " \n" +
             "  and cu.user_id = u.user_id\n" +
             "  and ca.customer_id = cu.id\n" +
-            "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-            "    and " + to.format(formatter) + " \n";
-        TypedQuery<TotalStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, TotalStatistics.class);
-        return query.getSingleResult();
+            "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+            "    and '" + to.format(formatter) + "' \n";
+
+        return getTotalStatistics(sql);
+    }
+
+    private TotalStatistics getTotalStatistics(String sql){
+        TypedQuery<Tuple> query = DbAssistant.getSessionFactory().getCurrentSession()
+                .createNativeQuery(sql, Tuple.class);
+        Tuple tuple = query.getSingleResult();
+        return new TotalStatistics(
+                tuple.get("displaysCount", BigInteger.class).intValue(),
+                tuple.get("clickCount", BigInteger.class).intValue(),
+                tuple.get("cost", BigDecimal.class),
+                tuple.get("actualShowTime", BigDecimal.class).intValue()
+        );
     }
 
     public List<GroupByPeriodsStatistics> getGroupByPeriodsCampaignStatistics(
@@ -136,12 +168,28 @@ public class RequestDao extends AbstractDao<Request> {
             "    and ca.customer_id = cu.id\n" +
             "    and ca.id = r.CAMPAIGN_ID\n" +
             "    and r.CAMPAIGN_ID = " + campaignId + " \n" +
-            "    and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-            "    and " + to.format(formatter) + " \n" +
+            "    and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+            "    and '" + to.format(formatter) + "' \n" +
             " group by period ";
-        TypedQuery<GroupByPeriodsStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, GroupByPeriodsStatistics.class);
-        return query.getResultList();
+
+        return getGroupByPeriodsStatistics(sql);
+    }
+
+    private List<GroupByPeriodsStatistics> getGroupByPeriodsStatistics(String sql){
+        TypedQuery<Tuple> query = DbAssistant.getSessionFactory().getCurrentSession()
+                .createNativeQuery(sql, Tuple.class);
+        List<Tuple> tuples = query.getResultList();
+        List<GroupByPeriodsStatistics> result = new ArrayList<>();
+        for (Tuple tuple : tuples){
+            result.add(new GroupByPeriodsStatistics(
+                    tuple.get("period", String.class),
+                    tuple.get("displaysCount", BigInteger.class).intValue(),
+                    tuple.get("clickCount", BigInteger.class).intValue(),
+                    tuple.get("cost", BigDecimal.class),
+                    tuple.get("actualShowTime", BigDecimal.class).intValue()
+            ));
+        }
+        return result;
     }
 
     private String getMiddlePartSql(Group group){
@@ -161,7 +209,7 @@ public class RequestDao extends AbstractDao<Request> {
             case MONTH:
                 return " date_format(r.CREATION_TIME, '%Y.%m') period \n";
             case YEAR:
-                return " year(r.CREATION_TIME) period \n";
+                return " date_format(r.CREATION_TIME, '%Y') period \n";
         }
         return null;
     }
@@ -169,8 +217,8 @@ public class RequestDao extends AbstractDao<Request> {
     public TotalStatistics getTotalCampaignStatistics(
             long userId, long campaignId, LocalDate from, LocalDate to){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String sql = "select count(r.CAMPAIGN_ID) displays,\n" +
-                "       count(r.CLICK_ON) clics,\n" +
+        String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
+                "       count(r.CLICK_ON) clickCount,\n" +
                 "       coalesce(sum(r.CAMPAIGN_CPM_RATE)/1000, 0) cost,\n" +
                 "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, campaigns ca, customers cu, users u\n" +
@@ -179,19 +227,18 @@ public class RequestDao extends AbstractDao<Request> {
                 "  and u.user_id = " + userId + " \n" +
                 "  and cu.user_id = u.user_id\n" +
                 "  and ca.customer_id = cu.id\n" +
-                "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-                "    and " + to.format(formatter) + " \n";
-        TypedQuery<TotalStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, TotalStatistics.class);
-        return query.getSingleResult();
+                "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+                "    and '" + to.format(formatter) + "' \n";
+
+        return getTotalStatistics(sql);
     }
 
     public List<GroupByElementsStatistics> getGroupByPlatformsStatistics(long userId, LocalDate from, LocalDate to){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String sql = "select pl.id elementId,\n" +
                 "       pl.title title,\n" +
-                "       count(r.CAMPAIGN_ID) displays,\n" +
-                "       count(r.CLICK_ON) clics,\n" +
+                "       count(r.CAMPAIGN_ID) displaysCount,\n" +
+                "       count(r.CLICK_ON) clickCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
                 "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
@@ -200,20 +247,18 @@ public class RequestDao extends AbstractDao<Request> {
                 "  and pl.partner_id = pa.id\n" +
                 "  and s.PLATFORM_ID = pl.id\n" +
                 "  and r.SESSION_ID = s.ID\n" +
-                "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-                "    and " + to.format(formatter) + " \n" +
+                "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+                "    and '" + to.format(formatter) + "' \n" +
                 "group by elementId\n" +
                 "order by elementId";
 
-        TypedQuery<GroupByElementsStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, GroupByElementsStatistics.class);
-        return query.getResultList();
+        return getGroupByElementsStatistics(sql);
     }
 
     public TotalStatistics getTotalAllPlatformsStatistics(long userId, LocalDate from, LocalDate to){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
-                "       count(r.CLICK_ON) clicsCount,\n" +
+                "       count(r.CLICK_ON) clickCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
                 "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
@@ -222,12 +267,10 @@ public class RequestDao extends AbstractDao<Request> {
                 "  and pl.partner_id = pa.id\n" +
                 "  and s.PLATFORM_ID = pl.id\n" +
                 "  and r.SESSION_ID = s.ID\n" +
-                "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-                "    and " + to.format(formatter) + " \n";
+                "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+                "    and '" + to.format(formatter) + "' \n";
 
-        TypedQuery<TotalStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, TotalStatistics.class);
-        return query.getSingleResult();
+        return getTotalStatistics(sql);
     }
 
     public List<GroupByPeriodsStatistics> getGroupByPeriodsPlatformStatistics(
@@ -235,7 +278,7 @@ public class RequestDao extends AbstractDao<Request> {
         String middlePartSql = getMiddlePartSql(group);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
-                "       count(r.CLICK_ON) clicsCount,\n" +
+                "       count(r.CLICK_ON) clickCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
                 "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime,\n" +
                 middlePartSql + "\n" +
@@ -246,20 +289,18 @@ public class RequestDao extends AbstractDao<Request> {
                 "  and pl.id = " + platformId + " \n" +
                 "  and s.PLATFORM_ID = pl.id\n" +
                 "  and r.SESSION_ID = s.ID\n" +
-                "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-                "    and " + to.format(formatter) + " \n" +
+                "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+                "    and '" + to.format(formatter) + "' \n" +
                 "group by period";
 
-        TypedQuery<GroupByPeriodsStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, GroupByPeriodsStatistics.class);
-        return query.getResultList();
+        return getGroupByPeriodsStatistics(sql);
     }
 
     public TotalStatistics getTotalPlatformStatistics(
             long userId, long platformId, LocalDate from, LocalDate to){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String sql = "select count(r.CAMPAIGN_ID) displaysCount,\n" +
-                "       count(r.CLICK_ON) clicsCount,\n" +
+                "       count(r.CLICK_ON) clickCount,\n" +
                 "       coalesce(sum(r.PLATFORM_CPM_RATE)/1000, 0) cost,\n" +
                 "       coalesce(sum(r.ACTUAL_SHOW_TIME), 0) actualShowTime\n" +
                 "from requests r, platforms pl, partners pa, users u, sessions s\n" +
@@ -269,11 +310,9 @@ public class RequestDao extends AbstractDao<Request> {
                 "  and pl.id = " + platformId + " \n" +
                 "  and s.PLATFORM_ID = pl.id\n" +
                 "  and r.SESSION_ID = s.ID\n" +
-                "  and r.CREATION_TIME between " + from.format(formatter) + " \n" +
-                "    and " + to.format(formatter) + " \n";
+                "  and DATE(r.CREATION_TIME) between '" + from.format(formatter) + "' \n" +
+                "    and '" + to.format(formatter) + "' \n";
 
-        TypedQuery<TotalStatistics> query = DbAssistant.getSessionFactory().getCurrentSession()
-                .createNativeQuery(sql, TotalStatistics.class);
-        return query.getSingleResult();
+        return getTotalStatistics(sql);
     }
 }

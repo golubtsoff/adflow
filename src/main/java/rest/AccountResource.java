@@ -15,10 +15,30 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Path("/")
 @Secured
 public class AccountResource {
+
+    private class AccountDto {
+        private BigDecimal balance;
+        private String paymentDetails;
+
+        public AccountDto(Account account){
+            this.balance = account.getBalance().setScale(2, RoundingMode.HALF_DOWN);
+            this.paymentDetails = account.getPaymentDetails();
+        }
+
+        public BigDecimal getBalance() {
+            return balance;
+        }
+
+        public String getPaymentDetails(){
+            return paymentDetails;
+        }
+    }
 
     @Context
     HttpHeaders headers;
@@ -41,7 +61,7 @@ public class AccountResource {
             Account account = AccountService.get(userId);
             if (account == null)
                 return Response.status(Response.Status.NOT_FOUND).build();
-            return Response.ok(JsonHelper.getGson().toJson(account)).build();
+            return Response.ok(JsonHelper.getGson().toJson(new AccountDto(account))).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }

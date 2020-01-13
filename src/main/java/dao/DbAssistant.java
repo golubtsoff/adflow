@@ -19,6 +19,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.hibernate.service.ServiceRegistry;
+import rest.statistics.dto.GroupByElementsStatistics;
 import service.OptionsService;
 
 import java.io.IOException;
@@ -47,6 +48,14 @@ public abstract class DbAssistant {
     }
 
     private DbAssistant() {
+    }
+
+    public static void setTestConfiguration() throws ServiceException {
+        close();
+        Configuration configuration = getConfiguration();
+        configuration.setProperty("hibernate.hbm2ddl.auto", "create");
+        sessionFactory = createSessionFactory(configuration);
+        initBase();
     }
 
     public static Transaction getTransaction(){

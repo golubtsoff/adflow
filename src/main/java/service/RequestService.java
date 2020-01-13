@@ -143,6 +143,10 @@ public abstract class RequestService {
             DaoFactory.getRequestDao().create(request);
             changeBalanceOfCustomer(campaign);
 
+            Hibernate.initialize(request.getCampaign());
+            Hibernate.initialize(request.getCampaign().getCustomer());
+            Hibernate.initialize(request.getCampaign().getPictures());
+
             transaction.commit();
             return request;
         } catch (HibernateException | NoResultException | NullPointerException e) {

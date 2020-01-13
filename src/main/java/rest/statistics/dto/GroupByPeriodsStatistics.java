@@ -7,8 +7,12 @@ public class GroupByPeriodsStatistics extends GroupStatistics {
 
     public GroupByPeriodsStatistics(){}
 
-    public GroupByPeriodsStatistics(String period, int displaysCount, int clickCount, BigDecimal cost,
-                                    int actualShowTime) {
+    public GroupByPeriodsStatistics(
+            String period,
+            int displaysCount,
+            int clickCount,
+            BigDecimal cost,
+            int actualShowTime) {
         super(displaysCount, clickCount, cost, actualShowTime);
         this.period = period;
     }

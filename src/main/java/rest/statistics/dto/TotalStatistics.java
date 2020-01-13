@@ -10,7 +10,11 @@ public class TotalStatistics extends GroupStatistics {
         super();
     }
 
-    public TotalStatistics(int displaysCount, int clickCount, BigDecimal cost, int actualShowTime) {
+    public TotalStatistics(
+            int displaysCount,
+            int clickCount,
+            BigDecimal cost,
+            int actualShowTime) {
         super(displaysCount, clickCount, cost, actualShowTime);
     }
 

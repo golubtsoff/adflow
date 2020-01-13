@@ -11,8 +11,13 @@ public class GroupByElementsStatistics extends GroupStatistics {
         super();
     }
 
-    public GroupByElementsStatistics(long elementId, String title,
-             int displaysCount, int clickCount, BigDecimal cost, int actualShowTime) {
+    public GroupByElementsStatistics(
+            long elementId,
+            String title,
+            int displaysCount,
+            int clickCount,
+            BigDecimal cost,
+            int actualShowTime) {
         super(displaysCount, clickCount, cost, actualShowTime);
         this.elementId = elementId;
         this.title = title;

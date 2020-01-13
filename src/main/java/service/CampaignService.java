@@ -143,6 +143,7 @@ public abstract class CampaignService {
             Campaign campaign = checkAndGetCampaign(campaignId, userId);
             Hibernate.initialize(campaign.getPictures());
             Hibernate.initialize(campaign.getCustomer());
+            Hibernate.initialize(campaign.getCustomer().getCampaigns());
             transaction.commit();
             return campaign;
         } catch (HibernateException | NoResultException | NullPointerException e) {

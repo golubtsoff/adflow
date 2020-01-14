@@ -8,7 +8,7 @@ import entity.users.user.Role;
 import exception.BadRequestException;
 import exception.NotFoundException;
 import rest.Roles;
-import rest.admin.strategy.CampaignExclusionStrategy;
+import util.FieldsExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
@@ -21,7 +21,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 @Path("/admin/users")
@@ -58,7 +57,8 @@ public class CampaignResource {
             List<Campaign> campaigns = CampaignService.getAllByUserId(userId);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
-                    .setExclusionStrategies(new CampaignExclusionStrategy())
+                    .setExclusionStrategies(new FieldsExclusionStrategy(
+                            "customer", "pictures", "removedDate"))
                     .create();
             return Response.ok(dOut.toJson(campaigns)).build();
         } catch (NotFoundException e){
@@ -74,10 +74,11 @@ public class CampaignResource {
     public Response read(@PathParam("uid") long userId, @PathParam("cid") long campaignId){
         try{
             Campaign campaign = CampaignService.get(userId, campaignId);
-            return Response.ok(JsonHelper.getJsonStringExcludeFields(
-                    campaign,
-                    Arrays.asList("customer")
-            )).build();
+            Gson dOut = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .setExclusionStrategies(new FieldsExclusionStrategy("customer"))
+                    .create();
+            return Response.ok(dOut.toJson(campaign)).build();
         } catch (NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){

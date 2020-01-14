@@ -8,9 +8,9 @@ import entity.users.user.*;
 import exception.DbException;
 import exception.NotFoundException;
 import rest.Roles;
-import rest.admin.strategy.UserExclusionStrategy;
 import rest.users.authentication.Secured;
 import service.UserService;
+import util.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -75,7 +75,8 @@ public class UserResource {
         try{
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
-                    .setExclusionStrategies(new UserExclusionStrategy())
+                    .setExclusionStrategies(new FieldsExclusionStrategy(
+                            "hash", "person", "contact"))
                     .create();
             return Response.ok(dOut.toJson(UserService.getAll())).build();
         } catch (DbException e){

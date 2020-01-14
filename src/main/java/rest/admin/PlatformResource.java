@@ -8,12 +8,12 @@ import entity.users.user.Role;
 import exception.BadRequestException;
 import exception.NotFoundException;
 import rest.Roles;
-import rest.admin.strategy.PlatformExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
 import service.PlatformService;
 import service.StatisticsService;
+import util.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -21,7 +21,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 @Path("/admin/users")
@@ -58,7 +57,7 @@ public class PlatformResource {
             List<Platform> platforms = PlatformService.getAllByUserId(userId);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
-                    .setExclusionStrategies(new PlatformExclusionStrategy())
+                    .setExclusionStrategies(new FieldsExclusionStrategy("partner"))
                     .create();
             return Response.ok(dOut.toJson(platforms)).build();
         } catch (NotFoundException e){
@@ -74,12 +73,12 @@ public class PlatformResource {
     public Response read(@PathParam("uid") long userId, @PathParam("pid") long platformId){
         try{
             Platform platform = PlatformService.getWithChecking(userId, platformId);
-            return Response.ok(JsonHelper.getJsonStringExcludeFields(
-                    platform,
-                    Arrays.asList("partner")
-            )).build();
+            Gson dOut = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .setExclusionStrategies(new FieldsExclusionStrategy("partner"))
+                    .create();
+            return Response.ok(dOut.toJson(platform)).build();
         } catch (NotFoundException e){
-
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

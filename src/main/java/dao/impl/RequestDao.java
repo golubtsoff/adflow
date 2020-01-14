@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -114,7 +115,7 @@ public class RequestDao extends AbstractDao<Request> {
                     tuple.get("title", String.class),
                     tuple.get("displaysCount", BigInteger.class).intValue(),
                     tuple.get("clickCount", BigInteger.class).intValue(),
-                    tuple.get("cost", BigDecimal.class),
+                    tuple.get("cost", BigDecimal.class).setScale(2, RoundingMode.HALF_DOWN),
                     tuple.get("actualShowTime", BigDecimal.class).intValue()
             ));
         }
@@ -147,7 +148,7 @@ public class RequestDao extends AbstractDao<Request> {
         return new TotalStatistics(
                 tuple.get("displaysCount", BigInteger.class).intValue(),
                 tuple.get("clickCount", BigInteger.class).intValue(),
-                tuple.get("cost", BigDecimal.class),
+                tuple.get("cost", BigDecimal.class).setScale(2, RoundingMode.HALF_DOWN),
                 tuple.get("actualShowTime", BigDecimal.class).intValue()
         );
     }
@@ -185,7 +186,7 @@ public class RequestDao extends AbstractDao<Request> {
                     tuple.get("period", String.class),
                     tuple.get("displaysCount", BigInteger.class).intValue(),
                     tuple.get("clickCount", BigInteger.class).intValue(),
-                    tuple.get("cost", BigDecimal.class),
+                    tuple.get("cost", BigDecimal.class).setScale(2, RoundingMode.HALF_DOWN),
                     tuple.get("actualShowTime", BigDecimal.class).intValue()
             ));
         }

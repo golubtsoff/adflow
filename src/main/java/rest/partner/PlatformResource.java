@@ -18,6 +18,7 @@ import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
 import service.PlatformService;
 import service.StatisticsService;
+import util.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -97,9 +98,9 @@ public class PlatformResource {
                     || platformDto.getPictureFormat() == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.create(userId, platformDto);
-            if (platform == null || platform.getStatus() == Status.REMOVED)
+            if (platform.getStatus() == Status.REMOVED)
                 return Response.status(Response.Status.NOT_FOUND).build();
 
             return Response.ok(getOutJson().toJson(platform)).build();
@@ -115,7 +116,8 @@ public class PlatformResource {
     private Gson getOutJson(){
         return new GsonBuilder()
             .setPrettyPrinting()
-            .setExclusionStrategies(new rest.partner.strategy.PlatformExclusionStrategy())
+            .setExclusionStrategies(new FieldsExclusionStrategy(
+                    "partner", "removedDate", "canBeUsed"))
             .create();
     }
 
@@ -123,7 +125,7 @@ public class PlatformResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response readAll(){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             List<Platform> platforms = PlatformService.getAllByUserId(userId);
 
             List<Platform> notRemovedPlatforms = new ArrayList<>();
@@ -144,7 +146,7 @@ public class PlatformResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response read(@PathParam("pid") long platformId){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.getWithChecking(userId, platformId);
             if (platform.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -171,7 +173,7 @@ public class PlatformResource {
             if (platformDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.updateExcludeNullWithChecking(userId, platformId, platformDto);
 
             return Response.ok(getOutJson().toJson(platform)).build();
@@ -191,7 +193,7 @@ public class PlatformResource {
             @PathParam("pid") long platformId
     ){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             PlatformService.setStatusRemovedWithChecking(userId, platformId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
@@ -206,7 +208,7 @@ public class PlatformResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response readToken(@PathParam("pid") long platformId){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.getWithChecking(userId, platformId);
             if (platform.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -226,7 +228,7 @@ public class PlatformResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("pid") long platformId){
         try{
-            long userId = Long.valueOf(headers.getHeaderString(UserToken.UID));
+            long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Platform platform = PlatformService.getWithChecking(userId, platformId);
             if (platform.getStatus() == Status.REMOVED){
                 return Response.status(Response.Status.NOT_FOUND).build();

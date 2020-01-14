@@ -15,7 +15,7 @@ import exception.NotFoundException;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import rest.Roles;
-import rest.admin.strategy.CampaignExclusionStrategy;
+import util.FieldsExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
@@ -176,7 +176,8 @@ public class CampaignResource {
 
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
-                    .setExclusionStrategies(new CampaignExclusionStrategy())
+                    .setExclusionStrategies(new FieldsExclusionStrategy(
+                            "customer", "pictures", "removedDate"))
                     .create();
             return Response.ok(dOut.toJson(notRemovedCampaigns)).build();
         } catch (NotFoundException e){
@@ -208,7 +209,7 @@ public class CampaignResource {
         setFullPictureUrls(campaign);
         Gson dOut = new GsonBuilder()
                 .setPrettyPrinting()
-                .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
+                .setExclusionStrategies(new FieldsExclusionStrategy("customer", "removedDate"))
                 .create();
 
         return Response.ok(dOut.toJson(campaign)).build();
@@ -236,7 +237,7 @@ public class CampaignResource {
             setFullPictureUrls(campaignFromBase);
             Gson dOut = new GsonBuilder()
                     .setPrettyPrinting()
-                    .setExclusionStrategies(new rest.customer.strategy.CampaignExclusionStrategy())
+                    .setExclusionStrategies(new FieldsExclusionStrategy("customer", "removedDate"))
                     .create();
 
             return Response.ok(dOut.toJson(campaignFromBase)).build();

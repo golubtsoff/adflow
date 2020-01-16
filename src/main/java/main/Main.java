@@ -34,7 +34,12 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-        testGetGroupByCampaignsStatistics();
+        testDeletePictureFormat();
+//        testDeletePlatform();
+//        testDeleteCampaign();
+//        testDeleteCustomer();
+//        testGetCanBeUsedFormats();
+//        testGetGroupByCampaignsStatistics();
 //        updateStatusUser();
 //        List<Campaign> campaigns = QueryTest.getCampaigns();
 //        checkRequestService();
@@ -44,6 +49,34 @@ public class Main {
 //        testGetCustomer();
         DbAssistant.close();
 //        testScheduler();
+    }
+
+    public static void testDeletePictureFormat() throws NotFoundException, DbException, ConflictException {
+        PictureFormatService.delete(1);
+    }
+
+    public static void testDeletePlatform() throws NotFoundException, DbException {
+        PlatformService.delete(10, 17);
+    }
+
+    public static void testDeleteCampaign() throws IOException, NotFoundException, DbException {
+        CampaignService.delete(3, 14);
+    }
+
+    public static void testDeleteCustomer() throws IOException, DbException, NotFoundException {
+       UserService.delete(13);
+    }
+
+    public static void testGetCanBeUsedFormats() throws DbException {
+        Transaction transaction = DbAssistant.getTransaction();
+        try {
+            List<PictureFormat> formatList = DaoFactory.getPictureFormatDao().getCanBeUsedFormats();
+            transaction.commit();
+            System.out.println(formatList);
+        } catch (HibernateException | NoResultException | NullPointerException e) {
+            DbAssistant.transactionRollback(transaction);
+            throw new DbException(e);
+        }
     }
 
     public static void testGetGroupByCampaignsStatistics() throws DbException {

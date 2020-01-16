@@ -72,22 +72,23 @@ public class Links {
         return path;
     }
 
-    public static void deleteFolder(long customerId, long campaignId) throws IOException {
-        Path path = Paths.get(
-                Links.getPathToUploadsImages(),
-                String.valueOf(customerId),
-                String.valueOf(campaignId))
-            .normalize();
-        File dir = new File(path.toString());
-        FileUtils.forceDelete(dir);
+    public static void deleteFolderOfCampaign(long customerId, long campaignId) throws IOException {
+        deleteFolder(customerId, campaignId);
     }
 
-    public static void deleteFolder(Long customerId) throws IOException {
-        Path path = Paths.get(
-                Links.getPathToUploadsImages(),
-                String.valueOf(customerId))
-                .normalize();
+    public static void deleteFolderOfCustomer(Long customerId) throws IOException {
+        deleteFolder(customerId);
+    }
+
+    private static void deleteFolder(long ... ids) throws IOException {
+        Path path = Paths.get(Links.getPathToUploadsImages());
+        for (long id : ids){
+            path = Paths.get(path.toString(), String.valueOf(id));
+        }
+        path = path.normalize();
         File dir = new File(path.toString());
-        FileUtils.forceDelete(dir);
+        if (Files.exists(path)){
+            FileUtils.forceDelete(dir);
+        }
     }
 }

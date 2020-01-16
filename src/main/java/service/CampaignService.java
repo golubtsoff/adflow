@@ -2,6 +2,7 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.statistics.Request;
 import entity.users.Status;
 import entity.users.customer.Campaign;
 import entity.users.customer.Customer;
@@ -113,7 +114,7 @@ public abstract class CampaignService {
             Customer customer = DaoFactory.getCustomerDao().getByUserId(userId);
             if (customer == null){
                 DbAssistant.transactionRollback(transaction);
-                throw new NotFoundException("Customer with userId=" + String.valueOf(userId) + " not found");
+                throw new NotFoundException("Customer with userId=" + userId + " not found");
             }
 
             List<Campaign> campaigns = DaoFactory.getCampaignDao().getAllByCustomerId(customer.getId());
@@ -239,7 +240,7 @@ public abstract class CampaignService {
 
     private static void deletePicturesOfCampaign(Campaign campaign) throws IOException {
         if (campaign.getPictures() == null) return;
-        Links.deleteFolder(campaign.getCustomer().getId(), campaign.getId());
+        Links.deleteFolderOfCampaign(campaign.getCustomer().getId(), campaign.getId());
         campaign.setPictures(null);
     }
 
@@ -248,6 +249,10 @@ public abstract class CampaignService {
         try {
             Campaign campaign = checkAndGetCampaign(campaignId, userId);
             deletePicturesOfCampaign(campaign);
+            List<Request> requests = DaoFactory.getRequestDao().getByCampaignId(campaignId);
+            for (Request request : requests){
+                DaoFactory.getRequestDao().delete(request.getId());
+            }
             DaoFactory.getCampaignDao().delete(campaignId);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {

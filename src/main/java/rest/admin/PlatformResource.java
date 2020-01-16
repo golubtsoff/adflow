@@ -116,7 +116,7 @@ public class PlatformResource {
             @PathParam("pid") long platformId
     ){
         try{
-            PlatformService.deleteWithChecking(userId, platformId);
+            PlatformService.delete(userId, platformId);
             return Response.noContent().build();
         } catch (IllegalArgumentException | OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();

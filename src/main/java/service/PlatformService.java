@@ -2,6 +2,8 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.statistics.Request;
+import entity.statistics.Session;
 import entity.users.PictureFormat;
 import entity.users.Status;
 import entity.users.partner.Partner;
@@ -204,21 +206,19 @@ public abstract class PlatformService {
         }
     }
 
-    public static void delete(long id) throws DbException {
-        Transaction transaction = DbAssistant.getTransaction();
-        try {
-            DaoFactory.getPlatformDao().delete(id);
-            transaction.commit();
-        } catch (HibernateException | NoResultException | NullPointerException e) {
-            DbAssistant.transactionRollback(transaction);
-            throw new DbException(e);
-        }
-    }
-
-    public static void deleteWithChecking(long userId, long platformId) throws DbException, NotFoundException {
+    public static void delete(long userId, long platformId) throws DbException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
             checkAndGetPlatform(platformId, userId);
+            DaoFactory.getPlatformTokenDao().delete(platformId);
+            List<Session> sessions = DaoFactory.getSessionDao().getByPlatformId(platformId);
+            for (Session session : sessions){
+                List<Request> requests = DaoFactory.getRequestDao().getBySessionId(session.getId());
+                for (Request request : requests){
+                    DaoFactory.getRequestDao().delete(request.getId());
+                }
+                DaoFactory.getSessionDao().delete(session.getId());
+            }
             DaoFactory.getPlatformDao().delete(platformId);
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {

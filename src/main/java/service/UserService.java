@@ -2,6 +2,8 @@ package service;
 
 import dao.DaoFactory;
 import dao.DbAssistant;
+import entity.statistics.Request;
+import entity.statistics.Session;
 import entity.users.AdvertisingEntity;
 import entity.users.Action;
 import entity.users.Administrator;
@@ -271,12 +273,22 @@ public abstract class UserService {
         }
     }
 
-    public static void delete(long id) throws DbException, IOException {
+    public static void delete(long id) throws DbException, IOException, NotFoundException {
         Transaction transaction = DbAssistant.getTransaction();
         try {
-            Customer customer = DaoFactory.getCustomerDao().getByUserId(id);
-            Links.deleteFolder(customer.getId());
-            DaoFactory.getUserDao().delete(id);
+            User user = DaoFactory.getUserDao().get(id);
+            if (user == null){
+                throw new NotFoundException();
+            }
+            switch (user.getRole()){
+                case ADMIN: deleteAdmin(id);
+                    break;
+                case CUSTOMER: deleteCustomer(id);
+                    break;
+                case PARTNER: deletePartner(id);
+                    break;
+                default: break;
+            }
             transaction.commit();
         } catch (HibernateException | NoResultException | NullPointerException e) {
             DbAssistant.transactionRollback(transaction);
@@ -285,6 +297,45 @@ public abstract class UserService {
             DbAssistant.transactionRollback(transaction);
             throw e;
         }
+    }
+
+    private static void deleteAdmin(long id) {
+        DaoFactory.getUserTokenDao().delete(id);
+        DaoFactory.getUserDao().delete(id);
+    }
+
+    private static void deletePartner(long id) {
+        DaoFactory.getUserTokenDao().delete(id);
+        Partner partner = DaoFactory.getPartnerDao().getByUserId(id);
+        Set<Platform> platforms = partner.getPlatforms();
+        for (Platform platform : platforms){
+            DaoFactory.getPlatformTokenDao().delete(platform.getId());
+            List<Session> sessions = DaoFactory.getSessionDao().getByPlatformId(platform.getId());
+            for (Session session : sessions){
+                List<Request> requests = DaoFactory.getRequestDao().getBySessionId(session.getId());
+                for (Request request : requests){
+                    DaoFactory.getRequestDao().delete(request.getId());
+                }
+                DaoFactory.getSessionDao().delete(session.getId());
+            }
+            DaoFactory.getPlatformDao().delete(platform.getId());
+        }
+        DaoFactory.getUserDao().delete(id);
+    }
+
+    private static void deleteCustomer(long id) throws IOException {
+        Customer customer = DaoFactory.getCustomerDao().getByUserId(id);
+        Links.deleteFolderOfCustomer(customer.getId());
+        DaoFactory.getUserTokenDao().delete(id);
+        List<Campaign> campaigns = DaoFactory.getCampaignDao().getAllByCustomerId(customer.getId());
+        for (Campaign campaign : campaigns) {
+            List<Request> requests = DaoFactory.getRequestDao().getByCampaignId(campaign.getId());
+            for (Request request : requests){
+                DaoFactory.getRequestDao().delete(request.getId());
+            }
+            DaoFactory.getCampaignDao().delete(campaign.getId());
+        }
+        DaoFactory.getUserDao().delete(id);
     }
 
 }

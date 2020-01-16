@@ -28,6 +28,14 @@ public class RequestDao extends AbstractDao<Request> {
         super(Request.class);
     }
 
+    public List<Request> getByCampaignId(long campaignId){
+        return getAll("campaign_id", campaignId);
+    }
+
+    public List<Request> getBySessionId(long sessionId){
+        return getAll("session_id", sessionId);
+    }
+
     public List<Tuple> getDataForCampaignApproval(Platform platform, long sessionId){
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.with(LocalTime.MIN);

@@ -15,6 +15,12 @@ public class FieldsExclusionStrategy implements ExclusionStrategy {
         this.fields = Arrays.copyOf(fields, fields.length);
     }
 
+//    @Override
+//    public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+//        String fieldName = fieldAttributes.getName();
+//        return fieldName.equals("customer") || fieldName.equals("removedDate");
+//    }
+
     @Override
     public boolean shouldSkipField(FieldAttributes fieldAttributes) {
         String fieldName = fieldAttributes.getName();

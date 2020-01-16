@@ -48,7 +48,6 @@ public class CampaignResource {
         private String title;
         private String description;
         private String pathOnClick;
-        private Set<Picture> pictures;
         private BigDecimal dailyBudget;
         private BigDecimal cpmRate;
         private Action action;
@@ -75,14 +74,6 @@ public class CampaignResource {
 
         public void setPathOnClick(String pathOnClick) {
             this.pathOnClick = pathOnClick;
-        }
-
-        public Set<Picture> getPictures() {
-            return pictures;
-        }
-
-        public void setPictures(Set<Picture> pictures) {
-            this.pictures = pictures;
         }
 
         public BigDecimal getDailyBudget() {
@@ -120,7 +111,6 @@ public class CampaignResource {
             CampaignDto campaignDto = gson.fromJson(content, CampaignDto.class);
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
-
             long userId = Long.parseLong(headers.getHeaderString(UserToken.UID));
             Campaign campaign = CampaignService.create(userId, campaignDto, getImages(parts));
             return getResponse(campaign);
@@ -234,13 +224,7 @@ public class CampaignResource {
             Campaign campaignFromBase = CampaignService.updateByCustomer(
                     userId, campaignId, campaignDto, getImages(parts));
 
-            setFullPictureUrls(campaignFromBase);
-            Gson dOut = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .setExclusionStrategies(new FieldsExclusionStrategy("customer", "removedDate"))
-                    .create();
-
-            return Response.ok(dOut.toJson(campaignFromBase)).build();
+            return getResponse(campaignFromBase);
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (ConflictException e) {

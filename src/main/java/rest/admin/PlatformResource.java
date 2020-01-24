@@ -13,7 +13,7 @@ import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
 import service.PlatformService;
 import service.StatisticsService;
-import util.FieldsExclusionStrategy;
+import rest.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;
@@ -100,7 +100,11 @@ public class PlatformResource {
                 return Response.status(Response.Status.BAD_REQUEST).build();
 
             Platform platformFromBase = PlatformService.updateExcludeNullWithChecking(userId, platformId, platformDto);
-            return Response.ok(gson.toJson(platformFromBase)).build();
+            Gson dOut = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .setExclusionStrategies(new FieldsExclusionStrategy("partner"))
+                    .create();
+            return Response.ok(dOut.toJson(platformFromBase)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
@@ -144,7 +148,7 @@ public class PlatformResource {
     }
 
     @GET
-    @Path("{uid}/platforms/{pid}/statistics ")
+    @Path("{uid}/platforms/{pid}/statistics")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getStatistics(
             @PathParam("uid") long userId,

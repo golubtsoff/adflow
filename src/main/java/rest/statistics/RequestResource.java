@@ -7,6 +7,7 @@ import entity.users.PictureFormat;
 import entity.users.customer.Picture;
 import entity.users.partner.PlatformToken;
 import exception.BadRequestException;
+import exception.ConflictException;
 import exception.NotFoundException;
 import service.RequestService;
 import util.JsonHelper;
@@ -173,6 +174,8 @@ public class RequestResource {
             return Response.noContent().build();
         } catch (BadRequestException e){
             return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (ConflictException e){
+            return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }

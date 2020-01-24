@@ -1,4 +1,4 @@
-package util;
+package rest;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -14,12 +14,6 @@ public class FieldsExclusionStrategy implements ExclusionStrategy {
     public FieldsExclusionStrategy(String ... fields){
         this.fields = Arrays.copyOf(fields, fields.length);
     }
-
-//    @Override
-//    public boolean shouldSkipField(FieldAttributes fieldAttributes) {
-//        String fieldName = fieldAttributes.getName();
-//        return fieldName.equals("customer") || fieldName.equals("removedDate");
-//    }
 
     @Override
     public boolean shouldSkipField(FieldAttributes fieldAttributes) {

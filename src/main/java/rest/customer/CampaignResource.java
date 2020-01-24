@@ -15,7 +15,7 @@ import exception.NotFoundException;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import rest.Roles;
-import util.FieldsExclusionStrategy;
+import rest.FieldsExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
@@ -138,6 +138,7 @@ public class CampaignResource {
 
     private Map<PictureFormat, BufferedImage> getImages(List<FormDataBodyPart> parts)
             throws IOException, ConflictException {
+        if (parts == null) return null;
         Map<PictureFormat, BufferedImage> images = new HashMap<>();
         BufferedImage image;
         for (FormDataBodyPart part : parts){

@@ -10,7 +10,7 @@ import exception.NotFoundException;
 import rest.Roles;
 import rest.users.authentication.Secured;
 import service.UserService;
-import util.FieldsExclusionStrategy;
+import rest.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;

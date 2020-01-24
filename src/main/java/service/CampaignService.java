@@ -174,6 +174,7 @@ public abstract class CampaignService {
             campaign = checkAndGetCampaign(campaignId, userId);
             NullAware.getInstance().copyProperties(campaign, campaignDto);
             DaoFactory.getCampaignDao().update(campaign);
+            Hibernate.initialize(campaign.getPictures());
             transaction.commit();
             return campaign;
         }catch (NotFoundException e){

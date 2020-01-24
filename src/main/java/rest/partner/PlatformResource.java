@@ -18,7 +18,7 @@ import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
 import service.PlatformService;
 import service.StatisticsService;
-import util.FieldsExclusionStrategy;
+import rest.FieldsExclusionStrategy;
 import util.JsonHelper;
 
 import javax.persistence.OptimisticLockException;

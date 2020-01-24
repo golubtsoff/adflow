@@ -34,7 +34,7 @@ public class Main {
 
     public static void main(String[] args)
             throws Exception {
-        testDeletePictureFormat();
+//        testDeletePictureFormat();
 //        testDeletePlatform();
 //        testDeleteCampaign();
 //        testDeleteCustomer();

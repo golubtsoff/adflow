@@ -74,6 +74,7 @@ public abstract class PlatformService {
 
     private static void checkAndPersistPictureFormat(PlatformResource.PlatformDto platformDto)
             throws NotFoundException {
+        if (platformDto.getPictureFormat() == null) return;
         List<PictureFormat> formats = DaoFactory.getPictureFormatDao().get(platformDto.getPictureFormat());
         if (formats.isEmpty() || !formats.get(0).isCanBeUsed()){
             throw new NotFoundException("Unknown picture's format: " + platformDto.getPictureFormat());

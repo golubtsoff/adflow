@@ -8,7 +8,7 @@ import entity.users.user.Role;
 import exception.BadRequestException;
 import exception.NotFoundException;
 import rest.Roles;
-import util.FieldsExclusionStrategy;
+import rest.FieldsExclusionStrategy;
 import rest.statistics.dto.DetailStatisticsDto;
 import rest.statistics.dto.ShortStatisticsDto;
 import rest.users.authentication.Secured;
@@ -99,9 +99,13 @@ public class CampaignResource {
             CampaignDto campaignDto = gson.fromJson(content, CampaignDto.class);
             if (campaignDto == null)
                 return Response.status(Response.Status.BAD_REQUEST).build();
-
             Campaign campaignFromBase = CampaignService.updateByAdmin(userId, campaignId, campaignDto);
-            return Response.ok(gson.toJson(campaignFromBase)).build();
+
+            Gson dOut = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .setExclusionStrategies(new FieldsExclusionStrategy("customer"))
+                    .create();
+            return Response.ok(dOut.toJson(campaignFromBase)).build();
         } catch (OptimisticLockException | NotFoundException e){
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e){
